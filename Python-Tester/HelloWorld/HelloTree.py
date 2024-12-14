@@ -9,7 +9,7 @@ class HelloTree():
 
     def __init__(self):
     
-        with open('Python-Tester\HelloWorld\HelloWorld.py', 'r') as fd:
+        with open(r'Python-Tester\HelloWorld\HelloWorld.py', 'r') as fd:
             code = fd.read()
         
             self.tree = ast.parse(code)
