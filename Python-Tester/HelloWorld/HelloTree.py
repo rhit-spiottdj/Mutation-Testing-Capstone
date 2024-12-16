@@ -1,17 +1,19 @@
 import ast
+import os
 
-class HelloTree():
-
+class HelloTree:
     operations = []
     variables = []
     values = []
     tree = None
 
     def __init__(self):
-    
-        with open('HelloWorld.py', 'r') as fd:
+        # VERY IMPORTANT STEP!!!!!
+        C = os.path.abspath(os.path.dirname(__file__))
+
+        with open(C + '/HelloWorld.py', 'r') as fd:
             code = fd.read()
-        
+
             self.tree = ast.parse(code)
 
     def traverseTree(self):
@@ -24,10 +26,10 @@ class HelloTree():
 
     def retOperations(self):
         return self.operations
-    
+
     def retVariables(self):
         return self.variables
-    
+
     def retValues(self):
         return self.values
 

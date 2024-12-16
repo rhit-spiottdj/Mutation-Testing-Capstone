@@ -1,5 +1,5 @@
 import unittest
-import HelloTree
+from HelloWorld import HelloTree
 
 class MyTestCase(unittest.TestCase):
         def test_startup(self):
