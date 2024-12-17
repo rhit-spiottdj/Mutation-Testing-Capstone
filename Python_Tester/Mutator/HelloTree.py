@@ -9,9 +9,11 @@ class HelloTree:
 
     def __init__(self):
         # VERY IMPORTANT STEP!!!!!
-        C = os.path.abspath(os.path.dirname(__file__))
+        # Establish path to original file
+        C = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+        
 
-        with open(C + '/HelloWorld.py', 'r') as fd:
+        with open(C + '/Original_Files/HelloCode/HelloWorld.py', 'r') as fd:
             code = fd.read()
 
             self.tree = ast.parse(code)
