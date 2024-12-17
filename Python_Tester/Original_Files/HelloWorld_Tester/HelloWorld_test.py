@@ -1,5 +1,11 @@
 import unittest
-from HelloWorld import HelloWorld
+import sys
+import os
+
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+from HelloCode import HelloWorld
 
 class MyTestCase(unittest.TestCase):
     def test_startup(self):
