@@ -7,8 +7,8 @@ class MyTestCase(unittest.TestCase):
                 self.assertIsNotNone(test_tree)
                 test_tree.traverseTree()
                 self.assertEqual(test_tree.retOperations(), ["+"])
-                self.assertEqual(test_tree.retVariables(), ["testArray", "rM", "x", "rM"])
-                #self.assertEqual(test_tree.retValues(), ["[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]", "100"])
+                self.assertEqual(test_tree.retVariables(), ["testArray", "rM", "rM"])
+                self.assertEqual(test_tree.retValues(), [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 100, 'x'])
 
 if __name__ == '__main__':
     unittest.main()
