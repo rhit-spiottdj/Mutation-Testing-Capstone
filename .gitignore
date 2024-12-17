@@ -1,4 +1,4 @@
-
+*.pyc
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/misc.xml
 .idea/modules.xml
@@ -10,14 +10,3 @@ Python-Tester/.idea/misc.xml
 Python-Tester/.idea/modules.xml
 Python-Tester/.idea/Python-Tester.iml
 Python-Tester/.idea/vcs.xml
-Python-Tester/HelloWorld/__pycache__/__init__.cpython-312.pyc
-Python-Tester/HelloWorld/__pycache__/HelloTree.cpython-312.pyc
-Python-Tester/HelloWorld/__pycache__/HelloTree.cpython-312.pyc
-Python-Tester/HelloWorld/__pycache__/HelloTree.cpython-39.pyc
-Python-Tester/HelloWorld/__pycache__/HelloWorld.cpython-312.pyc
-Python-Tester/HelloWorld/__pycache__/HelloWorld.cpython-39.pyc
-Python-Tester/HelloWorld_Tester/__pycache__/__init__.cpython-312.pyc
-Python-Tester/HelloWorld_Tester/__pycache__/HelloTree_test.cpython-312-pytest-8.3.4.pyc
-Python-Tester/HelloWorld_Tester/__pycache__/HelloTree_test.cpython-312.pyc
-Python-Tester/HelloWorld_Tester/__pycache__/HelloWorld_test.cpython-312-pytest-8.3.4.pyc
-Python-Tester/HelloWorld_Tester/__pycache__/HelloWorld_test.cpython-312.pyc
