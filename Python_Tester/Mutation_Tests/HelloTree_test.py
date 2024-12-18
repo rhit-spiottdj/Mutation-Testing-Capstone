@@ -13,9 +13,9 @@ class MyTestCase(unittest.TestCase):
                 test_tree = HelloTree.HelloTree()
                 self.assertIsNotNone(test_tree)
                 test_tree.traverseTree()
-                self.assertEqual(test_tree.retOperations(), ["+"])
+                self.assertEqual(test_tree.retOperations(), ["+", "+", "+"])
                 self.assertEqual(test_tree.retVariables(), ["testArray", "rM", "rM"])
-                self.assertEqual(test_tree.retValues(), [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 100, 'x'])
+                self.assertEqual(test_tree.retValues(), [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 40, 60, 'x', "Wowzers!", 178])
                 self.assertTrue(Test.MyTestCase())
                 test_tree.loadMutatedCode()
                 self.assertTrue(Test.MyTestCase()) ##When running mutated code change this to assertFalse
@@ -23,6 +23,14 @@ class MyTestCase(unittest.TestCase):
                 with open(parent + '/Original_Files/HelloCode/HelloWorld.py', 'r') as fd:
                        code = fd.read()
                        self.assertEqual(code, test_tree.original_code) 
+
+        def test_mutate_startup(self):
+               test_tree = HelloTree.HelloTree()
+               self.assertIsNotNone(test_tree)
+               test_tree.basicMutateTree()
+               self.assertEqual(test_tree.retOperations(), ["-", "-", "-"])
+               self.assertEqual(test_tree.retVariables(), ["testArray", "rM", "rM"])
+               self.assertEqual(test_tree.retValues(), [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 40, 60, 'x', "Wowzers!", 178])
 
 if __name__ == '__main__':
     unittest.main()

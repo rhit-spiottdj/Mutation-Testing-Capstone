@@ -20,7 +20,9 @@ class HelloTree:
             self.original_code = fd.read()
 
             self.tree = ast.parse(self.original_code)
-            #print(ast.dump(self.tree, indent=4)) ##Used for understanding utilization of ast methods
+            
+            # Important to print out the syntax of node tree
+            # print(ast.dump(self.tree, indent=4)) ##Used for understanding utilization of ast methods
 
     def loadMutatedCode(self):
         with open(self.C + '/Original_Files/HelloCode/HelloWorld.py', 'w') as fd:
@@ -35,6 +37,37 @@ class HelloTree:
         for node in ast.walk(self.tree):
             if isinstance(node, ast.Add):
                 self.operations.append("+")
+            if isinstance(node, ast.Sub):
+                self.operations.append("-")
+            # if isinstance(node, ast.Mult):
+            #     self.operations.append("*")
+            # if isinstance(node, ast.Div):
+            #     self.operations.append("/")
+            # if isinstance(node, ast.Mod):
+            #     self.operations.append("%")
+            # if isinstance(node, ast.Lt):
+            #     self.operations.append("<")
+            # if isinstance(node, ast.LtE):
+            #     self.operations.append("<=")
+            # if isinstance(node, ast.Gt):
+            #     self.operations.append(">")
+            # if isinstance(node, ast.GtE):
+            #     self.operations.append(">=")
+            # if isinstance(node, ast.Eq):
+            #     self.operations.append("==")
+            # if isinstance(node, ast.NotEq):
+            #     self.operations.append("!=")
+            # if isinstance(node, ast.And):
+            #     self.operations.append("&&")
+            # if isinstance(node, ast.Or):
+            #     self.operations.append("||")
+            # if isinstance(node, ast.BitAnd):
+            #     self.operations.append("&")
+            # if isinstance(node, ast.BitOr):
+            #     self.operations.append("|")
+            # if isinstance(node, ast.Constant):
+            #     self.operations.append("Constant")
+
             # if isinstance(node, ast.Name):
             #     if isinstance(node.ctx, ast.Store):
             #         self.variables.append(node.id)
@@ -59,6 +92,19 @@ class HelloTree:
                             temp.append(elt.value)
                     self.values.append(temp)
 
+            if isinstance(node, ast.BinOp):
+                if isinstance(node.left, ast.Constant):
+                    self.values.append(node.left.value)
+                if isinstance(node.right, ast.Constant):
+                    self.values.append(node.right.value)
+                if isinstance(node.left, ast.Name):
+                    self.values.append(node.left.id)
+                if isinstance(node.right, ast.Name):
+                    self.values.append(node.right.id)
+                    
+                
+            
+
     def retOperations(self):
         return self.operations
 
@@ -67,6 +113,23 @@ class HelloTree:
 
     def retValues(self):
         return self.values
+    
+    def basicMutateTree(self):
+        self.operations = []
+        self.variables = []
+        self.values = []
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.BinOp):
+                if isinstance(node.op, ast.Add):
+                    node.op = ast.Sub()
+                    ast.fix_missing_locations(node)
+            if isinstance(node, ast.AugAssign):
+                if isinstance(node.op, ast.Add):
+                    node.op = ast.Sub()
+                    ast.fix_missing_locations(node)
+        self.traverseTree()
+                
+    
 
 def main():
     tree = HelloTree()
