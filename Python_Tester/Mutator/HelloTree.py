@@ -25,8 +25,9 @@ class HelloTree:
             # print(ast.dump(self.tree, indent=4)) ##Used for understanding utilization of ast methods
 
     def loadMutatedCode(self):
+        self.basicMutateTree()
         with open(self.C + '/Original_Files/HelloCode/HelloWorld.py', 'w') as fd:
-            mutated_code = ast.unparse(self.tree)
+            self.mutated_code = ast.unparse(self.tree)
             fd.write(self.mutated_code)
 
     def loadOriginalCode(self):
