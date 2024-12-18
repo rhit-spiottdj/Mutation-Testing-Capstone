@@ -6,18 +6,30 @@ class HelloTree:
     variables = []
     values = []
     tree = None
+    original_code = ""
+    mutated_code = ""
+    C = ""
 
     def __init__(self):
         # VERY IMPORTANT STEP!!!!!
         # Establish path to original file
-        C = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+        self.C = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
         
 
-        with open(C + '/Original_Files/HelloCode/HelloWorld.py', 'r') as fd:
-            code = fd.read()
+        with open(self.C + '/Original_Files/HelloCode/HelloWorld.py', 'r') as fd:
+            self.original_code = fd.read()
 
-            self.tree = ast.parse(code)
+            self.tree = ast.parse(self.original_code)
             #print(ast.dump(self.tree, indent=4)) ##Used for understanding utilization of ast methods
+
+    def loadMutatedCode(self):
+        with open(self.C + '/Original_Files/HelloCode/HelloWorld.py', 'w') as fd:
+            mutated_code = ast.unparse(self.tree)
+            fd.write(self.mutated_code)
+
+    def loadOriginalCode(self):
+        with open(self.C + '/Original_Files/HelloCode/HelloWorld.py', 'w') as fd:
+            fd.write(self.original_code)
 
     def traverseTree(self):
         for node in ast.walk(self.tree):

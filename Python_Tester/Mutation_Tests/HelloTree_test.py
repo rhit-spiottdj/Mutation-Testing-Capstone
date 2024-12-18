@@ -6,6 +6,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
 from Mutator import HelloTree
+from Original_Files.HelloCode_Tester import HelloWorld_test as Test
 
 class MyTestCase(unittest.TestCase):
         def test_startup(self):
@@ -15,6 +16,13 @@ class MyTestCase(unittest.TestCase):
                 self.assertEqual(test_tree.retOperations(), ["+"])
                 self.assertEqual(test_tree.retVariables(), ["testArray", "rM", "rM"])
                 self.assertEqual(test_tree.retValues(), [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 100, 'x'])
+                self.assertTrue(Test.MyTestCase())
+                test_tree.loadMutatedCode()
+                self.assertTrue(Test.MyTestCase()) ##When running mutated code change this to assertFalse
+                test_tree.loadOriginalCode()
+                with open(parent + '/Original_Files/HelloCode/HelloWorld.py', 'r') as fd:
+                       code = fd.read()
+                       self.assertEqual(code, test_tree.original_code) 
 
 if __name__ == '__main__':
     unittest.main()
