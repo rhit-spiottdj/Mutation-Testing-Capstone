@@ -39,8 +39,8 @@ class MyTestCase(unittest.TestCase):
                      self.assertEqual(code, self.test_tree.original_code) 
 
         def test_all_mutation_variations(self):
-              self.test_tree = HelloTree.HelloTree()
-              self.assertIsNotNone(self.test_tree)
+              self.test_startup()
+              
               self.test_tree.basicMutateTree()
               for i in range(self.test_tree.retMutationLength()):
                      self.test_tree.loadMutatedCode(i)
