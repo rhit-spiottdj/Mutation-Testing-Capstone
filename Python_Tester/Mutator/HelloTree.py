@@ -9,6 +9,7 @@ class HelloTree:
     original_code = ""
     mutated_code = ""
     C = ""
+    muatations = []
 
     def __init__(self):
         # VERY IMPORTANT STEP!!!!!
@@ -24,17 +25,22 @@ class HelloTree:
             # Important to print out the syntax of node tree
             # print(ast.dump(self.tree, indent=4)) ##Used for understanding utilization of ast methods
 
-    def loadMutatedCode(self):
-        self.basicMutateTree()
+    def loadMutatedCode(self, i):
         with open(self.C + '/Original_Files/HelloCode/HelloWorld.py', 'w') as fd:
-            self.mutated_code = ast.unparse(self.tree)
-            fd.write(self.mutated_code)
+            # self.mutated_code = ast.unparse(self.tree)
+            # fd.write(self.mutated_code)
+            fd.write(self.muatations[i])
+            self.tree = ast.parse(self.muatations[i])
+            self.traverseTree()
 
     def loadOriginalCode(self):
         with open(self.C + '/Original_Files/HelloCode/HelloWorld.py', 'w') as fd:
             fd.write(self.original_code)
 
     def traverseTree(self):
+        self.operations = []
+        self.variables = []
+        self.values = []
         for node in ast.walk(self.tree):
             if isinstance(node, ast.Add):
                 self.operations.append("+")
@@ -115,20 +121,28 @@ class HelloTree:
     def retValues(self):
         return self.values
     
+    def retMutationLength(self):
+        return len(self.muatations) 
+    
     def basicMutateTree(self):
-        self.operations = []
-        self.variables = []
-        self.values = []
         for node in ast.walk(self.tree):
             if isinstance(node, ast.BinOp):
                 if isinstance(node.op, ast.Add):
                     node.op = ast.Sub()
                     ast.fix_missing_locations(node)
+                    self.muatations.append(ast.unparse(self.tree))
+                    node.op = ast.Add()
+                    ast.fix_missing_locations(node)
             if isinstance(node, ast.AugAssign):
                 if isinstance(node.op, ast.Add):
                     node.op = ast.Sub()
                     ast.fix_missing_locations(node)
+                    self.muatations.append(ast.unparse(self.tree))
+                    node.op = ast.Add()
+                    ast.fix_missing_locations(node)
+                
         self.traverseTree()
+        
                 
     
 

@@ -17,7 +17,8 @@ class MyTestCase(unittest.TestCase):
                 self.assertEqual(test_tree.retVariables(), ["testArray", "rM", "rM"])
                 self.assertEqual(test_tree.retValues(), [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 40, 60, 'x', "Wowzers!", '178'])
                 self.assertTrue(Test.MyTestCase())
-                test_tree.loadMutatedCode()
+                test_tree.basicMutateTree()
+                test_tree.loadMutatedCode(0)
                 try:
                        self.assertFalse(Test.MyTestCase()) ##When running mutated code change this to assertFalse
                 except:
@@ -27,13 +28,33 @@ class MyTestCase(unittest.TestCase):
                        code = fd.read()
                        self.assertEqual(code, test_tree.original_code) 
 
-        def test_mutate_startup(self):
-               test_tree = HelloTree.HelloTree()
-               self.assertIsNotNone(test_tree)
-               test_tree.basicMutateTree()
-               self.assertEqual(test_tree.retOperations(), ["-", "-", "-"])
-               self.assertEqual(test_tree.retVariables(), ["testArray", "rM", "rM"])
-               self.assertEqual(test_tree.retValues(), [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 40, 60, 'x', "Wowzers!", '178'])
+        def test_mutation_variations(self):
+              test_tree = HelloTree.HelloTree()
+              self.assertIsNotNone(test_tree)
+              test_tree.basicMutateTree()
+              for i in range(test_tree.retMutationLength()):
+                     test_tree.loadMutatedCode(i)
+                     if (i == 0):
+                            self.assertEqual(test_tree.retOperations(), ["-", "+", "+"])
+                     if (i == 1):
+                            self.assertEqual(test_tree.retOperations(), ["+", "-", "+"])
+                     if (i == 2):
+                            self.assertEqual(test_tree.retOperations(), ["+", "+", "-"])
+                     try:
+                       self.assertFalse(Test.MyTestCase()) ##When running mutated code change this to assertFalse
+                     except:
+                       print("Test case crashed!")
+                     test_tree.loadOriginalCode()
+
+                
+
+       #  def test_mutate_startup(self):
+       #         test_tree = HelloTree.HelloTree()
+       #         self.assertIsNotNone(test_tree)
+       #         test_tree.basicMutateTree()
+       #         self.assertEqual(test_tree.retOperations(), ["-", "-", "-"])
+       #         self.assertEqual(test_tree.retVariables(), ["testArray", "rM", "rM"])
+       #         self.assertEqual(test_tree.retValues(), [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 40, 60, 'x', "Wowzers!", '178'])
 
 if __name__ == '__main__':
     unittest.main()
