@@ -11,5 +11,5 @@ def makeArray(self):
         print(x)
         rM+=x
     print(rM)
-    print("Wowzers!" + 178)
+    print("Wowzers!" + "178")
     return rM

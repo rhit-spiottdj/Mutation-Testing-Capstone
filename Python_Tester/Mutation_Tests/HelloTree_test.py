@@ -15,7 +15,7 @@ class MyTestCase(unittest.TestCase):
                 test_tree.traverseTree()
                 self.assertEqual(test_tree.retOperations(), ["+", "+", "+"])
                 self.assertEqual(test_tree.retVariables(), ["testArray", "rM", "rM"])
-                self.assertEqual(test_tree.retValues(), [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 40, 60, 'x', "Wowzers!", 178])
+                self.assertEqual(test_tree.retValues(), [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 40, 60, 'x', "Wowzers!", '178'])
                 self.assertTrue(Test.MyTestCase())
                 test_tree.loadMutatedCode()
                 try:
@@ -33,7 +33,7 @@ class MyTestCase(unittest.TestCase):
                test_tree.basicMutateTree()
                self.assertEqual(test_tree.retOperations(), ["-", "-", "-"])
                self.assertEqual(test_tree.retVariables(), ["testArray", "rM", "rM"])
-               self.assertEqual(test_tree.retValues(), [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 40, 60, 'x', "Wowzers!", 178])
+               self.assertEqual(test_tree.retValues(), [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 40, 60, 'x', "Wowzers!", '178'])
 
 if __name__ == '__main__':
     unittest.main()
