@@ -11,22 +11,20 @@ from Original_Files.HelloCode_Tester import HelloWorld_test as Test
 test_tree = None
 
 class MyTestCase(unittest.TestCase):
-        def test_startup(self):
+        def setUp(self):
               self.test_tree = HelloTree.HelloTree()
+
+        def test_startup(self):
               self.assertIsNotNone(self.test_tree)
               self.assertTrue(Test.MyTestCase())
         
         def test_original_tree(self): 
-              self.test_startup()
-
               self.test_tree.traverseTree()
               self.assertEqual(self.test_tree.retOperations(), ["+", "+", "+"])
               self.assertEqual(self.test_tree.retVariables(), ["testArray", "rM", "rM"])
               self.assertEqual(self.test_tree.retValues(), [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 40, 60, 'x', "Wowzers!", '178'])
 
         def test_first_mutation(self):
-              self.test_startup()
-
               self.test_tree.basicMutateTree()
               self.test_tree.loadMutatedCode(0)
               try:
@@ -39,8 +37,6 @@ class MyTestCase(unittest.TestCase):
                      self.assertEqual(code, self.test_tree.original_code) 
 
         def test_all_mutation_variations(self):
-              self.test_startup()
-              
               self.test_tree.basicMutateTree()
               for i in range(self.test_tree.retMutationLength()):
                      self.test_tree.loadMutatedCode(i)
