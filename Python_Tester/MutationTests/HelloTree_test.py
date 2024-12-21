@@ -33,7 +33,7 @@ class MyTestCase(unittest.TestCase):
             self.assertRaises(BaseException, Test.MyTestCase())
             print("Successfully raised exception")
             self.test_tree.loadOriginalCode()
-        with open(parent + '/OriginalFiles/HelloCode/HelloWorld.py', 'r', encoding='utf-8') as fd:
+        with open(parent + '/Original_Files/HelloCode/HelloWorld.py', 'r', encoding='utf-8') as fd:
             code = fd.read()
             self.assertEqual(code, self.test_tree.original_code) 
 
