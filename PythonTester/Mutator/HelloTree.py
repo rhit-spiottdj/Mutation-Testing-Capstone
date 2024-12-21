@@ -9,7 +9,7 @@ class HelloTree:
     original_code = ""
     mutated_code = ""
     C = ""
-    muatations = []
+    mutations = []
 
     def __init__(self):
         # VERY IMPORTANT STEP!!!!!
@@ -17,7 +17,7 @@ class HelloTree:
         self.C = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
         
 
-        with open(self.C + '/Original_Files/HelloCode/HelloWorld.py', 'r') as fd:
+        with open(self.C + '/Original_Files/HelloCode/HelloWorld.py', 'r', encoding='utf-8') as fd:
             self.original_code = fd.read()
 
             self.tree = ast.parse(self.original_code)
@@ -26,15 +26,15 @@ class HelloTree:
             # print(ast.dump(self.tree, indent=4)) ##Used for understanding utilization of ast methods
 
     def loadMutatedCode(self, i):
-        with open(self.C + '/Original_Files/HelloCode/HelloWorld.py', 'w') as fd:
+        with open(self.C + '/Original_Files/HelloCode/HelloWorld.py', 'w', encoding='utf-8') as fd:
             # self.mutated_code = ast.unparse(self.tree)
             # fd.write(self.mutated_code)
-            fd.write(self.muatations[i])
-            self.tree = ast.parse(self.muatations[i])
+            fd.write(self.mutations[i])
+            self.tree = ast.parse(self.mutations[i])
             self.traverseTree()
 
     def loadOriginalCode(self):
-        with open(self.C + '/Original_Files/HelloCode/HelloWorld.py', 'w') as fd:
+        with open(self.C + '/Original_Files/HelloCode/HelloWorld.py', 'w', encoding='utf-8') as fd:
             fd.write(self.original_code)
 
     def traverseTree(self):
@@ -108,9 +108,6 @@ class HelloTree:
                     self.values.append(node.left.id)
                 if isinstance(node.right, ast.Name):
                     self.values.append(node.right.id)
-                    
-                
-            
 
     def retOperations(self):
         return self.operations
@@ -122,7 +119,7 @@ class HelloTree:
         return self.values
     
     def retMutationLength(self):
-        return len(self.muatations) 
+        return len(self.mutations) 
     
     def basicMutateTree(self):
         for node in ast.walk(self.tree):
@@ -130,21 +127,18 @@ class HelloTree:
                 if isinstance(node.op, ast.Add):
                     node.op = ast.Sub()
                     ast.fix_missing_locations(node)
-                    self.muatations.append(ast.unparse(self.tree))
+                    self.mutations.append(ast.unparse(self.tree))
                     node.op = ast.Add()
                     ast.fix_missing_locations(node)
             if isinstance(node, ast.AugAssign):
                 if isinstance(node.op, ast.Add):
                     node.op = ast.Sub()
                     ast.fix_missing_locations(node)
-                    self.muatations.append(ast.unparse(self.tree))
+                    self.mutations.append(ast.unparse(self.tree))
                     node.op = ast.Add()
                     ast.fix_missing_locations(node)
                 
         self.traverseTree()
-        
-                
-    
 
 def main():
     tree = HelloTree()
