@@ -27,4 +27,4 @@ jobs:
         pip install pylint
     - name: Run Pylint
       run: |
-        pylint /Python_Tester/
+        pylint /Mutation-Testing-Capstone/tree/main/Python_Tester
