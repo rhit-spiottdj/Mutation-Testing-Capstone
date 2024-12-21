@@ -27,4 +27,4 @@ jobs:
         pip install pylint
     - name: Run Pylint
       run: |
-        pylint https://github.com/rhit-spiottdj/Mutation-Testing-Capstone/tree/main/Python_Tester
+        pylint /Python_Tester/
