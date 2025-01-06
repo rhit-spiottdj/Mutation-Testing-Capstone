@@ -10,9 +10,9 @@ from OriginalFiles.HelloCodeTests import HelloWorld_test as Test
 
 test_tree = None
 
-class MyTestCase(unittest.TestCase):
+class HelloWorldTester(unittest.TestCase):
     def setUp(self):
-        self.test_tree = HelloTree.HelloTree()
+        self.test_tree = HelloTree.HelloTree('/OriginalFiles/HelloCode/HelloWorld.py')
 
     def testStartup(self):
         self.assertIsNotNone(self.test_tree)

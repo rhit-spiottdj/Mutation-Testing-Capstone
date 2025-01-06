@@ -10,14 +10,15 @@ class HelloTree:
     mutated_code = ""
     C = ""
     mutations = []
+    file_source = ""
 
-    def __init__(self):
+    def __init__(self, fs):
         # VERY IMPORTANT STEP!!!!!
         # Establish path to original file
         self.C = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-        
+        self.file_source = fs
 
-        with open(self.C + '/OriginalFiles/HelloCode/HelloWorld.py', 'r', encoding='utf-8') as fd:
+        with open(self.C + self.file_source, 'r', encoding='utf-8') as fd:
             self.original_code = fd.read()
 
             self.tree = ast.parse(self.original_code)
@@ -26,7 +27,7 @@ class HelloTree:
             # print(ast.dump(self.tree, indent=4)) ##Used for understanding utilization of ast methods
 
     def loadMutatedCode(self, i):
-        with open(self.C + '/OriginalFiles/HelloCode/HelloWorld.py', 'w', encoding='utf-8') as fd:
+        with open(self.C + self.file_source, 'w', encoding='utf-8') as fd:
             # self.mutated_code = ast.unparse(self.tree)
             # fd.write(self.mutated_code)
             fd.write(self.mutations[i])
@@ -34,7 +35,7 @@ class HelloTree:
             self.traverseTree()
 
     def loadOriginalCode(self):
-        with open(self.C + '/OriginalFiles/HelloCode/HelloWorld.py', 'w', encoding='utf-8') as fd:
+        with open(self.C + self.file_source, 'w', encoding='utf-8') as fd:
             fd.write(self.original_code)
 
     def traverseTree(self):
@@ -140,9 +141,9 @@ class HelloTree:
                 
         self.traverseTree()
 
-def main():
-    tree = HelloTree()
-    tree.traverseTree()
+# def main():
+#     tree = HelloTree()
+#     tree.traverseTree()
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+    # main()
