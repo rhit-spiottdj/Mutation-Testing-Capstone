@@ -12,5 +12,5 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(HelloWorld.helloWorld(), "Hello World")  # add assertion here
         self.assertEqual(HelloWorld.makeArray(), 145)
 
-if __name__ == '__main__':
-    unittest.main()
+# if __name__ == '__main__':
+    # unittest.main()
