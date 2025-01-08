@@ -1,0 +1,5 @@
+[run]
+source = Mutation-Testing-Capstone
+omit = 
+    PythonTester/OriginalFiles/HelloCode/HelloWorld_UnmutatedCopy.py
+    PythonTester/Main.py
