@@ -140,10 +140,3 @@ class HelloTree:
                     ast.fix_missing_locations(node)
                 
         self.traverseTree()
-
-# def main():
-#     tree = HelloTree()
-#     tree.traverseTree()
-
-# if __name__ == '__main__':
-    # main()
