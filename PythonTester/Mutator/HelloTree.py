@@ -123,6 +123,7 @@ class HelloTree:
         return len(self.mutations) 
     
     def basicMutateTree(self):
+        print("Beginning code mutation")
         for node in ast.walk(self.tree):
             if isinstance(node, ast.BinOp):
                 if isinstance(node.op, ast.Add):
@@ -141,9 +142,9 @@ class HelloTree:
                 
         self.traverseTree()
 
-# def main():
-#     tree = HelloTree()
-#     tree.traverseTree()
+def main(code):
+    tree = HelloTree(code)
+    tree.traverseTree()
 
 # if __name__ == '__main__':
-    # main()
+    # main('/OriginalFiles/HelloCode/HelloWorld.py')
