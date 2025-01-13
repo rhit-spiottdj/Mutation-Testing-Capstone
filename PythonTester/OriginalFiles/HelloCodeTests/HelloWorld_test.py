@@ -12,5 +12,17 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(HelloWorld.helloWorld(), "Hello World")  # add assertion here
         self.assertEqual(HelloWorld.makeArray(), 145)
 
+    def testSub(self):
+        self.assertEqual(HelloWorld.subtractMe(), 186)
+
+    def testMultiply(self):
+        self.assertEqual(HelloWorld.multiplyMe(), -10080)
+
+    def testDivide(self):
+        self.assertEqual(HelloWorld.divideMe(), -3)
+
+    def testMod(self):
+        self.assertEqual(HelloWorld.modMe(), 2)
+
 # if __name__ == '__main__':
     # unittest.main()

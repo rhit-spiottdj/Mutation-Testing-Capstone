@@ -3,13 +3,20 @@ import os
 
 class HelloTree:
     operations = []
+    addop = []
+    subop = []
     variables = []
     values = []
     tree = None
     original_code = ""
     mutated_code = ""
     C = ""
+    # List of Individual mutations
     mutations = []
+    # List of nodes linked with list of single mutations before mutation
+    nodes = []
+    # List of nodes after mutation linked with mutations
+    mutated_nodes = []
     file_source = ""
 
     def __init__(self, fs):
@@ -20,6 +27,7 @@ class HelloTree:
 
         with open(self.C + self.file_source, 'r', encoding='utf-8') as fd:
             self.original_code = fd.read()
+
 
             self.tree = ast.parse(self.original_code)
             
@@ -39,14 +47,15 @@ class HelloTree:
             fd.write(self.original_code)
 
     def traverseTree(self):
-        self.operations = []
+        self.addop = []
+        self.subop = []
         self.variables = []
         self.values = []
         for node in ast.walk(self.tree):
             if isinstance(node, ast.Add):
-                self.operations.append("+")
+                self.addop.append("+")
             if isinstance(node, ast.Sub):
-                self.operations.append("-")
+                self.subop.append("-")
             # if isinstance(node, ast.Mult):
             #     self.operations.append("*")
             # if isinstance(node, ast.Div):
@@ -127,16 +136,22 @@ class HelloTree:
         for node in ast.walk(self.tree):
             if isinstance(node, ast.BinOp):
                 if isinstance(node.op, ast.Add):
+                    # Store prev node
+                    self.nodes.append(node.op)
                     node.op = ast.Sub()
                     ast.fix_missing_locations(node)
                     self.mutations.append(ast.unparse(self.tree))
+                    # Store mutated node
+                    self.mutated_nodes.append(node.op)
                     node.op = ast.Add()
                     ast.fix_missing_locations(node)
             if isinstance(node, ast.AugAssign):
                 if isinstance(node.op, ast.Add):
+                    self.nodes.append(node.op)
                     node.op = ast.Sub()
                     ast.fix_missing_locations(node)
                     self.mutations.append(ast.unparse(self.tree))
+                    self.mutated_nodes.append(node.op)
                     node.op = ast.Add()
                     ast.fix_missing_locations(node)
                 
