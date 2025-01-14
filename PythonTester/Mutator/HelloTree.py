@@ -2,9 +2,11 @@ import ast
 import os
 
 class HelloTree:
-    operations = []
     addop = []
     subop = []
+    multiop = []
+    divop = []
+    modop = []
     variables = []
     values = []
     tree = None
@@ -51,6 +53,9 @@ class HelloTree:
     def traverseTree(self):
         self.addop = []
         self.subop = []
+        self.multiop = []
+        self.divop = []
+        self.modop = []
         self.variables = []
         self.values = []
         for node in ast.walk(self.tree):
@@ -58,12 +63,12 @@ class HelloTree:
                 self.addop.append("+")
             if isinstance(node, ast.Sub):
                 self.subop.append("-")
-            # if isinstance(node, ast.Mult):
-            #     self.operations.append("*")
-            # if isinstance(node, ast.Div):
-            #     self.operations.append("/")
-            # if isinstance(node, ast.Mod):
-            #     self.operations.append("%")
+            if isinstance(node, ast.Mult):
+                self.multiop.append("*")
+            if isinstance(node, ast.Div):
+                self.divop.append("/")
+            if isinstance(node, ast.Mod):
+                self.modop.append("%")
             # if isinstance(node, ast.Lt):
             #     self.operations.append("<")
             # if isinstance(node, ast.LtE):
@@ -91,8 +96,8 @@ class HelloTree:
             #     if isinstance(node.ctx, ast.Store):
             #         self.variables.append(node.id)
             if isinstance(node, ast.Assign) or isinstance(node, ast.AugAssign):
-                if isinstance(node.value, ast.Constant):
-                    self.values.append(node.value.value)
+                # if isinstance(node.value, ast.Constant):
+                #     self.values.append(node.value.value)
                 if isinstance(node.value, ast.Name):
                     self.values.append(node.value.id)
                 if isinstance(node, ast.AugAssign):
@@ -121,14 +126,29 @@ class HelloTree:
                 if isinstance(node.right, ast.Name):
                     self.values.append(node.right.id)
 
-    def retOperations(self):
-        return self.operations
+    def retAdd(self):
+        return self.addop
 
-    def retVariables(self):
-        return self.variables
+    def retSub(self):
+        return self.subop
+    
+    def retMulti(self):
+        return self.multiop
+    
+    def retDiv(self):
+        return self.divop
+    
+    def retMod(self):
+        return self.modop
 
-    def retValues(self):
-        return self.values
+    # def retVariables(self):
+    #     return self.variables
+
+    # def retValues(self):
+    #     return self.values
+
+    def retOriginalCode(self):
+        return self.original_code
     
     def retMutationLength(self):
         return len(self.mutations) 
@@ -147,14 +167,105 @@ class HelloTree:
                     self.mutated_nodes.append(node.op)
                     node.op = ast.Add()
                     ast.fix_missing_locations(node)
+
+                if isinstance(node.op, ast.Sub):
+                    # Store prev node
+                    self.nodes.append(node.op)
+                    node.op = ast.Add()
+                    ast.fix_missing_locations(node)
+                    self.mutations.append(ast.unparse(self.tree))
+                    # Store mutated node
+                    self.mutated_nodes.append(node.op)
+                    node.op = ast.Sub()
+                    ast.fix_missing_locations(node)
+
+                if isinstance(node.op, ast.Mult):
+                    # Store prev node
+                    self.nodes.append(node.op)
+                    node.op = ast.Div()
+                    ast.fix_missing_locations(node)
+                    self.mutations.append(ast.unparse(self.tree))
+                    # Store mutated node
+                    self.mutated_nodes.append(node.op)
+                    node.op = ast.Mult()
+                    ast.fix_missing_locations(node)
+
+                if isinstance(node.op, ast.Div):
+                    # Store prev node
+                    self.nodes.append(node.op)
+                    node.op = ast.Mult()
+                    ast.fix_missing_locations(node)
+                    self.mutations.append(ast.unparse(self.tree))
+                    # Store mutated node
+                    self.mutated_nodes.append(node.op)
+                    node.op = ast.Div()
+                    ast.fix_missing_locations(node)
+
+                if isinstance(node.op, ast.Mod):
+                    # Store prev node
+                    self.nodes.append(node.op)
+                    node.op = ast.Mult()
+                    ast.fix_missing_locations(node)
+                    self.mutations.append(ast.unparse(self.tree))
+                    # Store mutated node
+                    self.mutated_nodes.append(node.op)
+                    node.op = ast.Mod()
+                    ast.fix_missing_locations(node)
+
             if isinstance(node, ast.AugAssign):
                 if isinstance(node.op, ast.Add):
+                    # Store prev node
                     self.nodes.append(node.op)
                     node.op = ast.Sub()
                     ast.fix_missing_locations(node)
                     self.mutations.append(ast.unparse(self.tree))
+                    # Store mutated node
                     self.mutated_nodes.append(node.op)
                     node.op = ast.Add()
+                    ast.fix_missing_locations(node)
+
+                if isinstance(node.op, ast.Sub):
+                    # Store prev node
+                    self.nodes.append(node.op)
+                    node.op = ast.Add()
+                    ast.fix_missing_locations(node)
+                    self.mutations.append(ast.unparse(self.tree))
+                    # Store mutated node
+                    self.mutated_nodes.append(node.op)
+                    node.op = ast.Sub()
+                    ast.fix_missing_locations(node)
+
+                if isinstance(node.op, ast.Mult):
+                    # Store prev node
+                    self.nodes.append(node.op)
+                    node.op = ast.Div()
+                    ast.fix_missing_locations(node)
+                    self.mutations.append(ast.unparse(self.tree))
+                    # Store mutated node
+                    self.mutated_nodes.append(node.op)
+                    node.op = ast.Mult()
+                    ast.fix_missing_locations(node)
+
+                if isinstance(node.op, ast.Div):
+                    # Store prev node
+                    self.nodes.append(node.op)
+                    node.op = ast.Mult()
+                    ast.fix_missing_locations(node)
+                    self.mutations.append(ast.unparse(self.tree))
+                    # Store mutated node
+                    self.mutated_nodes.append(node.op)
+                    node.op = ast.Div()
+                    ast.fix_missing_locations(node)
+
+                if isinstance(node.op, ast.Mod):
+                    # Store prev node
+                    self.nodes.append(node.op)
+                    node.op = ast.Mult()
+                    ast.fix_missing_locations(node)
+                    self.mutations.append(ast.unparse(self.tree))
+                    # Store mutated node
+                    self.mutated_nodes.append(node.op)
+                    node.op = ast.Mod()
                     ast.fix_missing_locations(node)
                 
         self.traverseTree()
