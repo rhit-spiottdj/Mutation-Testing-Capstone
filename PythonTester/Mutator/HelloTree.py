@@ -27,10 +27,8 @@ class HelloTree:
 
         with open(self.C + self.file_source, 'r', encoding='utf-8') as fd:
             self.original_code = fd.read()
-
-
+            fd.close()
             self.tree = ast.parse(self.original_code)
-            
             # Important to print out the syntax of node tree
             # print(ast.dump(self.tree, indent=4)) ##Used for understanding utilization of ast methods
 
@@ -39,12 +37,16 @@ class HelloTree:
             # self.mutated_code = ast.unparse(self.tree)
             # fd.write(self.mutated_code)
             fd.write(self.mutations[i])
+            fd.flush()
+            fd.close()
             self.tree = ast.parse(self.mutations[i])
             self.traverseTree()
 
     def loadOriginalCode(self):
         with open(self.C + self.file_source, 'w', encoding='utf-8') as fd:
             fd.write(self.original_code)
+            fd.flush()
+            fd.close()
 
     def traverseTree(self):
         self.addop = []

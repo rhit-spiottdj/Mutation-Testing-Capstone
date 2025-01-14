@@ -4,7 +4,7 @@ import unittest
 
 def main():
     file = "/OriginalFiles/HelloCode/HelloWorld.py"
-    tests = "/OriginalFiles/HelloCodeTests/HelloWorld_test.py"
+    tests = "/OriginalFiles/HelloCodeTests/"
 
     if(len(sys.argv) > 1):
         file = sys.argv[1]
@@ -21,9 +21,9 @@ def main():
     cwd = os.getcwd()
     with open(cwd + "/config.txt", 'w', encoding='utf-8') as fd:
             fd.write(file + "\n" + tests)
+            fd.close()
 
-    loader = unittest.TestLoader()
-    test_suite = loader.discover("MutationTests", '*_test.py')
+    test_suite = unittest.TestLoader().discover("MutationTests", '*_test.py')
     runner = unittest.TextTestRunner()
     runner.run(test_suite)
 
