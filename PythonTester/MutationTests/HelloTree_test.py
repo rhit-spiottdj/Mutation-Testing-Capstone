@@ -1,6 +1,7 @@
 import unittest
 import sys
 import os
+import ast
 
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
@@ -20,8 +21,11 @@ class HelloTreeTester(unittest.TestCase):
         
     def testOriginalTree(self): 
         self.test_tree.traverseTree()
-        print(self.test_tree.retOperations())
-        self.assertEqual(self.test_tree.addop, ["+", "+", "+"])
+        self.assertEqual(self.test_tree.retAdd(), ["+", "+", "+"])
+        self.assertEqual(self.test_tree.retSub(), ["-", "-", "-"])
+        self.assertEqual(self.test_tree.retMulti(), ["*", "*", "*"])
+        self.assertEqual(self.test_tree.retDiv(), ["/", "/", "/"])
+        self.assertEqual(self.test_tree.retMod(), ["%", "%"])
         # self.assertEqual(self.test_tree.retVariables()[0:3], ["testArray", "rM", "rM"])
         # self.assertEqual(self.test_tree.retValues()[0:6], [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 40, 60, 'x', "Wowzers!", '178'])
 
@@ -50,7 +54,12 @@ class HelloTreeTester(unittest.TestCase):
         # print("Testing all mutations:")
         for i in range(self.test_tree.retMutationLength()):
             self.test_tree.loadMutatedCode(i)
-            print(self.test_tree.nodes[i])
+            
+            # if(og == "+"):
+            #     self.assertEqual(new, "-")
+            # if(og == "-"):
+            #     self.assertEqual(new, "+")
+            
             self.assertNotEqual(self.test_tree.nodes[i], self.test_tree.mutated_nodes[i])
             try:
                 self.assertFalse(Test.MyTestCase())
