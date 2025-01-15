@@ -19,17 +19,31 @@ class HelloTreeTester(unittest.TestCase):
     def testStartup(self):
         self.assertIsNotNone(self.test_tree)
         result = MutationManager.manageMutations(self.file_source, self.test_source)
-        self.assertTrue(result["allPassed"])
+        try:
+            self.assertTrue(result["allPassed"])
+        except AssertionError as e:
+            with open(parent + self.file_source, 'r', encoding='utf-8') as fd:
+                code = fd.read()
+                fd.close()
+                print(code)
+            raise e
         
-    def testOriginalTree(self): 
+    def testOriginalTree(self):
         self.test_tree.traverseTree()
-        self.assertEqual(self.test_tree.retAdd(), ["+", "+", "+"])
-        self.assertEqual(self.test_tree.retSub(), ["-", "-", "-"])
-        self.assertEqual(self.test_tree.retMulti(), ["*", "*", "*"])
-        self.assertEqual(self.test_tree.retDiv(), ["/", "/", "/"])
-        self.assertEqual(self.test_tree.retMod(), ["%", "%"])
-        # self.assertEqual(self.test_tree.retVariables()[0:3], ["testArray", "rM", "rM"])
-        # self.assertEqual(self.test_tree.retValues()[0:6], [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 40, 60, 'x', "Wowzers!", '178'])
+        try:
+            self.assertEqual(self.test_tree.retAdd(), ["+", "+", "+"])
+            self.assertEqual(self.test_tree.retSub(), ["-", "-", "-"])
+            self.assertEqual(self.test_tree.retMulti(), ["*", "*", "*"])
+            self.assertEqual(self.test_tree.retDiv(), ["/", "/", "/"])
+            self.assertEqual(self.test_tree.retMod(), ["%", "%"])
+            # self.assertEqual(self.test_tree.retVariables()[0:3], ["testArray", "rM", "rM"])
+            # self.assertEqual(self.test_tree.retValues()[0:6], [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 40, 60, 'x', "Wowzers!", '178'])
+        except AssertionError as e:
+            with open(parent + self.file_source, 'r', encoding='utf-8') as fd:
+                code = fd.read()
+                fd.close()
+                print(code)
+            raise e
 
     def testFirstMutation(self):
         self.test_tree.basicMutateTree()
