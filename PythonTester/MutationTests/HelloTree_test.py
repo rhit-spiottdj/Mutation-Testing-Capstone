@@ -15,9 +15,9 @@ class HelloTreeTester(unittest.TestCase):
             self.test_source = fd.readline().strip()
             fd.close()
         self.test_tree = HelloTree.HelloTree(self.file_source)
-        self.test_tree.loadOriginalCode()
 
     def testStartup(self):
+        self.test_tree.loadOriginalCode()
         self.assertIsNotNone(self.test_tree)
         result = MutationManager.manageMutations(self.file_source, self.test_source)
         try:
@@ -30,6 +30,7 @@ class HelloTreeTester(unittest.TestCase):
             raise e
         
     def testOriginalTree(self):
+        self.test_tree.loadOriginalCode()
         self.test_tree.traverseTree()
         try:
             self.assertEqual(self.test_tree.retAdd(), ["+", "+", "+"])
