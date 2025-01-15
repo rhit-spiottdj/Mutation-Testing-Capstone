@@ -16,10 +16,10 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(HelloWorld.subtractMe(), 186)
 
     def testMultiply(self):
-        self.assertEqual(HelloWorld.multiplyMe(), -10080)
+        self.assertEqual(HelloWorld.multiplyMe(), -30240)
 
     def testDivide(self):
-        self.assertEqual(HelloWorld.divideMe(), -3)
+        self.assertEqual(HelloWorld.divideMe(), -1)
 
     def testMod(self):
         self.assertEqual(HelloWorld.modMe(), 2)

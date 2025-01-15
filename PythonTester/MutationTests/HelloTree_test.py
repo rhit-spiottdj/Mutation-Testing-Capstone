@@ -46,6 +46,12 @@ class HelloTreeTester(unittest.TestCase):
         except AssertionError as e:
             print("\033[31mERROR Test Is Passing\033[0m" + e)
             self.test_tree.loadOriginalCode()
+            print("Mutated code:")
+            print(self.test_tree.mutations[0])
+            with open(parent + self.file_source, 'r', encoding='utf-8') as fd:
+                code = fd.read()
+                fd.close()
+                self.assertEqual(code, self.test_tree.original_code) 
             raise e
         self.test_tree.loadOriginalCode()
         print("\tRestored original code for next mutation")
@@ -73,7 +79,13 @@ class HelloTreeTester(unittest.TestCase):
                 print("\t\033[32mCorrectly failed test\033[0m")
             except AssertionError as e:
                 print("\033[31mERROR Test Is Passing\033[0m")
+                print("Mutated code:")
+                print(self.test_tree.mutations[i])
                 self.test_tree.loadOriginalCode()
+                with open(parent + self.file_source, 'r', encoding='utf-8') as fd:
+                    code = fd.read()
+                    fd.close()
+                    self.assertEqual(code, self.test_tree.original_code) 
                 raise e
             self.test_tree.loadOriginalCode()
             print("\tRestored original code for next mutation")

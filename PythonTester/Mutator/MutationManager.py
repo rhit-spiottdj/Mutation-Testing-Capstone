@@ -11,7 +11,8 @@ sys.path.append(parent)
 def manageMutations(file_source, test_source):
     module_to_del = file_source.replace('/', '.')
     module_to_del = module_to_del[:-2].strip('.')
-    del sys.modules[module_to_del]
+    if module_to_del in sys.modules:
+        del sys.modules[module_to_del]
     q = multiprocessing.Queue()
     startupP = multiprocessing.Process(target=runMutationTest, args=(q, test_source,))
     startupP.start()

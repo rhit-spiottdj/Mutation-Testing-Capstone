@@ -28,7 +28,7 @@ def multiplyMe():
     count = 2 * 6
     for x in testArray:
         count *= x
-    return count * -1
+    return count * -3
 
 # Makes an array of integers and divides them starting with 36540 / 2. Returns -3
 def divideMe():
@@ -36,7 +36,7 @@ def divideMe():
     count = 36540 / 2
     for x in testArray:
         count = count / x
-    return count / -1
+    return count / -3
 
 # Makes an array of integers and mods them starting with 200 % 29. Returns 2
 def modMe():
