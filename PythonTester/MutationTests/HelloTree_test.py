@@ -15,6 +15,7 @@ class HelloTreeTester(unittest.TestCase):
             self.test_source = fd.readline().strip()
             fd.close()
         self.test_tree = HelloTree.HelloTree(self.file_source)
+        self.test_tree.loadOriginalCode()
 
     def testStartup(self):
         self.assertIsNotNone(self.test_tree)
