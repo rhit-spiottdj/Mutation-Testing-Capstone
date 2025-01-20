@@ -1,6 +1,6 @@
 import os
 import sys
-import unittest
+import Mutator.MutationManager as Manager
 
 def main():
     file = "/OriginalFiles/HelloCode/HelloWorld.py"
@@ -22,10 +22,8 @@ def main():
     with open(cwd + "/config.txt", 'w', encoding='utf-8') as fd:
             fd.write(file + "\n" + tests)
             fd.close()
-
-    test_suite = unittest.TestLoader().discover("MutationTests", '*_test.py')
-    runner = unittest.TextTestRunner()
-    runner.run(test_suite)
+    
+    Manager.generateMutations()
 
 if __name__ == '__main__':
     main()

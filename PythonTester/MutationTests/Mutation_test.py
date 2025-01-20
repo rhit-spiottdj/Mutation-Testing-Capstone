@@ -6,15 +6,15 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
 from Mutator import MutationManager
-from Mutator import HelloTree
+from Mutator import MutationGenerator
 
-class HelloTreeTester(unittest.TestCase):
+class MutationGeneratorTester(unittest.TestCase):
     def setUp(self):
         with open(parent + "/config.txt", 'r', encoding='utf-8') as fd:
             self.file_source = fd.readline().strip()
             self.test_source = fd.readline().strip()
             fd.close()
-        self.test_tree = HelloTree.HelloTree(self.file_source)
+        self.test_tree = MutationGenerator.MutationTree(self.file_source)
 
     def testStartup(self):
         self.test_tree.loadOriginalCode()
@@ -38,8 +38,6 @@ class HelloTreeTester(unittest.TestCase):
             self.assertEqual(self.test_tree.retMulti(), ["*", "*", "*"])
             self.assertEqual(self.test_tree.retDiv(), ["/", "/", "/"])
             self.assertEqual(self.test_tree.retMod(), ["%", "%"])
-            # self.assertEqual(self.test_tree.retVariables()[0:3], ["testArray", "rM", "rM"])
-            # self.assertEqual(self.test_tree.retValues()[0:6], [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 40, 60, 'x', "Wowzers!", '178'])
         except AssertionError as e:
             with open(parent + self.file_source, 'r', encoding='utf-8') as fd:
                 code = fd.read()
@@ -84,11 +82,6 @@ class HelloTreeTester(unittest.TestCase):
             print(result)
             print(self.test_tree.nodes[i])
             
-            # if(og == "+"):
-            #     self.assertEqual(new, "-")
-            # if(og == "-"):
-            #     self.assertEqual(new, "+")
-            
             self.assertNotEqual(self.test_tree.nodes[i], self.test_tree.mutated_nodes[i])
             try:
                 self.assertFalse(result["allPassed"])
@@ -109,18 +102,3 @@ class HelloTreeTester(unittest.TestCase):
                 code = fd.read()
                 fd.close()
                 self.assertEqual(code, self.test_tree.original_code) 
-
-        
-
-                
-
-#     def testMutateStartup(self):
-#         test_tree = HelloTree.HelloTree()
-#         self.assertIsNotNone(test_tree)
-#         test_tree.basicMutateTree()
-#         self.assertEqual(test_tree.retOperations(), ["-", "-", "-"])
-#         self.assertEqual(test_tree.retVariables(), ["testArray", "rM", "rM"])
-#         self.assertEqual(test_tree.retValues(), [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 40, 60, 'x', "Wowzers!", '178'])
-
-# if __name__ == '__main__':
-    # unittest.main()

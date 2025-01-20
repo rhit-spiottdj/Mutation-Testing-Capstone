@@ -3,10 +3,37 @@ import importlib
 import sys
 import unittest
 import os
+import Mutator.MutationGenerator as MutationGenerator
 
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
+
+def generateMutations():
+    file_source = None
+    test_source = None
+    with open(parent + "/config.txt", 'r', encoding='utf-8') as fd:
+        file_source = fd.readline().strip()
+        test_source = fd.readline().strip()
+        fd.close()
+    if file_source == "" or test_source == "":
+        raise Exception("File or test source not found")
+    test_tree = MutationGenerator.MutationTree(file_source)
+    test_tree.basicMutateTree()
+    try:
+        for i in range(test_tree.retMutationLength()):
+            test_tree.loadMutatedCode(i)
+            result = manageMutations(file_source, test_source)
+            print(result)
+            print(test_tree.nodes[i])
+            if(result["allPassed"] is False):
+                print("\033[32mCorrectly failed test\033[0m")
+            else:
+                print("\033[31mERROR Test Is Passing\033[0m")
+            test_tree.loadOriginalCode()
+    except Exception as e:
+        test_tree.loadOriginalCode()
+        raise e
 
 def manageMutations(file_source, test_source):
     module_to_del = file_source.replace('/', '.')

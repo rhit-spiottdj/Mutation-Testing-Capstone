@@ -1,7 +1,7 @@
 import ast
 import os
 
-class HelloTree:
+class MutationTree:
     addop = []
     subop = []
     multiop = []
@@ -36,8 +36,6 @@ class HelloTree:
 
     def loadMutatedCode(self, i):
         with open(self.C + self.file_source, 'w', encoding='utf-8') as fd:
-            # self.mutated_code = ast.unparse(self.tree)
-            # fd.write(self.mutated_code)
             fd.write(self.mutations[i])
             fd.flush()
             fd.close()
@@ -140,12 +138,6 @@ class HelloTree:
     
     def retMod(self):
         return self.modop
-
-    # def retVariables(self):
-    #     return self.variables
-
-    # def retValues(self):
-    #     return self.values
 
     def retOriginalCode(self):
         return self.original_code
@@ -271,8 +263,5 @@ class HelloTree:
         self.traverseTree()
 
 def main(code):
-    tree = HelloTree(code)
+    tree = MutationTree(code)
     tree.traverseTree()
-
-# if __name__ == '__main__':
-    # main('/OriginalFiles/HelloCode/HelloWorld.py')
