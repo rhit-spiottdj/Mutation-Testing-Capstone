@@ -12,6 +12,8 @@ sys.path.append(parent)
 def generateMutations():
     file_source = None
     test_source = None
+    survivingMutants = []
+    killedMutants = 0
     with open(parent + "/config.txt", 'r', encoding='utf-8') as fd:
         file_source = fd.readline().strip()
         test_source = fd.readline().strip()
@@ -27,10 +29,16 @@ def generateMutations():
             print(result)
             print(test_tree.nodes[i])
             if(result["allPassed"] is False):
+                killedMutants += 1
                 print("\033[32mCorrectly failed test\033[0m")
             else:
+                survivingMutants.append(test_tree.nodes[i])
                 print("\033[31mERROR Test Is Passing\033[0m")
             test_tree.loadOriginalCode()
+        print("Successfully killed " + "{:.2f}".format(float(killedMutants)/test_tree.retMutationLength()*100) + "% of mutations")
+        print(str(len(survivingMutants)) + " Surviving Mutants: ")
+        for mutant in survivingMutants:
+            print(mutant)  # Update this line to print out line numbers of mutants
     except Exception as e:
         test_tree.loadOriginalCode()
         raise e
