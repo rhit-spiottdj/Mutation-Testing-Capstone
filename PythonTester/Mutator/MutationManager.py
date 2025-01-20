@@ -15,9 +15,8 @@ def manageMutations(file_source, test_source):
         del sys.modules[module_to_del]
     
     ctx = multiprocessing.get_context("spawn")
-    q = multiprocessing.Queue()
+    q = ctx.Queue()
     startupP = ctx.Process(target=runMutationTest, args=(q, parent + test_source))
-
 
     startupP.start()
     startupP.join()
