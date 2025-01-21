@@ -22,7 +22,7 @@ def subtractMe():
         bigNum -= x
     return bigNum - 5
 
-# Makes an array of integers and multiplies them starting with 2 * 6. Retrurns -10080
+# Makes an array of integers and multiplies them starting with 2 * 6. Returns -30240
 def multiplyMe():
     testArray = [1, 3, 4, 7, 10]
     count = 2 * 6
@@ -30,7 +30,7 @@ def multiplyMe():
         count *= x
     return count * -3
 
-# Makes an array of integers and divides them starting with 36540 / 2. Returns -3
+# Makes an array of integers and divides them starting with 36540 / 2. Returns -1
 def divideMe():
     testArray = [5, 3, 1, 7, 2, 29]
     count = 36540 / 2
