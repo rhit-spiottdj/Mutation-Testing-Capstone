@@ -15,6 +15,13 @@ class MutationGeneratorTester(unittest.TestCase):
             self.test_source = fd.readline().strip()
             fd.close()
         self.test_tree = MutationGenerator.MutationTree(self.file_source)
+    
+    def tearDown(self):
+        self.test_tree.loadOriginalCode()
+        with open(parent + self.file_source, 'r', encoding='utf-8') as fd:
+            code = fd.read()
+            fd.close()
+            self.assertEqual(code, self.test_tree.original_code) 
 
     def testStartup(self):
         self.test_tree.loadOriginalCode()
@@ -67,12 +74,6 @@ class MutationGeneratorTester(unittest.TestCase):
                 fd.close()
                 self.assertEqual(code, self.test_tree.original_code) 
             raise e
-        self.test_tree.loadOriginalCode()
-        print("\tRestored original code for next mutation")
-        with open(parent + self.file_source, 'r', encoding='utf-8') as fd:
-            code = fd.read()
-            fd.close()
-            self.assertEqual(code, self.test_tree.original_code) 
 
     def testAllMutationVariations(self):
         self.test_tree.basicMutateTree()
@@ -96,9 +97,3 @@ class MutationGeneratorTester(unittest.TestCase):
                     fd.close()
                     self.assertEqual(code, self.test_tree.original_code) 
                 raise e
-            self.test_tree.loadOriginalCode()
-            print("\tRestored original code for next mutation")
-            with open(parent + self.file_source, 'r', encoding='utf-8') as fd:
-                code = fd.read()
-                fd.close()
-                self.assertEqual(code, self.test_tree.original_code) 

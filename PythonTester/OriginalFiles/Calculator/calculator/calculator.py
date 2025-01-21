@@ -1,5 +1,11 @@
-import math
+import sys
+import os
 
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+
+import calculator.basicMath as basicMath
 
 class Calculator:
 
@@ -28,12 +34,12 @@ class Calculator:
         """
 
         try:
-            if b == None:
+            if b is None:
                 b = self.memory
 
-            self.memory = float(a) + float(b)
+            self.memory = basicMath.add(a, b)
             return self.memory
-        except:
+        except Exception as e:
             return 'Invalid input'
 
     def subtract(self, a, b=None):
@@ -49,13 +55,13 @@ class Calculator:
         """
 
         try:
-            if b == None:
+            if b is None:
                 b = a
                 a = self.memory
 
-            self.memory = float(a) - float(b)
+            self.memory = basicMath.subtract(a, b)
             return self.memory
-        except:
+        except Exception as e:
             return 'Invalid input'
 
     def multiply(self, a, b=None):
@@ -71,12 +77,12 @@ class Calculator:
         """
 
         try:
-            if b == None:
+            if b is None:
                 b = self.memory
 
-            self.memory = float(a) * float(b)
+            self.memory = basicMath.multiply(a, b)
             return self.memory
-        except:
+        except Exception as e:
             return 'Invalid input'
 
     def divide(self, a, b=None):
@@ -92,15 +98,15 @@ class Calculator:
         """
 
         try:
-            if b == None:
+            if b is None:
                 b = a
                 a = self.memory
 
-            self.memory = float(a) / float(b)
+            self.memory = basicMath.divide(a, b)
             return self.memory
         except ZeroDivisionError:
             return 'Can not divide by zero.'
-        except:
+        except Exception as e:
             return 'Invalid input'
 
     def square(self, a=None):
@@ -115,12 +121,12 @@ class Calculator:
         """
 
         try:
-            if a == None:
+            if a is None:
                 a = self.memory
 
-            self.memory = float(a) ** 2
+            self.memory = basicMath.square(a)
             return self.memory
-        except:
+        except Exception as e:
             return 'Invalid input'
 
     def sqrt(self, a=None):
@@ -135,10 +141,10 @@ class Calculator:
         """
 
         try:
-            if a == None:
+            if a is None:
                 a = self.memory
 
-            self.memory = math.sqrt(float(a))
+            self.memory = basicMath.sqrt(a)
             return self.memory
-        except:
+        except Exception as e:
             return 'Invalid input'
