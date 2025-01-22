@@ -3,7 +3,8 @@ import sys
 import Mutator.MutationManager as Manager
 
 def main():
-    file = "/OriginalFiles/HelloCode/HelloWorld.py"
+    # Remove hardcoded file paths once error messages for missing args are implemented
+    file = "/OriginalFiles/HelloCode/"
     tests = "/OriginalFiles/HelloCodeTests/"
 
     if(len(sys.argv) > 1):
@@ -17,6 +18,12 @@ def main():
 
     if(tests[0] != '/'):
         tests = '/' + tests
+    
+    if(file[-1] != '/'):
+        file = file + '/'
+
+    if(tests[-1] != '/'):
+        tests = tests + '/'
 
     cwd = os.getcwd()
     with open(cwd + "/config.txt", 'w', encoding='utf-8') as fd:

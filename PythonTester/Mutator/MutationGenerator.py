@@ -19,15 +19,15 @@ class MutationTree:
     nodes = []
     # List of nodes after mutation linked with mutations
     mutated_nodes = []
-    file_source = ""
+    file_path = ""
 
     def __init__(self, fs):
         # VERY IMPORTANT STEP!!!!!
         # Establish path to original file
         self.C = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-        self.file_source = fs
+        self.file_path = fs
 
-        with open(self.C + self.file_source, 'r', encoding='utf-8') as fd:
+        with open(self.C + self.file_path, 'r', encoding='utf-8') as fd:
             self.original_code = fd.read()
             fd.close()
             self.tree = ast.parse(self.original_code)
@@ -35,7 +35,7 @@ class MutationTree:
             # print(ast.dump(self.tree, indent=4)) ##Used for understanding utilization of ast methods
 
     def loadMutatedCode(self, i):
-        with open(self.C + self.file_source, 'w', encoding='utf-8') as fd:
+        with open(self.C + self.file_path, 'w', encoding='utf-8') as fd:
             fd.write(self.mutations[i])
             fd.flush()
             fd.close()
@@ -43,7 +43,7 @@ class MutationTree:
             self.traverseTree()
 
     def loadOriginalCode(self):
-        with open(self.C + self.file_source, 'w', encoding='utf-8') as fd:
+        with open(self.C + self.file_path, 'w', encoding='utf-8') as fd:
             fd.write(self.original_code)
             fd.flush()
             fd.close()

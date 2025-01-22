@@ -1,2 +1,2 @@
-/OriginalFiles/HelloCode/HelloWorld.py
-/OriginalFiles/HelloCodeTests/
+/OriginalFiles\Calculator\calculator/
+/OriginalFiles\Calculator\tests/
