@@ -12,6 +12,7 @@ sys.path.append(parent)
 def generateMutations():
     file_source = None
     test_source = None
+    excluded_files = []
     test_tree_array = []
     survivingMutants = []
     killedMutants = 0
@@ -22,8 +23,11 @@ def generateMutations():
         fd.close()
     if file_source == "" or test_source == "":
         raise Exception("File or test source not found")
+    with open(parent + "/excluded_config.txt", 'r', encoding='utf-8') as fd:
+        excluded_files = fd.read().splitlines()
+        fd.close()
     for filename in os.listdir(parent + file_source):
-        if filename.endswith('.py') and filename != "__init__.py":
+        if filename.endswith('.py') and filename != "__init__.py" and filename not in excluded_files:
             test_tree_array.append(MutationGenerator.MutationTree(file_source + filename))
     for test_tree in test_tree_array:
         test_tree.basicMutateTree()
@@ -53,6 +57,9 @@ def generateMutations():
     print(str(len(survivingMutants)) + " Surviving Mutants: ")
     for mutant in survivingMutants:
         print(mutant)  # Update this line to print out line numbers of mutants
+
+def obtainTrees():
+    return []
 
 def manageMutations(file_path, test_source):
     module_to_del = file_path.replace('\\', '.')

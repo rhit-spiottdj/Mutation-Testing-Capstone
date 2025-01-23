@@ -48,7 +48,7 @@ class MutationTree:
             fd.flush()
             fd.close()
 
-    def traverseTree(self):
+    def traverseTree(self, isOriginal = False):
         self.addop = []
         self.subop = []
         self.multiop = []
@@ -57,6 +57,10 @@ class MutationTree:
         self.variables = []
         self.values = []
         for node in ast.walk(self.tree):
+            if isOriginal:
+                print("\033[34m")
+                print(node)
+                print("\033[0m")
             if isinstance(node, ast.Add):
                 self.addop.append("+")
             if isinstance(node, ast.Sub):

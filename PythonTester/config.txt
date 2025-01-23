@@ -1,2 +1,2 @@
-/OriginalFiles\Calculator\calculator/
-/OriginalFiles\Calculator\tests/
+/OriginalFiles/HelloCode/
+/OriginalFiles/HelloCodeTests/
