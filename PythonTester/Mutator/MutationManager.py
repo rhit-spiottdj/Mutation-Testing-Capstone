@@ -9,26 +9,18 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
 
-def generateMutations():
-    file_source = None
-    test_source = None
-    excluded_files = []
-    test_tree_array = []
-    survivingMutants = []
+def generateMutations(file_source = None, test_source = None, fileToPrintTo = None):
     killedMutants = 0
     totalMutants = 0
-    with open(parent + "/config.txt", 'r', encoding='utf-8') as fd:
-        file_source = fd.readline().strip()
-        test_source = fd.readline().strip()
-        fd.close()
+    survivingMutants = []
+    if file_source is None or test_source is None:
+        with open(parent + "/config.txt", 'r', encoding='utf-8') as fd:
+            file_source = fd.readline().strip()
+            test_source = fd.readline().strip()
+            fd.close()
     if file_source == "" or test_source == "":
         raise Exception("File or test source not found")
-    with open(parent + "/excluded_config.txt", 'r', encoding='utf-8') as fd:
-        excluded_files = fd.read().splitlines()
-        fd.close()
-    for filename in os.listdir(parent + file_source):
-        if filename.endswith('.py') and filename != "__init__.py" and filename not in excluded_files:
-            test_tree_array.append(MutationGenerator.MutationTree(file_source + filename))
+    test_tree_array = obtainTrees(file_source)
     for test_tree in test_tree_array:
         test_tree.basicMutateTree()
         try:
@@ -38,28 +30,36 @@ def generateMutations():
                     test_tree.loadMutatedCode(i)
                     result = manageMutations(test_tree.file_path, test_source)
                     print(result)
-                    print(test_tree.nodes[i])
+                    # print(test_tree.nodes[i])
                     if(result["allPassed"] is False):
                         killedMutants += 1
                         print("\033[32mCorrectly failed test\033[0m")
                     else:
-                        survivingMutants.append(test_tree.nodes[i])
+                        survivingMutants.append(test_tree.nodes[i]) # add more helpful info here
                         print("\033[31mERROR Test Is Passing\033[0m")
                     test_tree.loadOriginalCode()
         except Exception as e:
             test_tree.loadOriginalCode()
-            print("Successfully killed " + "{:.2f}".format(float(killedMutants)/totalMutants*100) + "% of mutations")
-            print(str(len(survivingMutants)) + " Surviving Mutants: ")
-            for mutant in survivingMutants:
-                print(mutant)  # Update this line to print out line numbers of mutants
+            printMutantReport(killedMutants, totalMutants, survivingMutants, fileToPrintTo)
             raise e
-    print("Successfully killed " + "{:.2f}".format(float(killedMutants)/totalMutants*100) + "% of mutations")
-    print(str(len(survivingMutants)) + " Surviving Mutants: ")
-    for mutant in survivingMutants:
-        print(mutant)  # Update this line to print out line numbers of mutants
+    printMutantReport(killedMutants, totalMutants, survivingMutants, fileToPrintTo)
 
-def obtainTrees():
-    return []
+def obtainTrees(file_source):
+    excluded_files = []
+    test_tree_array =  []
+    with open(parent + "/excluded_config.txt", 'r', encoding='utf-8') as fd:
+        excluded_files = fd.read().splitlines()
+        fd.close()
+    for filename in os.listdir(parent + file_source):
+        if filename.endswith('.py') and filename != "__init__.py" and filename not in excluded_files:
+            test_tree_array.append(MutationGenerator.MutationTree(file_source + filename))
+    return test_tree_array
+
+def printMutantReport(killedMutants, totalMutants, survivingMutants, fileToPrintTo = None):
+        print("Successfully killed " + "{:.2f}".format(float(killedMutants)/totalMutants*100) + "% of mutations", file=fileToPrintTo)
+        print(str(len(survivingMutants)) + " Surviving Mutants: ", file=fileToPrintTo)
+        for mutant in survivingMutants:
+            print(mutant, file=fileToPrintTo)  # Update this line to print out line numbers of mutants/original+mutated lines
 
 def manageMutations(file_path, test_source):
     module_to_del = file_path.replace('\\', '.')

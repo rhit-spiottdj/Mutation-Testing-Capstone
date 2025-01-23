@@ -48,7 +48,7 @@ class MutationTree:
             fd.flush()
             fd.close()
 
-    def traverseTree(self, isOriginal = False):
+    def traverseTree(self):
         self.addop = []
         self.subop = []
         self.multiop = []
@@ -57,10 +57,6 @@ class MutationTree:
         self.variables = []
         self.values = []
         for node in ast.walk(self.tree):
-            if isOriginal:
-                print("\033[34m")
-                print(node)
-                print("\033[0m")
             if isinstance(node, ast.Add):
                 self.addop.append("+")
             if isinstance(node, ast.Sub):
@@ -242,30 +238,30 @@ class MutationTree:
                     node.op = ast.Mult()
                     ast.fix_missing_locations(node)
 
-                if isinstance(node.op, ast.Div):
-                    # Store prev node
-                    self.nodes.append(node.op)
-                    node.op = ast.Mult()
-                    ast.fix_missing_locations(node)
-                    self.mutations.append(ast.unparse(self.tree))
-                    # Store mutated node
-                    self.mutated_nodes.append(node.op)
-                    node.op = ast.Div()
-                    ast.fix_missing_locations(node)
+                # if isinstance(node.op, ast.Div):
+                #     # Store prev node
+                #     self.nodes.append(node.op)
+                #     node.op = ast.Mult()
+                #     ast.fix_missing_locations(node)
+                #     self.mutations.append(ast.unparse(self.tree))
+                #     # Store mutated node
+                #     self.mutated_nodes.append(node.op)
+                #     node.op = ast.Div()
+                #     ast.fix_missing_locations(node)
 
-                if isinstance(node.op, ast.Mod):
-                    # Store prev node
-                    self.nodes.append(node.op)
-                    node.op = ast.Mult()
-                    ast.fix_missing_locations(node)
-                    self.mutations.append(ast.unparse(self.tree))
-                    # Store mutated node
-                    self.mutated_nodes.append(node.op)
-                    node.op = ast.Mod()
-                    ast.fix_missing_locations(node)
+                # if isinstance(node.op, ast.Mod):
+                #     # Store prev node
+                #     self.nodes.append(node.op)
+                #     node.op = ast.Mult()
+                #     ast.fix_missing_locations(node)
+                #     self.mutations.append(ast.unparse(self.tree))
+                #     # Store mutated node
+                #     self.mutated_nodes.append(node.op)
+                #     node.op = ast.Mod()
+                #     ast.fix_missing_locations(node)
                 
         self.traverseTree()
 
-def main(code):
-    tree = MutationTree(code)
-    tree.traverseTree()
+# def main(code):
+#     tree = MutationTree(code)
+#     tree.traverseTree()
