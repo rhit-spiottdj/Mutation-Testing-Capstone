@@ -79,34 +79,19 @@ class MutationGeneratorTester(unittest.TestCase):
     
     def testPrintReport(self):
         stream = io.StringIO()
-        MutationManager.printMutantReport(1, 2, [1], fileToPrintTo=stream)
+        MutationManager.printMutantReport(1, 2, [1], streamToPrintTo=stream)
         stream_content = stream.getvalue()
         self.assertEqual(stream_content, "Successfully killed 50.00% of mutations\n1 Surviving Mutants: \n1\n")
 
     def testAllMutationVariations(self):
         stream = io.StringIO()
-        MutationManager.generateMutations(self.file_source, self.test_source, stream)
+        kwargs = {}
+        kwargs['file_source'] = self.file_source
+        kwargs['test_source'] = self.test_source
+        kwargs['streamToPrintTo'] = stream
+        kwargs['suppressOut'] = True
+        kwargs['suppressErr'] = True
+        kwargs['genReport'] = False
+        MutationManager.generateMutations(**kwargs)
         stream_content = stream.getvalue()
-        self.assertEqual(stream_content, "Successfully killed 100.00% of mutations\n0 Surviving Mutants: \n")
-        # for test_tree in self.test_tree_array:
-        #     test_tree.basicMutateTree()
-        #     for i in range(test_tree.retMutationLength()):
-        #         test_tree.loadMutatedCode(i)
-        #         result = MutationManager.manageMutations(test_tree.file_path, self.test_source)
-        #         print(result)
-        #         print(test_tree.nodes[i])
-                
-        #         self.assertNotEqual(test_tree.nodes[i], test_tree.mutated_nodes[i])
-        #         try:
-        #             self.assertFalse(result["allPassed"])
-        #             print("\t\033[32mCorrectly failed test\033[0m")
-        #         except AssertionError as e:
-        #             print("\033[31mERROR Test Is Passing\033[0m")
-        #             print("Mutated code:")
-        #             print(test_tree.mutations[i])
-        #             test_tree.loadOriginalCode()
-        #             with open(parent + test_tree.file_path, 'r', encoding='utf-8') as fd:
-        #                 code = fd.read()
-        #                 fd.close()
-        #                 self.assertEqual(code, test_tree.original_code) 
-        #             raise e
+        self.assertEqual(stream_content, "Successfully killed 100.00% of mutations\nNo surviving mutants\n")
