@@ -1,0 +1,25 @@
+# Relative path to source code directory
+file_source: "/OriginalFiles/HelloCode/"
+
+# Relative path to test code directory
+test_source: "/OriginalFiles/HelloCodeTests/"
+
+# Items to exclude from mutation
+# - file_path: "File Name Here"
+#   entire_file: true/false
+#   methods:
+#     - "Method Name Here"
+#   operators:
+#     - "Operator Here"
+exclusions:
+  directories:
+  files:
+    - filename: "HelloWorld_UnmutatedCopy.py"
+      entire_file: true
+      methods:
+      operators:
+
+# The relative path where the mutation report will be generated
+report_directory: "/MutationReports/"
+
+report_filename: "output.txt"

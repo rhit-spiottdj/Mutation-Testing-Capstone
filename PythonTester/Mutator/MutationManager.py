@@ -5,6 +5,7 @@ import sys
 import unittest
 import os
 import io
+import yaml
 import Mutator.MutationGenerator as MutationGenerator
 
 current = os.path.dirname(os.path.realpath(__file__))
@@ -23,9 +24,9 @@ def generateMutations(**kwargs):
     totalMutants = 0
     survivingMutants = []
     if 'file_source' not in kwargs or 'test_source' not in kwargs:
-        with open(parent + "/config.txt", 'r', encoding='utf-8') as fd:
-            file_source = fd.readline().strip()
-            test_source = fd.readline().strip()
+        with open(parent + "/config.yaml", 'r', encoding='utf-8') as fd:
+            file_source = yaml.safe_load(fd)['file_source']
+            test_source = yaml.safe_load(fd)['test_source']
             fd.close()
     else:
         file_source = kwargs['file_source']
@@ -61,11 +62,11 @@ def generateMutations(**kwargs):
 def obtainTrees(file_source):
     excluded_files = []
     test_tree_array =  []
-    with open(parent + "/excluded_config.txt", 'r', encoding='utf-8') as fd:
-        excluded_files = fd.read().splitlines()
+    with open(parent + "/config.yaml", 'r', encoding='utf-8') as fd:
+        excluded_files = yaml.safe_load(fd)['exclusions']['files']
         fd.close()
     for filename in os.listdir(parent + file_source):
-        if filename.endswith('.py') and filename != "__init__.py" and filename not in excluded_files:
+        if filename.endswith('.py') and filename != "__init__.py" and not any(filename in d['filename'] for d in excluded_files):
             test_tree_array.append(MutationGenerator.MutationTree(file_source + filename))
     return test_tree_array
 

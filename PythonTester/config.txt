@@ -1,2 +1,0 @@
-/OriginalFiles/HelloCode/
-/OriginalFiles/HelloCodeTests/
