@@ -2,6 +2,7 @@ import os
 import argparse
 import Mutator.MutationManager as Manager
 import yaml
+import sys
 
 parser = argparse.ArgumentParser(description='Mutation test code given a code and test source')
 parser.add_argument('-f', '--files', dest='files', type=str, help='The relative file path to the source code directory')
@@ -22,6 +23,9 @@ def main():
     
     kwargs = {}
     if args.files:
+        if os.path.exists(cwd + args.files) is False:
+            print("File path does not exist")
+            sys.exit(1)
         files = args.files
         if(files[0] != '/'):
             files = '/' + files
@@ -30,6 +34,9 @@ def main():
     else:
         files = config_data['file_source']
     if args.tests:
+        if os.path.exists(cwd + args.tests) is False:
+            print("Test path does not exist")
+            sys.exit(1)
         tests = args.tests
         if(tests[0] != '/'):
             tests = '/' + tests
