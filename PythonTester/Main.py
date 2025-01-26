@@ -12,14 +12,17 @@ parser.add_argument('-e', '--error', dest='error', action='store_true', help='Pr
 parser.add_argument('-r', '--report', dest='report', action='store_true', help='Generate mutation report file')
 
 def main():
-    # Remove hardcoded file paths once error messages for missing args are implemented
     config_data = None
 
     args = parser.parse_args()
     cwd = os.getcwd()
-    with open(cwd + "/config.yaml", 'r', encoding='utf-8') as fd:
+    try:
+        with open(cwd + "/config.yaml", 'r', encoding='utf-8') as fd:
             config_data = yaml.safe_load(fd)
             fd.close()
+    except FileNotFoundError:
+        print("Config file not found")
+        sys.exit(1)
     
     kwargs = {}
     if args.files:
@@ -27,23 +30,23 @@ def main():
             print("File path does not exist")
             sys.exit(1)
         files = args.files
-        if(files[0] != '/'):
-            files = '/' + files
-        if(files[-1] != '/'):
-            files = files + '/'
     else:
         files = config_data['file_source']
+    if(files[0] != '/'):
+        files = '/' + files
+    if(files[-1] != '/'):
+        files = files + '/'
     if args.tests:
         if os.path.exists(cwd + args.tests) is False:
             print("Test path does not exist")
             sys.exit(1)
         tests = args.tests
-        if(tests[0] != '/'):
-            tests = '/' + tests
-        if(tests[-1] != '/'):
-            tests = tests + '/'
     else:
         tests = config_data['test_source']
+    if(tests[0] != '/'):
+        tests = '/' + tests
+    if(tests[-1] != '/'):
+        tests = tests + '/'
         
             
     kwargs['file_source'] = files
