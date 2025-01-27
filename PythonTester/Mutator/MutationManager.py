@@ -6,6 +6,7 @@ import unittest
 import os
 import io
 import yaml
+import progressbar
 import Mutator.MutationGenerator as MutationGenerator
 
 current = os.path.dirname(os.path.realpath(__file__))
@@ -23,6 +24,8 @@ def generateMutations(**kwargs):
     killedMutants = 0
     totalMutants = 0
     survivingMutants = []
+    currentMutants = 0
+
     if 'file_source' not in kwargs or 'test_source' not in kwargs:
         with open(parent + "/config.yaml", 'r', encoding='utf-8') as fd:
             file_source = yaml.safe_load(fd)['file_source']
@@ -34,29 +37,36 @@ def generateMutations(**kwargs):
     if file_source == "" or test_source == "":
         raise Exception("File or test source not found")
     test_tree_array = obtainTrees(file_source)
+    
     for test_tree in test_tree_array:
         test_tree.basicMutateTree()
-        try:
-            for test_tree in test_tree_array:
-                totalMutants += test_tree.retMutationLength()
+        totalMutants += test_tree.retMutationLength()
+
+    #start printing progress_bar here
+    with progressbar.ProgressBar(maxval=totalMutants, redirect_stdout=True).start() as progress_bar:
+        for test_tree in test_tree_array:
+            try: 
                 for i in range(test_tree.retMutationLength()):
                     test_tree.loadMutatedCode(i)
                     result = manageMutations(test_tree.file_path, test_source, suppressOut, suppressErr)
+                    currentMutants += 1
                     # print(result)
                     # print(test_tree.nodes[i])
                     if(result["allPassed"] is False):
                         killedMutants += 1
                         if not genReport:
                             print("\033[32mCorrectly failed test\033[0m")
+                            progress_bar.update(currentMutants)
                     else:
                         survivingMutants.append(test_tree.nodes[i]) # add more helpful info here
                         if not genReport:
                             print("\033[31mERROR Test Is Passing\033[0m")
+                            progress_bar.update(currentMutants)
                     test_tree.loadOriginalCode()
-        except Exception as e:
-            test_tree.loadOriginalCode()
-            printMutantReport(killedMutants, totalMutants, survivingMutants, streamToPrintTo)
-            raise e
+            except Exception as e:
+                test_tree.loadOriginalCode()
+                printMutantReport(killedMutants, totalMutants, survivingMutants, streamToPrintTo)
+                raise e
     printMutantReport(killedMutants, totalMutants, survivingMutants, streamToPrintTo)
 
 def obtainTrees(file_source):
@@ -78,6 +88,9 @@ def printMutantReport(killedMutants, totalMutants, survivingMutants, streamToPri
             print(str(len(survivingMutants)) + " Surviving Mutants: ", file=streamToPrintTo)
             for mutant in survivingMutants:
                 print(mutant, file=streamToPrintTo)  # Update this line to print out line numbers of mutants/original+mutated lines
+
+def generateReport():
+    return    
 
 def manageMutations(file_path, test_source, suppressOut=True, suppressErr=True):
     module_to_del = file_path.replace('\\', '.')

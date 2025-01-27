@@ -146,7 +146,7 @@ class MutationTree:
         return len(self.mutations) 
     
     def basicMutateTree(self):
-        print("Beginning code mutation")
+        print("Beginning code mutation " + self.file_path)
         for node in ast.walk(self.tree):
             if isinstance(node, ast.BinOp):
                 if isinstance(node.op, ast.Add):

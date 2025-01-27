@@ -1,8 +1,8 @@
 import os
 import argparse
-import Mutator.MutationManager as Manager
-import yaml
 import sys
+import yaml
+import Mutator.MutationManager as Manager
 
 parser = argparse.ArgumentParser(description='Mutation test code given a code and test source')
 parser.add_argument('-f', '--files', dest='files', type=str, help='The relative file path to the source code directory')
