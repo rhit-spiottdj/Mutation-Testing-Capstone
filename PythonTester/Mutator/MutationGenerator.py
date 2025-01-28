@@ -1,27 +1,44 @@
-import ast
 import os
+import libcst as cst
+
+from libcst.display import dump
+
+# List of nodes linked with list of single mutations before mutation
+global_nodes = []
+global_line_nums = []
+global_col_nums = []
+global_line_num = -1
+global_col_num = -1
+mutation_map = {
+    "Add()" : cst.Subtract(),
+    "AddAssign()" : cst.SubtractAssign(),
+    "Subtract()" : cst.Add(),
+    "SubtractAssign()" : cst.AddAssign(),
+    "Multiply()" : cst.Divide(),
+    "MultiplyAssign()" : cst.DivideAssign(),
+    "Divide()" : cst.Multiply(),
+    "DivideAssign()" : cst.MultiplyAssign(),
+    "Modulo()" : cst.Multiply(),
+    "ModuloAssign()" : cst.MultiplyAssign(),
+}
 
 class MutationTree:
-    addop = []
-    subop = []
-    multiop = []
-    divop = []
-    modop = []
-    variables = []
-    values = []
-    tree = None
-    original_code = ""
-    mutated_code = ""
-    C = ""
     # List of Individual mutations
     mutations = []
+
+    og_tree = None
+    tree = None
+
+    original_code = ""
+    C = ""
+    file_path = ""
     # List of nodes linked with list of single mutations before mutation
     nodes = []
-    # List of nodes after mutation linked with mutations
-    mutated_nodes = []
-    file_path = ""
-
+    line_nums = []
+    col_nums = []
+    
     def __init__(self, fs):
+        # global tree, og_tree
         # VERY IMPORTANT STEP!!!!!
         # Establish path to original file
         self.C = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
@@ -30,17 +47,23 @@ class MutationTree:
         with open(self.C + self.file_path, 'r', encoding='utf-8') as fd:
             self.original_code = fd.read()
             fd.close()
-            self.tree = ast.parse(self.original_code)
+            self.tree = cst.parse_module(self.original_code)
+
+            self.og_tree = self.tree
+            
             # Important to print out the syntax of node tree
-            # print(ast.dump(self.tree, indent=4)) ##Used for understanding utilization of ast methods
+            # print("\n", dump(self.tree)) ##Used for understanding utilization of ast methods
+
+            self.metaDataVisitor = None
+            self.visitor = VisitNodes()
+            self.mutator = MutateNodes()
 
     def loadMutatedCode(self, i):
         with open(self.C + self.file_path, 'w', encoding='utf-8') as fd:
             fd.write(self.mutations[i])
             fd.flush()
             fd.close()
-            self.tree = ast.parse(self.mutations[i])
-            self.traverseTree()
+            self.tree = cst.parse_module(self.mutations[i])
 
     def loadOriginalCode(self):
         with open(self.C + self.file_path, 'w', encoding='utf-8') as fd:
@@ -49,219 +72,86 @@ class MutationTree:
             fd.close()
 
     def traverseTree(self):
-        self.addop = []
-        self.subop = []
-        self.multiop = []
-        self.divop = []
-        self.modop = []
-        self.variables = []
-        self.values = []
-        for node in ast.walk(self.tree):
-            if isinstance(node, ast.Add):
-                self.addop.append("+")
-            if isinstance(node, ast.Sub):
-                self.subop.append("-")
-            if isinstance(node, ast.Mult):
-                self.multiop.append("*")
-            if isinstance(node, ast.Div):
-                self.divop.append("/")
-            if isinstance(node, ast.Mod):
-                self.modop.append("%")
-            # if isinstance(node, ast.Lt):
-            #     self.operations.append("<")
-            # if isinstance(node, ast.LtE):
-            #     self.operations.append("<=")
-            # if isinstance(node, ast.Gt):
-            #     self.operations.append(">")
-            # if isinstance(node, ast.GtE):
-            #     self.operations.append(">=")
-            # if isinstance(node, ast.Eq):
-            #     self.operations.append("==")
-            # if isinstance(node, ast.NotEq):
-            #     self.operations.append("!=")
-            # if isinstance(node, ast.And):
-            #     self.operations.append("&&")
-            # if isinstance(node, ast.Or):
-            #     self.operations.append("||")
-            # if isinstance(node, ast.BitAnd):
-            #     self.operations.append("&")
-            # if isinstance(node, ast.BitOr):
-            #     self.operations.append("|")
-            # if isinstance(node, ast.Constant):
-            #     self.operations.append("Constant")
+        global global_line_nums, global_col_nums, global_nodes
+        global_line_nums = []
+        global_col_nums = []
+        global_nodes = []
+        self.metaDataVisitor = cst.MetadataWrapper(self.tree)
+        self.metaDataVisitor.visit(self.visitor)
+        self.line_nums = global_line_nums
+        self.col_nums = global_col_nums
+        self.nodes = global_nodes
 
-            # if isinstance(node, ast.Name):
-            #     if isinstance(node.ctx, ast.Store):
-            #         self.variables.append(node.id)
-            if isinstance(node, ast.Assign) or isinstance(node, ast.AugAssign):
-                # if isinstance(node.value, ast.Constant):
-                #     self.values.append(node.value.value)
-                if isinstance(node.value, ast.Name):
-                    self.values.append(node.value.id)
-                if isinstance(node, ast.AugAssign):
-                    if isinstance(node.target, ast.Name):
-                        if isinstance(node.target.ctx, ast.Store):
-                            self.variables.append(node.target.id)
-                else: 
-                    for name in node.targets:
-                        if isinstance(name, ast.Name):
-                            if isinstance(name.ctx, ast.Store):
-                                self.variables.append(name.id)
-                if isinstance(node.value, ast.List):
-                    temp = []
-                    for elt in node.value.elts:
-                        if isinstance(elt, ast.Constant):
-                            temp.append(elt.value)
-                    self.values.append(temp)
-
-            if isinstance(node, ast.BinOp):
-                if isinstance(node.left, ast.Constant):
-                    self.values.append(node.left.value)
-                if isinstance(node.right, ast.Constant):
-                    self.values.append(node.right.value)
-                if isinstance(node.left, ast.Name):
-                    self.values.append(node.left.id)
-                if isinstance(node.right, ast.Name):
-                    self.values.append(node.right.id)
-
-    def retAdd(self):
-        return self.addop
-
-    def retSub(self):
-        return self.subop
+    def retLineNum(self):
+        return self.line_nums
     
-    def retMulti(self):
-        return self.multiop
+    def retColNum(self):
+        return self.col_nums
     
-    def retDiv(self):
-        return self.divop
-    
-    def retMod(self):
-        return self.modop
+    def retNodes(self):
+        return self.nodes
 
     def retOriginalCode(self):
         return self.original_code
     
-    def retMutationLength(self):
-        return len(self.mutations) 
+    def retMutations(self):
+        return self.mutations
     
+    def retMutationLength(self):
+        return len(self.mutations)
+    
+    def retTree(self):
+        return self.tree
+
     def basicMutateTree(self):
-        print("Beginning code mutation " + self.file_path)
-        for node in ast.walk(self.tree):
-            if isinstance(node, ast.BinOp):
-                if isinstance(node.op, ast.Add):
-                    # Store prev node
-                    self.nodes.append(node.op)
-                    node.op = ast.Sub()
-                    ast.fix_missing_locations(node)
-                    self.mutations.append(ast.unparse(self.tree))
-                    # Store mutated node
-                    self.mutated_nodes.append(node.op)
-                    node.op = ast.Add()
-                    ast.fix_missing_locations(node)
-
-                if isinstance(node.op, ast.Sub):
-                    # Store prev node
-                    self.nodes.append(node.op)
-                    node.op = ast.Add()
-                    ast.fix_missing_locations(node)
-                    self.mutations.append(ast.unparse(self.tree))
-                    # Store mutated node
-                    self.mutated_nodes.append(node.op)
-                    node.op = ast.Sub()
-                    ast.fix_missing_locations(node)
-
-                if isinstance(node.op, ast.Mult):
-                    # Store prev node
-                    self.nodes.append(node.op)
-                    node.op = ast.Div()
-                    ast.fix_missing_locations(node)
-                    self.mutations.append(ast.unparse(self.tree))
-                    # Store mutated node
-                    self.mutated_nodes.append(node.op)
-                    node.op = ast.Mult()
-                    ast.fix_missing_locations(node)
-
-                if isinstance(node.op, ast.Div):
-                    # Store prev node
-                    self.nodes.append(node.op)
-                    node.op = ast.Mult()
-                    ast.fix_missing_locations(node)
-                    self.mutations.append(ast.unparse(self.tree))
-                    # Store mutated node
-                    self.mutated_nodes.append(node.op)
-                    node.op = ast.Div()
-                    ast.fix_missing_locations(node)
-
-                if isinstance(node.op, ast.Mod):
-                    # Store prev node
-                    self.nodes.append(node.op)
-                    node.op = ast.Mult()
-                    ast.fix_missing_locations(node)
-                    self.mutations.append(ast.unparse(self.tree))
-                    # Store mutated node
-                    self.mutated_nodes.append(node.op)
-                    node.op = ast.Mod()
-                    ast.fix_missing_locations(node)
-
-            if isinstance(node, ast.AugAssign):
-                if isinstance(node.op, ast.Add):
-                    # Store prev node
-                    self.nodes.append(node.op)
-                    node.op = ast.Sub()
-                    ast.fix_missing_locations(node)
-                    self.mutations.append(ast.unparse(self.tree))
-                    # Store mutated node
-                    self.mutated_nodes.append(node.op)
-                    node.op = ast.Add()
-                    ast.fix_missing_locations(node)
-
-                if isinstance(node.op, ast.Sub):
-                    # Store prev node
-                    self.nodes.append(node.op)
-                    node.op = ast.Add()
-                    ast.fix_missing_locations(node)
-                    self.mutations.append(ast.unparse(self.tree))
-                    # Store mutated node
-                    self.mutated_nodes.append(node.op)
-                    node.op = ast.Sub()
-                    ast.fix_missing_locations(node)
-
-                if isinstance(node.op, ast.Mult):
-                    # Store prev node
-                    self.nodes.append(node.op)
-                    node.op = ast.Div()
-                    ast.fix_missing_locations(node)
-                    self.mutations.append(ast.unparse(self.tree))
-                    # Store mutated node
-                    self.mutated_nodes.append(node.op)
-                    node.op = ast.Mult()
-                    ast.fix_missing_locations(node)
-
-                # if isinstance(node.op, ast.Div):
-                #     # Store prev node
-                #     self.nodes.append(node.op)
-                #     node.op = ast.Mult()
-                #     ast.fix_missing_locations(node)
-                #     self.mutations.append(ast.unparse(self.tree))
-                #     # Store mutated node
-                #     self.mutated_nodes.append(node.op)
-                #     node.op = ast.Div()
-                #     ast.fix_missing_locations(node)
-
-                # if isinstance(node.op, ast.Mod):
-                #     # Store prev node
-                #     self.nodes.append(node.op)
-                #     node.op = ast.Mult()
-                #     ast.fix_missing_locations(node)
-                #     self.mutations.append(ast.unparse(self.tree))
-                #     # Store mutated node
-                #     self.mutated_nodes.append(node.op)
-                #     node.op = ast.Mod()
-                #     ast.fix_missing_locations(node)
-                
+        global global_line_num, global_col_num
+        self.mutations = []
         self.traverseTree()
+        for var in range(len(self.nodes)):
+            global_line_num = self.line_nums[var]
+            global_col_num = self.col_nums[var]
+            self.metaDataVisitor = cst.MetadataWrapper(self.tree)
+            new_tree = self.metaDataVisitor.visit(self.mutator)
+            self.mutations.append(new_tree.code)
+
 
 # def main(code):
 #     tree = MutationTree(code)
 #     tree.traverseTree()
+
+class VisitNodes(cst.CSTVisitor):
+    METADATA_DEPENDENCIES = (cst.metadata.PositionProvider,)
+    global global_line_nums, global_col_nums, global_nodes
+
+    def visit_BinaryOperation(self, node):
+        pos = self.get_metadata(cst.metadata.PositionProvider, node.operator).start
+        global_line_nums.append(pos.line)
+        global_col_nums.append(pos.column)
+        global_nodes.append(dump(node.operator))
+
+    def visit_AugAssign(self, node):
+        pos = self.get_metadata(cst.metadata.PositionProvider, node.operator).start
+        global_line_nums.append(pos.line)
+        global_col_nums.append(pos.column)
+        global_nodes.append(dump(node.operator))
+
+class MutateNodes(cst.CSTTransformer):
+    METADATA_DEPENDENCIES = (cst.metadata.PositionProvider,)
+    
+    def leave_BinaryOperation(self, original_node, updated_node):
+        pos = self.get_metadata(cst.metadata.PositionProvider, original_node.operator).start
+        if global_line_num == pos.line and global_col_num == pos.column:
+            new_node = updated_node.with_changes(
+                operator = mutation_map[dump(original_node.operator)]
+            )
+            return new_node
+        return updated_node
+    
+    def leave_AugAssign(self, original_node, updated_node):
+        pos = self.get_metadata(cst.metadata.PositionProvider, original_node.operator).start
+        if global_line_num == pos.line and global_col_num == pos.column:
+            new_node = updated_node.with_changes(
+                operator = mutation_map[dump(original_node.operator)]
+            )
+            return new_node
+        return updated_node
