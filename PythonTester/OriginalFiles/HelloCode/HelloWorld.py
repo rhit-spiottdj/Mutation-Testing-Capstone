@@ -70,11 +70,11 @@ def andMe():
 def orMe():
     return (0 == 0 or 1 == 1)
 
-# def bitwiseAndMe():
-#     return (1 & 1)
+def bitwiseAndMe():
+    return (0 & 1)
 
-# def bitwiseOrMe():
-#     return (0 | 1)
+def bitwiseOrMe():
+    return (0 | 1)
 
 def ternaryNullOperator():
     p = None

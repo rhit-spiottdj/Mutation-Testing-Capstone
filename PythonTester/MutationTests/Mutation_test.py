@@ -21,6 +21,8 @@ mutation_map = {
     "DivideAssign()" : "MultiplyAssign()",
     "Modulo()" : "Multiply()",
     "ModuloAssign()" : "MultiplyAssign()",
+    "BitAnd()" : "BitOr()",
+    "BitOr()" : "BitAnd()",
 }
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
