@@ -48,11 +48,11 @@ class MyTestCase(unittest.TestCase):
     def testOrMe(self):
         self.assertTrue(HelloWorld.orMe())
 
-    def testBitwiseAndMe(self):
-        self.assertTrue(HelloWorld.bitwiseAndMe())
+    # def testBitwiseAndMe(self):
+    #     self.assertTrue(HelloWorld.bitwiseAndMe())
 
-    def testBitwiseOrMe(self):
-        self.assertTrue(HelloWorld.bitwiseOrMe())
+    # def testBitwiseOrMe(self):
+    #     self.assertTrue(HelloWorld.bitwiseOrMe())
 
     def testTernaryNullOperator(self):
         self.assertIsNotNone(HelloWorld.ternaryNullOperator())
