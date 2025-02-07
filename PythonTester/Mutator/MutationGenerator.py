@@ -1,7 +1,7 @@
 import os
 import libcst as cst
 
-import TreeMutator
+from Mutator import TreeMutator
 import MutationTree
 import TreeConverter
 import NodeTypes

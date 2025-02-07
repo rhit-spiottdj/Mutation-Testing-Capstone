@@ -3,9 +3,6 @@ class TreeMutator:
     tree = None
     mutants = []
 
-    def __init__(self):
-        return
-
     def generateMutations(self, tree, param):
         self.tree = tree
         self.og_tree = tree

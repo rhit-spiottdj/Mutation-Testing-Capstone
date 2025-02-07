@@ -103,6 +103,20 @@ class TreeConverter:
 class VisitNodes(cst.CSTVisitor):
     METADATA_DEPENDENCIES = (cst.metadata.PositionProvider,)
     global tempTree
+
+    def on_visit(self, node):
+        # Called every time a node is visited, before we've visited its children.
+
+        # Returns ``True`` if children should be visited, and returns ``False``
+        # otherwise.
+        print(type(node).__name__)
+        visit_func = getattr(self, f"visit_{type(node).__name__}", None)
+        if visit_func is not None:
+            retval = visit_func(node)
+        else:
+            retval = True
+        # Don't visit children IFF the visit function returned False.
+        return False if retval is False else True
     
     def visit_Module(self, node):
         pos = self.get_metadata(cst.metadata.PositionProvider, node.operator).start

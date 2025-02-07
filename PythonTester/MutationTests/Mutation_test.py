@@ -5,6 +5,11 @@ import io
 import libcst as cst
 
 from libcst.display import dump
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+from PythonTester.Mutator.MutationManager import MutationManager
+# Mutator import MutationManager
 
 code_line_num = -1
 code_col_num = -1
@@ -27,13 +32,13 @@ mutation_map = {
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
-from Mutator import MutationManager
 
 class MutationGeneratorTester(unittest.TestCase):
     def setUp(self):
         self.file_source = "/OriginalFiles/HelloCode/"
         self.test_source = "/OriginalFiles/HelloCodeTests/"
-        self.test_tree_array = MutationManager.obtainTrees(self.file_source)
+        self.manager = MutationManager()
+        self.test_tree_array = self.manager.obtainTrees(self.file_source)
     
     def tearDown(self):
         for test_tree in self.test_tree_array:
@@ -47,7 +52,7 @@ class MutationGeneratorTester(unittest.TestCase):
         for test_tree in self.test_tree_array:
             test_tree.loadOriginalCode()
             self.assertIsNotNone(test_tree)
-            result = MutationManager.manageMutations(test_tree.file_path, self.test_source)
+            result = self.manager.manageMutations(test_tree.file_path, self.test_source)
             try:
                 self.assertTrue(result["allPassed"])
             except AssertionError as e:
@@ -88,7 +93,7 @@ class MutationGeneratorTester(unittest.TestCase):
             code = fd.read()
             fd.close()
             self.assertNotEqual(code, test_tree.original_code)
-        result = MutationManager.manageMutations(test_tree.file_path, self.test_source)
+        result = self.manager.manageMutations(test_tree.file_path, self.test_source)
         print(result)
         try:
             self.assertFalse(result["allPassed"])
@@ -106,7 +111,7 @@ class MutationGeneratorTester(unittest.TestCase):
     
     def testPrintReport(self):
         stream = io.StringIO()
-        MutationManager.printMutantReport(1, 2, [1], streamToPrintTo=stream)
+        self.manager.printMutantReport(1, 2, [1], streamToPrintTo=stream)
         stream_content = stream.getvalue()
         self.assertEqual(stream_content, "Successfully killed 50.00% of mutations\n1 Surviving Mutants: \n1\n")
 
@@ -139,7 +144,7 @@ class MutationGeneratorTester(unittest.TestCase):
             self.metaDataVisitor.visit(self.visitor)
 
 
-            result = MutationManager.manageMutations(test_tree.file_path, self.test_source)
+            result = self.manager.manageMutations(test_tree.file_path, self.test_source)
             print(result)
             print(test_tree.nodes[i])
             try:
