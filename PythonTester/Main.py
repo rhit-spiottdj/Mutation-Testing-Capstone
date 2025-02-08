@@ -58,8 +58,8 @@ def main():
     if args.report:
         kwargs['genReport'] = True
     
-
-    Manager.generateMutations(**kwargs)
+    manager = Manager.MutationManager()
+    manager.generateMutations(**kwargs)
 
 if __name__ == '__main__':
     main()

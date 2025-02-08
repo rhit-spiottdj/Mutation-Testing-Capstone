@@ -2,9 +2,9 @@ import os
 import libcst as cst
 
 from Mutator import TreeMutator
-import MutationTree
-import TreeConverter
-import NodeTypes
+from Mutator import MutationTree
+from Mutator import TreeConverter
+from Mutator import NodeTypes
 
 class MutationGenerator:
 
@@ -40,17 +40,17 @@ class MutationGenerator:
         # Establish path to original file
         self.C = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
         
-        self.converter = TreeConverter(fs, self.C)
+        self.converter = TreeConverter.TreeConverter(fs, self.C)
         self.tree = self.converter.getTree()
 
-        self.mutator = TreeMutator()
+        self.mutator = TreeMutator.TreeMutator()
         self.config_path = config
 
         with open(self.C + self.config_path, 'r', encoding='utf-8') as fd:
             self.param = fd.read()
             # Get Actual params
             self.param = self.mutation_map #temporary
-            self.mutants = self.mutator.generateMutations(self.tree, self.param)
+            # self.mutants = self.mutator.generateMutations(self.tree, self.param)
             
             # Important to print out the syntax of node tree
             # print("\n", dump(self.tree)) ##Used for understanding utilization of ast methods

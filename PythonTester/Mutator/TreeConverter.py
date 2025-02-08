@@ -1,12 +1,13 @@
-import MutationTree
-import NodeTypes
+from Mutator import MutationTree
+from Mutator import NodeTypes
 import tree_sitter_python as tspython
 from tree_sitter import Language, Parser
 import libcst as cst
 
 PY_LANGUAGE = Language(tspython.language())
 
-tempTree = None
+tempMTree = None
+lst = []
 
 conversion_map = {
     "Add()" : NodeTypes.NodeType.ADD,
@@ -61,11 +62,11 @@ class TreeConverter:
         return mTree
 
     def makeMTree(self, tree):
-        global tempTree
-        tempTree = MutationTree.MutationTree(MutationTree.MutationNode(None, None))
+        global tempMTree
+        tempMTree = MutationTree.MutationTree(MutationTree.MutationNode(None, None))
         self.metaDataVisitor = cst.MetadataWrapper(tree)
         self.metaDataVisitor.visit(self.visitor)
-        mTree = tempTree
+        mTree = tempMTree
         return mTree
     
     def unmakeMTree(self, mTree):
@@ -102,14 +103,21 @@ class TreeConverter:
     
 class VisitNodes(cst.CSTVisitor):
     METADATA_DEPENDENCIES = (cst.metadata.PositionProvider,)
-    global tempTree
+    global tempMTree, lst
 
     def on_visit(self, node):
         # Called every time a node is visited, before we've visited its children.
 
         # Returns ``True`` if children should be visited, and returns ``False``
-        # otherwise.
-        print(type(node).__name__)
+        # otherwise
+
+        with open("test.txt", "a", encoding='utf-8') as f:
+            if type(node).__name__ not in lst:
+                print(lst)
+                lst.append(type(node).__name__)
+                f.write(type(node).__name__ + '\n')
+            # f.write(type(node).__name__ + '\n')
+            # print(type(node).__name__)
         visit_func = getattr(self, f"visit_{type(node).__name__}", None)
         if visit_func is not None:
             retval = visit_func(node)
@@ -118,9 +126,9 @@ class VisitNodes(cst.CSTVisitor):
         # Don't visit children IFF the visit function returned False.
         return False if retval is False else True
     
-    def visit_Module(self, node):
-        pos = self.get_metadata(cst.metadata.PositionProvider, node.operator).start
-        # tempTree.currentNode.attachChildren()
+    # def visit_Module(self, node):
+    #     pos = self.get_metadata(cst.metadata.PositionProvider, node.operator).start
+    #     tempTree.currentNode.attachChildren()
 
     # def visit_BaseExpression(self, node):
     #     pos = self.get_metadata(cst.metadata.PositionProvider, node.operator).start

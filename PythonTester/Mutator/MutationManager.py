@@ -77,7 +77,7 @@ class MutationManager:
             fd.close()
         for filename in os.listdir(parent + file_source):
             if filename.endswith('.py') and filename != "__init__.py" and not any(filename in d['filename'] for d in excluded_files):
-                test_tree_array.append(MutationGenerator.MutationTree(file_source + filename))
+                test_tree_array.append(MutationGenerator(file_source + filename))
         return test_tree_array
 
     def printMutantReport(self, killedMutants, totalMutants, survivingMutants, streamToPrintTo = None):

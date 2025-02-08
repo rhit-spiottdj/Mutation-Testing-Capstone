@@ -20,13 +20,53 @@ class NodeType(Enum):
     NOTEQUAL = 17
     LESSTHANEQUAL = 18
     GREATERTHANEQUAL = 19
-    CLASS = 20
-    METHOD = 21
-    VARIABLE = 22
-    ASSIGN = 23
-    VALUE = 24
+    MODULE = 20
+    EMPTYLINE = 21
+    SIMPLEWHITESPACE = 22
+    COMMENT = 23
+    NEWLINE = 24
+    FUNCTIONDEF = 25
+    NAME = 26
+    PARAMETERS = 27
+    INDENTEDBLOCK = 28
+    TRAILINGWHITESPACE = 29
+    SIMPLESTATEMENTLINE = 30
+    EXPR = 31
+    CALL = 32
+    ARG = 33
+    SIMPLESTRING = 34
+    RETURN = 35
+    ASSIGN = 36
+    ASSIGNTARGET = 37
+    LIST = 38
+    LEFTSQUAREBRACKET = 39
+    ELEMENT = 40
+    INTEGER = 41
+    COMMA = 42
+    RIGHTSQUAREBRACKET = 43
+    BINARYOPERATION = 44
+    FOR = 45
+    AUGASSIGN = 46
+    UNARYOPERATION =  47
+    MINUS = 48
+    COMPARISON = 49
+    COMPARISONTARGET = 50
+    BOOLEANOPERATION = 51
+    LEFTPAREN = 52
+    AND = 53
+    RIGHTPAREN = 54
+    OR = 55
+    IFEXP = 56
+    IS = 57
 
-NodeType = Enum('NodeType', [('ADD', 1), ('ADDASSIGN', 2), ('SUBTRACT', 3), ('SUBTRACTASSIGN', 4), ('MULTIPLY', 5), ('MULIPLYASSIGN', 6), 
+
+NodeType = Enum('NodeType', [('ADD', 1), ('ADDASSIGN', 2), ('SUBTRACT', 3), ('SUBTRACTASSIGN', 4), ('MULTIPLY', 5), ('MULTIPLYASSIGN', 6), 
                             ('DIVIDE', 7), ('DIVIDEASSIGN', 8), ('MODULO', 9), ('MODULOASSIGN', 10),  ('BITAND', 11), ('BITOR', 12), ('POWER', 13), 
                             ('LESSTHAN', 14), ('GREATERTHAN', 15), ('EQUAL', 16), ('NOTEQUAL', 17), ('LESSTHANEQUAL', 18), ('GREATERTHANEQUAL', 19), 
-                            ('CLASS', 20), ('METHOD', 21), ('VARIABLE', 22), ('ASSIGN', 23), ('VALUE', 24)])
+                            ('MODULE', 20), ('EMPTYLINE', 21), ('SIMPLEWHITESPACE', 22), ('COMMENT', 23), ('NEWLINE', 24), ('FUNCTIONDEF', 25),
+                            ('NAME', 26), ('PARAMETERS', 27), ('INDENTEDBLOCK', 28), ('TRAILINGWHITESPACE', 29), ('SIMPLESTATEMENTLINE', 30), 
+                            ('EXPR', 31), ('CALL', 32), ('ARG', 33), ('SIMPLESTRING', 34), ('RETURN', 35), ('ASSIGN', 36), ('ASSIGNTARGET', 37),
+                            ('LIST', 38), ('LEFTSQUAREBRACKET', 39), ('ELEMENT', 40), ('INTEGER', 41), ('COMMA', 42), ('RIGHTSQUAREBRACKET', 43),
+                            ('BINARYOPERATION', 44), ('FOR', 45), ('AUGASSIGN', 46), ('UNARYOPERATION', 47), ('MINUS', 48), ('COMPARISON', 49), 
+                            ('CAMPARISONTARGET', 50), ('BOOLEANOPERATION', 51), ('LEFTPAREN', 52), ('AND', 53), ('RIGHTPAREN', 54), ('OR', 55), 
+                            ('IFEXP', 56), ('IS', 57)])
