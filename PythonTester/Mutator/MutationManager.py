@@ -7,12 +7,14 @@ import os
 import io
 import yaml
 import progressbar
-import Mutator.MutationGenerator as MutationGenerator
+from Mutator.MutationGenerator import MutationGenerator
 
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
 class MutationManager:
+    config = parent + "/config.yaml"
+
     def generateMutations(self, **kwargs):
         if 'streamToPrintTo' in kwargs:
             streamToPrintTo = kwargs['streamToPrintTo']
@@ -27,7 +29,7 @@ class MutationManager:
         currentMutants = 0
 
         if 'file_source' not in kwargs or 'test_source' not in kwargs:
-            with open(parent + "/config.yaml", 'r', encoding='utf-8') as fd:
+            with open(self.config, 'r', encoding='utf-8') as fd:
                 file_source = yaml.safe_load(fd)['file_source']
                 test_source = yaml.safe_load(fd)['test_source']
                 fd.close()
@@ -72,12 +74,13 @@ class MutationManager:
     def obtainTrees(self, file_source):
         excluded_files = []
         test_tree_array =  []
-        with open(parent + "/config.yaml", 'r', encoding='utf-8') as fd:
+        with open(self.config, 'r', encoding='utf-8') as fd:
             excluded_files = yaml.safe_load(fd)['exclusions']['files']
             fd.close()
         for filename in os.listdir(parent + file_source):
+            generator = MutationGenerator(file_source + filename, self.config)
             if filename.endswith('.py') and filename != "__init__.py" and not any(filename in d['filename'] for d in excluded_files):
-                test_tree_array.append(MutationGenerator(file_source + filename))
+                test_tree_array.append(generator)
         return test_tree_array
 
     def printMutantReport(self, killedMutants, totalMutants, survivingMutants, streamToPrintTo = None):

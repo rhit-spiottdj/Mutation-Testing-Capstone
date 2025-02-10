@@ -37,9 +37,11 @@ class MutationNode:
     flagToExclude = False
     rowNumber = -1
     colNumber = -1
+    value = None
 
-    def __init__(self, nodeType, children = None):
+    def __init__(self, nodeType, value = None, children = None):
         self.children = children
+        self.value = value
         self.nodeType = nodeType
 
     def attachChildren(self, nodes):

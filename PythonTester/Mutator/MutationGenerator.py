@@ -1,26 +1,25 @@
 import os
 import libcst as cst
 
-from Mutator import TreeMutator
-from Mutator import MutationTree
-from Mutator import TreeConverter
-from Mutator import NodeTypes
+from Mutator.TreeMutator import TreeMutator
+from Mutator.TreeConverter import TreeConverter
+from Mutator.NodeTypes import NodeType
 
 class MutationGenerator:
 
     mutation_map = {
-        NodeTypes.NodeType.ADD : NodeTypes.NodeType.SUBTRACT,
-        NodeTypes.NodeType.ADDASSIGN : NodeTypes.NodeType.SUBTRACTASSIGN,
-        NodeTypes.NodeType.SUBTRACT : NodeTypes.NodeType.ADD,
-        NodeTypes.NodeType.SUBTRACTASSIGN : NodeTypes.NodeType.ADDASSIGN,
-        NodeTypes.NodeType.MULTIPLY : NodeTypes.NodeType.DIVIDE,
-        NodeTypes.NodeType.MULTIPLYASSIGN : NodeTypes.NodeType.DIVIDEASSIGN,
-        NodeTypes.NodeType.DIVIDE : NodeTypes.NodeType.MULTIPLY,
-        NodeTypes.NodeType.DIVIDEASSIGN: NodeTypes.NodeType.MULTIPLYASSIGN,
-        NodeTypes.NodeType.MODULO : NodeTypes.NodeType.MULTIPLY,
-        NodeTypes.NodeType.MODULOASSIGN : NodeTypes.NodeType.MULTIPLYASSIGN,
-        NodeTypes.NodeType.BITAND: NodeTypes.NodeType.BITOR,
-        NodeTypes.NodeType.BITOR : NodeTypes.NodeType.BITAND,
+        NodeType.ADD : NodeType.SUBTRACT,
+        NodeType.ADDASSIGN : NodeType.SUBTRACTASSIGN,
+        NodeType.SUBTRACT : NodeType.ADD,
+        NodeType.SUBTRACTASSIGN : NodeType.ADDASSIGN,
+        NodeType.MULTIPLY : NodeType.DIVIDE,
+        NodeType.MULTIPLYASSIGN : NodeType.DIVIDEASSIGN,
+        NodeType.DIVIDE : NodeType.MULTIPLY,
+        NodeType.DIVIDEASSIGN: NodeType.MULTIPLYASSIGN,
+        NodeType.MODULO : NodeType.MULTIPLY,
+        NodeType.MODULOASSIGN : NodeType.MULTIPLYASSIGN,
+        NodeType.BITAND: NodeType.BITOR,
+        NodeType.BITOR : NodeType.BITAND,
     }
 
     C = ""
@@ -40,10 +39,10 @@ class MutationGenerator:
         # Establish path to original file
         self.C = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
         
-        self.converter = TreeConverter.TreeConverter(fs, self.C)
+        self.converter = TreeConverter(fs, self.C)
         self.tree = self.converter.getTree()
 
-        self.mutator = TreeMutator.TreeMutator()
+        self.mutator = TreeMutator()
         self.config_path = config
 
         with open(self.C + self.config_path, 'r', encoding='utf-8') as fd:

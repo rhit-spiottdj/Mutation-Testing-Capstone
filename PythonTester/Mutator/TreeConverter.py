@@ -1,43 +1,76 @@
-from Mutator import MutationTree
-from Mutator import NodeTypes
+from Mutator.MutationTree import MutationTree
+from Mutator.MutationTree import MutationNode
+from Mutator.NodeTypes import NodeType
 import tree_sitter_python as tspython
 from tree_sitter import Language, Parser
 import libcst as cst
 
 PY_LANGUAGE = Language(tspython.language())
-
-tempMTree = None
 lst = []
 
-conversion_map = {
-    "Add()" : NodeTypes.NodeType.ADD,
-    "AddAssign()" : NodeTypes.NodeType.ADDASSIGN,
-    "Subtract()" : NodeTypes.NodeType.SUBTRACT,
-    "SubtractAssign()" : NodeTypes.NodeType.SUBTRACTASSIGN,
-    "Multiply()" : NodeTypes.NodeType.MULTIPLY,
-    "MultiplyAssign()" : NodeTypes.NodeType.MULTIPLYASSIGN,
-    "Divide()" : NodeTypes.NodeType.DIVIDE,
-    "DivideAssign()" : NodeTypes.NodeType.DIVIDEASSIGN,
-    "Modulo()" : NodeTypes.NodeType.MODULO,
-    "ModuloAssign()" : NodeTypes.NodeType.MODULOASSIGN,
-    "BitAnd()": NodeTypes.NodeType.BITAND,
-    "BitOr()" : NodeTypes.NodeType.BITOR,
-    "Power()" : NodeTypes.NodeType.POWER,
-    "LessThan()" : NodeTypes.NodeType.LESSTHAN,
-    "GreaterThan()" : NodeTypes.NodeType.GREATERTHAN,
-    "Equal()" : NodeTypes.NodeType.EQUAL,
-    "NotEqual()" : NodeTypes.NodeType.NOTEQUAL,
-    "LessThanEqual()" : NodeTypes.NodeType.LESSTHANEQUAL,
-    "GreaterThanEqual()" : NodeTypes.NodeType.GREATERTHANEQUAL,
-    "Class()" : NodeTypes.NodeType.CLASS,
-    "Method()" : NodeTypes.NodeType.METHOD,
-    "Variable()" : NodeTypes.NodeType.VARIABLE, 
-    "Assign()" : NodeTypes.NodeType.ASSIGN,
-    "Value()" : NodeTypes.NodeType.VALUE,
-
-}
-
 class TreeConverter:
+    lst = []
+
+    conversion_map = {
+        "Add" : NodeType.ADD,
+        "AddAssign" : NodeType.ADDASSIGN,
+        "Subtract" : NodeType.SUBTRACT,
+        "SubtractAssign" : NodeType.SUBTRACTASSIGN,
+        "Multiply" : NodeType.MULTIPLY,
+        "MultiplyAssign" : NodeType.MULTIPLYASSIGN,
+        "Divide" : NodeType.DIVIDE,
+        "DivideAssign" : NodeType.DIVIDEASSIGN,
+        "Modulo" : NodeType.MODULO,
+        "ModuloAssign" : NodeType.MODULOASSIGN,
+        "BitAnd": NodeType.BITAND,
+        "BitOr" : NodeType.BITOR,
+        "Power" : NodeType.POWER,
+        "LessThan" : NodeType.LESSTHAN,
+        "GreaterThan" : NodeType.GREATERTHAN,
+        "Equal" : NodeType.EQUAL,
+        "NotEqual" : NodeType.NOTEQUAL,
+        "LessThanEqual" : NodeType.LESSTHANEQUAL,
+        "GreaterThanEqual" : NodeType.GREATERTHANEQUAL,
+        "Module" : NodeType.MODULE,
+        "EmptyLine" : NodeType.EMPTYLINE,
+        "SimpleWhiteSpace" : NodeType.SIMPLEWHITESPACE,
+        "Comment" : NodeType.COMMENT,
+        "NewLine" : NodeType.NEWLINE,
+        "FunctionDef" : NodeType.FUNCTIONDEF,
+        "Name" : NodeType.NAME,
+        "Parameters" : NodeType.PARAMETERS,
+        "IndentBlock" : NodeType.INDENTEDBLOCK,
+        "TrailingWhiteSpace" : NodeType.TRAILINGWHITESPACE,
+        "SimpleStatementLine" : NodeType.SIMPLESTATEMENTLINE,
+        "Expr" : NodeType.EXPR,
+        "Call" : NodeType.CALL,
+        "Arg" : NodeType.ARG,
+        "SimpleString" : NodeType.SIMPLESTRING,
+        "Return" : NodeType.RETURN,
+        "Assign" : NodeType.ASSIGN,
+        "AssignTarget" : NodeType.ASSIGNTARGET,
+        "List" : NodeType.LIST,
+        "LeftSquareBracket" : NodeType.LEFTSQUAREBRACKET,
+        "Element" : NodeType.ELEMENT,
+        "Integer" : NodeType.INTEGER,
+        "Comma" : NodeType.COMMA,
+        "RightSquareBracket" : NodeType.RIGHTSQUAREBRACKET,
+        "BinaryOperation" : NodeType.BINARYOPERATION,
+        "For" : NodeType.FOR,
+        "AugAssign" : NodeType.AUGASSIGN,
+        "UnaryOperation" : NodeType.UNARYOPERATION,
+        "Minus" : NodeType.MINUS,
+        "Comparison" : NodeType.COMPARISON,
+        "ComparisonTarget" : NodeType.COMPARISONTARGET,
+        "BooleanOperation" : NodeType.BOOLEANOPERATION,
+        "LeftParne" : NodeType.LEFTPAREN,
+        "And" : NodeType.AND,
+        "RightParen" : NodeType.RIGHTPAREN,
+        "Or" : NodeType.OR,
+        "IfExp" : NodeType.IFEXP,
+        "Is" : NodeType.IS,
+    }
+
     # parser = Parser(PY_LANGUAGE)
     # treeSitter = None
     originalCode = None
@@ -62,11 +95,12 @@ class TreeConverter:
         return mTree
 
     def makeMTree(self, tree):
-        global tempMTree
-        tempMTree = MutationTree.MutationTree(MutationTree.MutationNode(None, None))
-        self.metaDataVisitor = cst.MetadataWrapper(tree)
-        self.metaDataVisitor.visit(self.visitor)
-        mTree = tempMTree
+        # global tempMTree
+        # tempMTree = MutationTree.MutationTree(MutationTree.MutationNode(None, None))
+        # self.metaDataVisitor = cst.MetadataWrapper(tree)
+        # self.metaDataVisitor.visit(self.visitor)
+        # mTree = tempMTree
+        mTree = MutationTree(self.traverser(tree))
         return mTree
     
     def unmakeMTree(self, mTree):
@@ -101,9 +135,28 @@ class TreeConverter:
     def getOriginalCode(self):
         return self.originalCode
     
+    def traverser(self, node):
+        mNode = self.convertNode(node)
+
+        for child in node.children:
+            mNode.attachChildren(self.traverser(child))
+        
+        return mNode
+    
+    def convertNode(self, node):
+        newType = self.conversion_map.get(type(node).__name__)
+        with open("test.txt", "a", encoding='utf-8') as f:
+            if type(node).__name__ not in self.lst:
+                self.lst.append(type(node).__name__)
+                f.write(type(node).__name__ + '\n')
+                print(str(node.field()) + '\n')
+                
+        mNode = MutationNode(newType)
+        return mNode
+    
 class VisitNodes(cst.CSTVisitor):
     METADATA_DEPENDENCIES = (cst.metadata.PositionProvider,)
-    global tempMTree, lst
+    global lst
 
     def on_visit(self, node):
         # Called every time a node is visited, before we've visited its children.
@@ -126,24 +179,3 @@ class VisitNodes(cst.CSTVisitor):
         # Don't visit children IFF the visit function returned False.
         return False if retval is False else True
     
-    # def visit_Module(self, node):
-    #     pos = self.get_metadata(cst.metadata.PositionProvider, node.operator).start
-    #     tempTree.currentNode.attachChildren()
-
-    # def visit_BaseExpression(self, node):
-    #     pos = self.get_metadata(cst.metadata.PositionProvider, node.operator).start
-
-    # def visit_Name(self, node):
-    #     pos = self.get_metadata(cst.metadata.PositionProvider, node.operator).start
-        
-    # def visit_Attribute(self, node):
-    #     pos = self.get_metadata(cst.metadata.PositionProvider, node.operator).start
-        
-    # def visit_UnaryOperation(self, node):
-    #     pos = self.get_metadata(cst.metadata.PositionProvider, node.operator).start
-
-    # def visit_BinaryOperation(self, node):
-    #     pos = self.get_metadata(cst.metadata.PositionProvider, node.operator).start
-
-    # def visit_AugAssign(self, node):
-    #     pos = self.get_metadata(cst.metadata.PositionProvider, node.operator).start

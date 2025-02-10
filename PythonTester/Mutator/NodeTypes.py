@@ -68,5 +68,5 @@ NodeType = Enum('NodeType', [('ADD', 1), ('ADDASSIGN', 2), ('SUBTRACT', 3), ('SU
                             ('EXPR', 31), ('CALL', 32), ('ARG', 33), ('SIMPLESTRING', 34), ('RETURN', 35), ('ASSIGN', 36), ('ASSIGNTARGET', 37),
                             ('LIST', 38), ('LEFTSQUAREBRACKET', 39), ('ELEMENT', 40), ('INTEGER', 41), ('COMMA', 42), ('RIGHTSQUAREBRACKET', 43),
                             ('BINARYOPERATION', 44), ('FOR', 45), ('AUGASSIGN', 46), ('UNARYOPERATION', 47), ('MINUS', 48), ('COMPARISON', 49), 
-                            ('CAMPARISONTARGET', 50), ('BOOLEANOPERATION', 51), ('LEFTPAREN', 52), ('AND', 53), ('RIGHTPAREN', 54), ('OR', 55), 
+                            ('COMPARISONTARGET', 50), ('BOOLEANOPERATION', 51), ('LEFTPAREN', 52), ('AND', 53), ('RIGHTPAREN', 54), ('OR', 55), 
                             ('IFEXP', 56), ('IS', 57)])
