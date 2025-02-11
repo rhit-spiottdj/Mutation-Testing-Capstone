@@ -31,21 +31,28 @@ class MutationTree:
         self.mutatedNode = self.currentNode
 
 class MutationNode:
+    nodeType = None
+    value = None
     children = None
     parent = None
-    nodeType = None
     flagToExclude = False
-    rowNumber = -1
-    colNumber = -1
-    value = None
+    rowNumber = None
+    colNumber = None
+    dataDict = {}
 
-    def __init__(self, nodeType, value = None, children = None):
-        self.children = children
-        self.value = value
+    def __init__(self, nodeType, rowNumber, colNumber, dataDict, value = None, children = None, parent = None):
         self.nodeType = nodeType
+        self.value = value
+        self.children = children
+        self.parent = parent
+        self.rowNumber = rowNumber
+        self.colNumber = colNumber
+        self.dataDict = dataDict
 
     def attachChildren(self, nodes):
         self.children = nodes
+        for node in nodes:
+            node.parent = self
     
     def excludeNode(self):
         self.flagToExclude = True
