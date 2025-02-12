@@ -310,15 +310,43 @@ class TreeConverter:
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
             mNode.attachChildren([bNode, lLNode, tWNode])
         elif(newType == NodeType.CALL):
-            print("hi")
+            fNode = self.convertNode(node.func)
+            dataDict['func'] = fNode
+            aNode = self.convertNode(node.args) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['args'] = aNode
+            lparNode = self.convertNode(node.lpar)
+            dataDict['leftParenthesis'] = lparNode # do a loop of the contents as it is a sequence of LibCST stuff
+            rparNode = self.convertNode(node.rpar)
+            dataDict['rightParenthesis'] = rparNode # do a loop of the contents as it is a sequence of LibCST stuff
+            wafNode = self.convertNode(node.whitespace_after_func)
+            dataDict['whitespaceAfterFunc'] = wafNode
+            wbaNode = self.convertNode(node.whitespace_before_args)
+            dataDict['whitespaceBeforeArgs'] = wbaNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([fNode, aNode, lparNode, rparNode, wafNode, wbaNode])
         elif(newType == NodeType.ARG):
-            print("hi")
+            valueNode = self.convertNode(node.value)
+            dataDict['value'] = valueNode
+            keywordNode = self.convertNode(node.keyword)
+            dataDict['keyword'] = keywordNode
+            equalNode = self.convertNode(node.equal)
+            dataDict['equal'] = equalNode
+            commaNode = self.convertNode(node.comma)
+            dataDict['comma'] = commaNode
+            star = node.star
+            dataDict['star'] = star
+            wasNode = self.convertNode(node.whitespace_after_star)
+            dataDict['whitespaceAfterStar'] = wasNode
+            waaNode = self.convertNode(node.whitespace_after_arg)
+            dataDict['whitespaceAfterArg'] = waaNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([valueNode, keywordNode, equalNode, commaNode, wasNode, waaNode])
         elif(newType == NodeType.SIMPLESTRING):
             value = node.value
             lparNode = self.convertNode(node.lpar)
-            dataDict['leftParenthesis'] = lparNode
+            dataDict['leftParenthesis'] = lparNode # do a loop of the contents as it is a sequence of LibCST stuff
             rparNode = self.convertNode(node.rpar)
-            dataDict['rightParenthesis'] = rparNode
+            dataDict['rightParenthesis'] = rparNode # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['prefix'] = node.prefix
             dataDict['quote'] = node.quote
             rValue = node.raw_value
@@ -326,25 +354,92 @@ class TreeConverter:
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict, value=value)
             mNode.attachChildren([lparNode, rparNode])
         elif(newType == NodeType.RETURN):
-            print("hi")
+            vNode = self.convertNode(node.value)
+            dataDict['value'] = vNode
+            warNode = self.convertNode(node.whitespace_after_return)
+            dataDict['whitespaceAfterReturn'] = warNode
+            sNode = self.convertNode(node.semicolon)
+            dataDict['semicolon'] = sNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([vNode, warNode, sNode])
         elif(newType == NodeType.ASSIGN):
-            print("hi")
+            tNode = self.convertNode(node.targets) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['targets'] = tNode
+            vNode = self.convertNode(node.value)
+            dataDict['value'] = vNode
+            sNode = self.convertNode(node.semicolon)
+            dataDict['semicolon'] = sNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([tNode, vNode, sNode])
         elif(newType == NodeType.ASSIGNTARGET):                        
-            print("hi")
+            tNode = self.convertNode(node.target)
+            dataDict['target'] = tNode
+            wbeNode = self.convertNode(node.whitespace_before_equal)
+            dataDict['whitespaceBeforeEqual'] = wbeNode
+            waeNode = self.convertNode(node.whitespace_after_equal)
+            dataDict['whitespaceAfterEqual'] = waeNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([tNode, wbeNode, waeNode])
         elif(newType == NodeType.LIST):
-            print("hi")
+            eNode = self.convertNode(node.elements) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['elements'] = eNode
+            lbNode = self.convertNode(node.lbracket)
+            dataDict['leftBracket'] = lbNode
+            rbNode = self.convertNode(node.rbracket)
+            dataDict['rightBracket'] = rbNode
+            lparNode = self.convertNode(node.lpar) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['leftParenthesis'] = lparNode
+            rparNode = self.convertNode(node.rpar) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['rightParenthesis'] = rparNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([eNode, lbNode, rbNode, lparNode, rparNode])
         elif(newType == NodeType.LEFTSQUAREBRACKET or NodeType.LEFTPAREN):
-            print("hi")
+            waNode = self.convertNode(node.whitespace_after)
+            dataDict['whitespaceAfter'] = waNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([waNode])
         elif(newType == NodeType.RIGHTSQUAREBRACKET or NodeType.RIGHTPAREN):
-            print("hi")
+            wbNode = self.convertNode(node.whitespace_before)
+            dataDict['whitespaceBefore'] = wbNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([wbNode])
         elif(newType == NodeType.ELEMENT):
-            print("hi") 
+            vNode = self.convertNode(node.value)
+            dataDict['value'] = vNode
+            cNode = self.convertNode(node.comma)
+            dataDict['comma'] = cNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([vNode, cNode])
         elif(newType == NodeType.INTEGER):
-            print("hi")
+            value = node.value
+            lparNode = self.convertNode(node.lpar) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['leftParenthesis'] = lparNode
+            rparNode = self.convertNode(node.rpar) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['rightParenthesis'] = rparNode
+            evalValue = node.evaluated_value
+            dataDict['evaluatedValue'] = evalValue
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict, value=value)
+            mNode.attachChildren([lparNode, rparNode])
         elif(newType == NodeType.COMMA):
-            print("hi")
+            wbNode = self.convertNode(node.whitespace_before)
+            dataDict['whitespaceBefore'] = wbNode
+            waNode = self.convertNode(node.whitespace_after)
+            dataDict['whitespaceAfter'] = waNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([wbNode, waNode])
         elif(newType == NodeType.BINARYOPERATION):
-            print("hi")
+            lNode = self.convertNode(node.left)
+            dataDict['left'] = lNode
+            opNode = self.convertNode(node.operator)
+            dataDict['operator'] = opNode
+            rNode = self.convertNode(node.right)
+            dataDict['right'] = rNode
+            lparNode = self.convertNode(node.lpar) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['leftParenthesis'] = lparNode
+            rparNode = self.convertNode(node.rpar) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['rightParenthesis'] = rparNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([lNode, opNode, rNode, lparNode, rparNode])
         elif(newType == NodeType.FOR):
             print("hi")
             targetNode = self.convertNode(node.target)
@@ -368,7 +463,16 @@ class TreeConverter:
             wsbcNode = self.convertNode(node.whitespace_before_colon)
             dataDict['whitespaceBeforeColon'] = wsbcNode
         elif(newType == NodeType.AUGASSIGN):    
-            print("hi")
+            tNode = self.convertNode(node.target)
+            dataDict['target'] = tNode
+            opNode = self.convertNode(node.operator)
+            dataDict['operator'] = opNode
+            vNode = self.convertNode(node.value)
+            dataDict['value'] = vNode
+            scNode = self.convertNode(node.semicolon)
+            dataDict['semicolon'] = scNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([tNode, opNode, vNode, scNode])
         elif(newType == NodeType.UNARYOPERATION):
             opNode = self.convertNode(node.operator)
             dataDict['operator'] = opNode
