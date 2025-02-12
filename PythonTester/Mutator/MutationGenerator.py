@@ -22,6 +22,8 @@ mutation_map = {
     "ModuloAssign()" : cst.MultiplyAssign(),
     "BitAnd()" : cst.BitOr(),
     "BitOr()" : cst.BitAnd(),
+    "Power()" : cst.Multiply(),
+    "PowerAssign()" : cst.MultiplyAssign(),
 }
 
 class MutationTree:
