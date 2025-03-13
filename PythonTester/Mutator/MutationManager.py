@@ -1,3 +1,4 @@
+import datetime
 import multiprocessing
 import contextlib
 import importlib
@@ -43,6 +44,14 @@ class MutationManager:
         for test_tree in test_tree_array:
             test_tree.basicMutateTree()
             totalMutants += test_tree.retMutationLength()
+        
+        if genReport:
+            # obtain report folder from config and pass in to generateReport
+            with open(self.config, 'r', encoding='utf-8') as fd:
+                report_directory = yaml.safe_load(fd)['report_directory']
+                report_filename = yaml.safe_load(fd)['report_filename']
+                fd.close()
+            self.generateReport(file_source, test_source, report_directory, report_filename)
 
         #start printing progress_bar here
         with progressbar.ProgressBar(maxval=totalMutants, redirect_stdout=True).start() as progress_bar:
@@ -59,11 +68,15 @@ class MutationManager:
                             if not genReport:
                                 print("\033[32mCorrectly failed test\033[0m")
                                 progress_bar.update(currentMutants)
+                            else:
+                                self.updateReport("garbage")
                         else:
                             survivingMutants.append(test_tree.nodes[i]) # add more helpful info here
                             if not genReport:
                                 print("\033[31mERROR Test Is Passing\033[0m")
                                 progress_bar.update(currentMutants)
+                            else:
+                                self.updateReport("garbage but bad")
                         test_tree.loadOriginalCode()
                 except Exception as e:
                     test_tree.loadOriginalCode()
@@ -92,8 +105,26 @@ class MutationManager:
                 for mutant in survivingMutants:
                     print(mutant, file=streamToPrintTo)  # Update this line to print out line numbers of mutants/original+mutated lines
 
-    def generateReport(self):
-        return    
+    def generateReport(self, file_source, test_source, report_directory, report_filename):
+        # determine what file to put this report in/how to name the file
+        # make file in folder
+        # save report location to class variable
+        self.reportFile = parent + report_directory + report_filename
+        with open(self.reportFile, 'w', encoding='utf-8') as fd:
+            fd.write("Timestamp: " + str(datetime.datetime.now()) + "\n")
+            fd.write("File Source: " + file_source + "\n")
+            fd.write("Test Source: " + test_source + "\n\n")
+            fd.close()
+        # close? file
+        # could keep the open file in the class semipermanently and close it when done mutating, but that's dangerous
+        # could open and close it every time it updates but that's inefficient
+        return
+    
+    def updateReport(self, thingToAddToReport):
+        with open(self.reportFile, 'r', encoding='utf-8') as fd:
+            fd.write(thingToAddToReport + "\n")
+            fd.close()
+        return
 
     def manageMutations(self, file_path, test_source, suppressOut=True, suppressErr=True):
         module_to_del = file_path.replace('\\', '.')

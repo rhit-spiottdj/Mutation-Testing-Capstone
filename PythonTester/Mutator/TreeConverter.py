@@ -1,11 +1,11 @@
 from Mutator.MutationTree import MutationTree
 from Mutator.MutationTree import MutationNode
 from Mutator.NodeTypes import NodeType
-import tree_sitter_python as tspython
-from tree_sitter import Language, Parser
+# import tree_sitter_python as tspython
+# from tree_sitter import Language, Parser
 import libcst as cst
 
-PY_LANGUAGE = Language(tspython.language())
+# PY_LANGUAGE = Language(tspython.language())
 lst = []
 
 class TreeConverter:
