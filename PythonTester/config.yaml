@@ -23,3 +23,7 @@ exclusions:
 report_directory: "/MutationReports/"
 
 report_filename: "output.txt"
+
+mutations: "mutations.txt"
+
+data_log: "dataLog.txt"
