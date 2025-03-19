@@ -20,11 +20,12 @@ class miniauthTester(unittest.TestCase):
 
     def testLogInOut(self):
         self.assertTrue(self.userId.login('testuser', '123'))
-        self.assertTrue(self.userId.logout('testuser'))
+        self.assertTrue(self.userId.logout())
 
     def testAddMutation(self):
         self.assertFalse(self.userId.addMutation("* -> /"))
         self.userId.login('testuser', '123')
         self.assertTrue(self.userId.addMutation("/ -> *"))
-        self.assertTrue(self.userId.logout('testuser'))
+        self.assertTrue(self.userId.logout())
+
         
