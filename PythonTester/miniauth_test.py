@@ -10,7 +10,6 @@ class miniauthTester(unittest.TestCase):
         self.myauth.create_user('testuser', '123')
         self.userId = UserID(self.myauth)
 
-
     def tearDown(self):
         self.myauth.delete_user('testuser')
 

@@ -83,6 +83,7 @@ class MutationManager:
                     self.printMutantReport(killedMutants, totalMutants, survivingMutants, streamToPrintTo)
                     raise e
         self.printMutantReport(killedMutants, totalMutants, survivingMutants, streamToPrintTo)
+        return True
 
     def obtainTrees(self, file_source):
         excluded_files = []

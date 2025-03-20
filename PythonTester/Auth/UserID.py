@@ -1,7 +1,6 @@
 import os
 from datetime import datetime, timezone
 import yaml
-from miniauth.auth import MiniAuth
 from cryptography.fernet import Fernet
 
 class UserID:
@@ -19,23 +18,24 @@ class UserID:
         self.myauth = auth
 
     def login(self, user, password):
-        self.fetchLogPath()
         if(self.myauth.verify_user(user, password, True)):
             self.user = user
-            self.logMessage('User: "' + self.user + '", logged on successfully.\n\n')
+            self.logMessage('Logged on successfully.')
+            print("Login succesfull!\n")
             return True
         else:
-            self.logMessage('User: "' + user + '", attempted to log on unsuccesfully.\n\n')
+            self.logMessage('Attempted to log on unsuccesfully.')
+            print("Failed to login, try again.\n")
         return False
     
     def logout(self):
-        self.fetchLogPath()
         if(self.user != ""):
-            self.logMessage('User: "' + self.user + '", logged off successfully.\n\n')
+            print("Logged off successfully.\n")
+            self.logMessage('Logged off successfully.')
             self.user = ""
             return True
         else: 
-            self.logMessage('User: "' + self.user + '", attempted to log off unsuccesfully.\n\n')
+            self.logMessage('Attempted to log off unsuccesfully.')
         return False
     
     def addMutation(self, mutation):
@@ -44,13 +44,12 @@ class UserID:
         with open(self.config, 'r', encoding='utf-8') as fd:
             self.mutationPath = yaml.safe_load(fd)['mutations']
             fd.close()
-        self.fetchLogPath()
-        print(self.logPath)
         with open(self.path + "/" + self.mutationPath, 'a', encoding='utf-8') as fd:
             cryptMutation = self.encrypt(mutation)
             fd.write(cryptMutation + '\n')
             fd.close()
-        self.logMessage('User: "' + self.user + '", Added new mutation: "' + mutation + '" to the list of mutations.\n\n')
+        print('Added new mutation: "' + mutation + '" to the list of mutations.\n')
+        self.logMessage('Added new mutation: "' + mutation + '" to the list of mutations.')
         return True
     
     def fetchLogPath(self):
@@ -59,10 +58,14 @@ class UserID:
             fd.close()
     
     def logMessage(self, message):
+        self.fetchLogPath()
         with open(self.path + "/" + self.logPath, 'a', encoding='utf-8') as fd:
             time = datetime.now(timezone.utc)
             fd.write("Timestamp: " + time.strftime("%Y-%m-%d %H:%M:%S") + " UTC\n")
-            fd.write(message)
+            if(self.user == ""):
+                fd.write('No current authenticated user, ' + message + '\n\n')
+            else:
+                fd.write('User: "' + self.user + '", ' + message + '\n\n')
             fd.close()
 
     def encrypt(self, data):
