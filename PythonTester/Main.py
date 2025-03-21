@@ -16,22 +16,25 @@ def main():
     config_data = None
 
     logger = logging.getLogger(__name__)
-    logging.basicConfig(filename="PythonTester.log", encoding='utf-8', level=logging.DEBUG)
+    logging.basicConfig(filename="PythonTester.log", encoding='utf-8', level=logging.INFO,
+                        filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     # ch = logging.StreamHandler()
-    # ch.setLevel(logging.DEBUG)
+    # ch.setLevel(logging.INFO)
 
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     # ch.setFormatter(formatter)
 
-    fh = logging.FileHandler('PythonTester.log', mode='a', encoding='utf-8')
-    fh.setLevel(logging.INFO)
-    fh.setFormatter(formatter)
+    # fh = logging.FileHandler('PythonTester.log', mode='a', encoding='utf-8')
+    # fh.setLevel(logging.INFO)
+    # fh.setFormatter(formatter)
 
-    logger.addHandler(fh)
+    # logger.addHandler(fh)
 
     # logger.addHandler(ch)
+    # logger.addFilter(logging.Filter(name='HelloCode'))
+    # logger.filter(logging.Filter(name='Calculator'))
 
     args = parser.parse_args()
     cwd = os.getcwd()
@@ -40,14 +43,14 @@ def main():
             config_data = yaml.safe_load(fd)
             fd.close()
     except FileNotFoundError:
-        logger.critical("Config file not found")
+        logger.critical("Config file not found\n")
         print("Config file not found")
         sys.exit(1)
     
     kwargs = {}
     if args.files:
         if os.path.exists(cwd + args.files) is False:
-            logger.critical("File path: %s does not exist", args.files)
+            logger.critical("File path: %s does not exist\n", args.files)
             print("File path does not exist")
             sys.exit(1)
         files = args.files
@@ -59,7 +62,7 @@ def main():
         files = files + '/'
     if args.tests:
         if os.path.exists(cwd + args.tests) is False:
-            logger.critical("Test path: %s does not exist", args.tests)
+            logger.critical("Test path: %s does not exist\n", args.tests)
             print("Test path does not exist")
             sys.exit(1)
         tests = args.tests
@@ -81,7 +84,7 @@ def main():
         kwargs['genReport'] = True
     
     # Write to log file
-    logger.info("Beginning mutation testing with file directory: %s\nAnd test directory: %s", files, tests)
+    logger.info("\nBeginning mutation testing with file directory: %s\nAnd test directory: %s\n", files, tests)
     Manager.generateMutations(**kwargs)
     # Write to log file after successful mutation
 

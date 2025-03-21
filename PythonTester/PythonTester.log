@@ -1,16 +1,8 @@
-2025-03-17 17:09:15,076 - __main__ - INFO - Beginning mutation testing
-INFO:__main__:Beginning mutation testing
-DEBUG:progressbar.utils:wrapping excepthook
-2025-03-17 17:21:36,599 - __main__ - CRITICAL - File path does not exist
-CRITICAL:__main__:File path does not exist
-2025-03-17 17:21:58,727 - __main__ - CRITICAL - Test path does not exist
-CRITICAL:__main__:Test path does not exist
-2025-03-17 17:37:22,048 - __main__ - INFO - Beginning mutation testing with file directory: /\OriginalFiles\HelloCode/
- And test directory: /\OriginalFiles\HelloCodeTests/
-INFO:__main__:Beginning mutation testing with file directory: /\OriginalFiles\HelloCode/
- And test directory: /\OriginalFiles\HelloCodeTests/
-DEBUG:progressbar.utils:wrapping excepthook
-2025-03-17 17:39:08,912 - __main__ - CRITICAL - File path: \OriginalFiles\HellCode does not exist
-CRITICAL:__main__:File path: \OriginalFiles\HellCode does not exist
-2025-03-17 17:39:26,355 - __main__ - CRITICAL - Test path: \OriginalFiles\HelloCodeTets does not exist
-CRITICAL:__main__:Test path: \OriginalFiles\HelloCodeTets does not exist
+2025-03-18 16:42:37,422 - __main__ - INFO - 
+Beginning mutation testing with file directory: /\OriginalFiles\HelloCode/
+And test directory: /\OriginalFiles\HelloCodeTests/
+
+2025-03-19 14:05:57,881 - __main__ - INFO - 
+Beginning mutation testing with file directory: /\OriginalFiles\HelloCode/
+And test directory: /\OriginalFiles\HelloCodeTests/
+
