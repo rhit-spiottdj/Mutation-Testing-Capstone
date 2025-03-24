@@ -2,8 +2,9 @@ import os
 import argparse
 import sys
 import getpass
-import yaml
+import logging
 from datetime import datetime
+import yaml
 from miniauth.auth import MiniAuth
 import Mutator.MutationManager as Manager
 from Auth.UserID import UserID
@@ -22,6 +23,27 @@ def main():
     userID.logMessage("Application started")
     config_data = None
 
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(filename="PythonTester.log", encoding='utf-8', level=logging.INFO,
+                        filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    # ch = logging.StreamHandler()
+    # ch.setLevel(logging.INFO)
+
+    # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    # ch.setFormatter(formatter)
+
+    # fh = logging.FileHandler('PythonTester.log', mode='a', encoding='utf-8')
+    # fh.setLevel(logging.INFO)
+    # fh.setFormatter(formatter)
+
+    # logger.addHandler(fh)
+
+    # logger.addHandler(ch)
+    # logger.addFilter(logging.Filter(name='HelloCode'))
+    # logger.filter(logging.Filter(name='Calculator'))
+
     args = parser.parse_args()
     cwd = os.getcwd()
     try:
@@ -29,6 +51,7 @@ def main():
             config_data = yaml.safe_load(fd)
             fd.close()
     except FileNotFoundError:
+        logger.critical("Config file not found\n")
         print("Config file not found")
         sys.exit(1)
     
@@ -64,6 +87,7 @@ def main():
 
     if args.files:
         if os.path.exists(cwd + args.files) is False:
+            logger.critical("File path: %s does not exist\n", args.files)
             print("File path does not exist")
             sys.exit(1)
         files = args.files
@@ -75,6 +99,7 @@ def main():
         files = files + '/'
     if args.tests:
         if os.path.exists(cwd + args.tests) is False:
+            logger.critical("Test path: %s does not exist\n", args.tests)
             print("Test path does not exist")
             sys.exit(1)
         tests = args.tests
@@ -96,9 +121,10 @@ def main():
         kwargs['genReport'] = True
     
     manager = Manager.MutationManager()
-    userID.logMessage("mutation has begun, running tests.")
+    logger.info("\nBeginning mutation testing with file directory: %s\nAnd test directory: %s\n", files, tests)
     if (manager.generateMutations(**kwargs)):
-        userID.logMessage("successfully tested mutated code, terminating application.")
-
+        logger.info("\Completed mutation testing with file directory: %s\nAnd test directory: %s\nTerminating application\n", files, tests)
+        
+    
 if __name__ == '__main__':
     main()
