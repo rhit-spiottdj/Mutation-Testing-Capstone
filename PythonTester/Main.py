@@ -3,6 +3,7 @@ import argparse
 import sys
 import getpass
 import logging
+import time
 from datetime import datetime
 import yaml
 from miniauth.auth import MiniAuth
@@ -19,13 +20,16 @@ parser.add_argument('-m', '--modify', dest='modify', action='store_true', help='
 
 def main():
     auth = MiniAuth('users.db') #Here we would fetch a real database to read from
-    userID = UserID(auth)
-    userID.logMessage("Application started")
     config_data = None
 
     logger = logging.getLogger(__name__)
-    logging.basicConfig(filename="PythonTester.log", encoding='utf-8', level=logging.INFO,
-                        filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logging.Formatter.converter = time.gmtime
+    logging.basicConfig(filename="MutationTesting.log", encoding='utf-8', level=logging.INFO,
+                        filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', 
+                        datefmt='%Y-%m-%d %H:%M:%S UTC')
+
+    userID = UserID(logger, auth)
+    userID.logMessage("Application started")
 
     # ch = logging.StreamHandler()
     # ch.setLevel(logging.INFO)

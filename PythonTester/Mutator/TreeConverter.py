@@ -173,11 +173,17 @@ class TreeConverter:
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict, value=value)
             mNode.attachChildren([wBNode, wANode])
         elif(newType == NodeType.MODULE):
-            bNode = self.convertNode(node.body) # do a loop of the contents as it is a sequence of LibCST stuff
+            bNode = []
+            for n in node.body:
+                bNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['body'] = bNode
-            hNode = self.convertNode(node.header) # do a loop of the contents as it is a sequence of LibCST stuff
+            hNode = []
+            for n in node.header:
+                hNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['header'] = hNode
-            fNode = self.convertNode(node.footer) # do a loop of the contents as it is a sequence of LibCST stuff
+            fNode = []
+            for n in node.footer:
+                fNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['footer'] = fNode
             encoding = node.encoding
             dataDict['encoding'] = encoding
@@ -222,15 +228,21 @@ class TreeConverter:
             dataDict['params'] = pNode
             bNode = self.convertNode(node.body)
             dataDict['body'] = bNode
-            bNode = self.convertNode(node.decorators) # do a loop of the contents as it is a sequence of LibCST stuff
-            dataDict['decorators'] = bNode
-            bNode = self.convertNode(node.returns)
-            dataDict['returns'] = bNode
-            bNode = self.convertNode(node.asynchronous)
-            dataDict['asynchronous'] = bNode
-            lLNode = self.convertNode(node.leading_lines) # do a loop of the contents as it is a sequence of LibCST stuff
+            dNode = []
+            for n in node.decorators:
+                dNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['decorators'] = dNode
+            rNode = self.convertNode(node.returns)
+            dataDict['returns'] = rNode
+            aNode = self.convertNode(node.asynchronous)
+            dataDict['asynchronous'] = aNode
+            lLNode = []
+            for n in node.leading_lines:
+                self.convertNode(n) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['leadingLines'] = lLNode
-            lADNode = self.convertNode(node.lines_after_decorators) # do a loop of the contents as it is a sequence of LibCST stuff
+            lADNode = []
+            for n in node.lines_after_decorators:
+                self.convertNode(n) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['linesAfterDecorators'] = lADNode
             wADNode = self.convertNode(node.whitespace_after_def)
             dataDict['whitespaceAfterDef'] = wADNode
@@ -247,38 +259,52 @@ class TreeConverter:
             docstring = node.get_docstring
             dataDict['getDocstring'] = docstring
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
-            mNode.attachChildren([nameNode, pNode, bNode, lLNode, lADNode, wADNode, wANNode, wBPNode, wBCNode, tPNode, wATPNode])
+            mNode.attachChildren([nameNode, pNode, bNode, dNode, rNode, aNode, lLNode, lADNode, wADNode, wANNode, wBPNode, wBCNode, tPNode, wATPNode])
         elif(newType == NodeType.NAME):
             value = node.value
-            lNode = self.convertNode(node.lpar)
+            lNode = []
+            for n in node.lpar:
+                lNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['lpar'] = lNode
-            rNode = self.convertNode(node.rpar)
+            rNode = []
+            for n in node.rpar:
+                rNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['rpar'] = rNode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict, value=value)
             mNode.attachChildren([lNode, rNode])
         elif(newType == NodeType.PARAMETERS):
-            pNode = self.convertNode(node.params) # do a loop of the contents as it is a sequence of LibCST stuff
+            pNode = []
+            for n in node.params:
+                pNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['params'] = pNode
             sANode = self.convertNode(node.star_arg)
             dataDict['starArg'] = sANode
-            kPNode = self.convertNode(node.kwonly_params) # do a loop of the contents as it is a sequence of LibCST stuff
+            kPNode = []
+            for n in node.kwonly_params:
+                kPNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['kwonlyParams'] = kPNode
             sKNode = self.convertNode(node.star_kwarg)
             dataDict['starKwarg'] = sKNode
-            pPNode = self.convertNode(node.posonly_params) # do a loop of the contents as it is a sequence of LibCST stuff
+            pPNode = []
+            for n in node.ponsly_params:
+                pPNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['posonlyParams'] = pPNode
             pINode = self.convertNode(node.posonly_ind)
             dataDict['posonlyInd'] = pINode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
             mNode.attachChildren([pNode, sANode, kPNode, sKNode, pPNode, pINode])
         elif(newType == NodeType.INDENTEDBLOCK):
-            bNode = self.convertNode(node.body) # do a loop of the contents as it is a sequence of LibCST stuff
+            bNode = []
+            for n in node.body:
+                bNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['body'] = bNode
             hNode = self.convertNode(node.header)
             dataDict['header'] = hNode
             indent = node.indent
             dataDict['indent'] = indent
-            fNode = self.convertNode(node.footer) # do a loop of the contents as it is a sequence of LibCST stuff
+            fNode = []
+            for n in node.footer:
+                fNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['footer'] = fNode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
             mNode.attachChildren([bNode, hNode, fNode])

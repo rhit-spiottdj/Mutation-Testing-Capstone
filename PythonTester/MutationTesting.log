@@ -1,0 +1,19 @@
+2025-03-24 15:56:03,669 - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-03-24 15:56:14,810 - __main__ - INFO - User: "jvuser", Logged on successfully.
+
+
+2025-03-24 15:56:19,127 - __main__ - INFO - User: "jvuser", Added new mutation: "garbo" to the list of mutations.
+
+
+2025-03-24 15:56:21,442 - __main__ - INFO - User: "jvuser", Logged off successfully.
+
+
+2025-03-24 20:18:09 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-03-24 20:18:09 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: /OriginalFiles/HelloCode/
+And test directory: /OriginalFiles/HelloCodeTests/
+

@@ -2,6 +2,7 @@ import os
 from datetime import datetime, timezone
 import yaml
 from cryptography.fernet import Fernet
+import logging
 
 class UserID:
     user = ""
@@ -10,12 +11,13 @@ class UserID:
     path = os.path.dirname(current)
     config = path  + "/config.yaml"
     mutationPath = ""
-    logPath = ""
+    logger = None
 
     suite = None
 
-    def __init__(self, auth):
+    def __init__(self, logger, auth):
         self.myauth = auth
+        self.logger = logger
 
     def login(self, user, password):
         if(self.myauth.verify_user(user, password, True)):
@@ -58,15 +60,14 @@ class UserID:
             fd.close()
     
     def logMessage(self, message):
-        self.fetchLogPath()
-        with open(self.path + "/" + self.logPath, 'a', encoding='utf-8') as fd:
-            time = datetime.now(timezone.utc)
-            fd.write("Timestamp: " + time.strftime("%Y-%m-%d %H:%M:%S") + " UTC\n")
-            if(self.user == ""):
-                fd.write('No current authenticated user, ' + message + '\n\n')
-            else:
-                fd.write('User: "' + self.user + '", ' + message + '\n\n')
-            fd.close()
+        # self.fetchLogPath()
+        # with open(self.path + "/" + self.logPath, 'a', encoding='utf-8') as fd:
+        #     time = datetime.now(timezone.utc)
+        #     fd.write("Timestamp: " + time.strftime("%Y-%m-%d %H:%M:%S") + " UTC\n")
+        if(self.user == ""):
+            self.logger.info('No current authenticated user, %s\n\n', message)
+        else:
+            self.logger.info('User: "%s", %s\n\n', self.user, message)
 
     def encrypt(self, data):
         key = Fernet.generate_key()

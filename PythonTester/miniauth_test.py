@@ -1,14 +1,19 @@
 import unittest
 from miniauth.auth import MiniAuth
 from PythonTester.Auth.UserID import UserID
+import logging
 
 class miniauthTester(unittest.TestCase):
     myauth = None
     userId = None
+    logger = None
     def setUp(self):
         self.myauth = MiniAuth('users.db')
         self.myauth.create_user('testuser', '123')
-        self.userId = UserID(self.myauth)
+        self.logger = logging.getLogger(__name__)
+        logging.basicConfig(filename="AuthTests.log", encoding='utf-8', level=logging.INFO,
+                        filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        self.userId = UserID(self.logger, self.myauth)
 
     def tearDown(self):
         self.myauth.delete_user('testuser')

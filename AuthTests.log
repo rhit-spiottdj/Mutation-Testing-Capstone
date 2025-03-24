@@ -1,0 +1,32 @@
+2025-03-24 16:11:57,070 - MutationTests.Parsing_test - INFO - Running parsing test
+2025-03-24 16:13:37,884 - miniauth_test - INFO - User: "testuser", Logged on successfully.
+
+
+2025-03-24 16:13:37,910 - miniauth_test - INFO - User: "testuser", Added new mutation: "/ -> *" to the list of mutations.
+
+
+2025-03-24 16:13:37,910 - miniauth_test - INFO - User: "testuser", Logged off successfully.
+
+
+2025-03-24 16:13:37,948 - miniauth_test - INFO - User: "testuser", Logged on successfully.
+
+
+2025-03-24 16:13:37,948 - miniauth_test - INFO - User: "testuser", Logged off successfully.
+
+
+2025-03-24 16:29:39,076 - MutationTests.Parsing_test - INFO - Running parsing population test
+2025-03-24 16:29:39,087 - MutationTests.Parsing_test - INFO - Running parsing startup test
+2025-03-24 16:33:34,562 - MutationTests.Parsing_test - INFO - Running parsing population test
+2025-03-24 16:33:34,564 - MutationTests.Parsing_test - INFO - Running parsing startup test
+2025-03-24 16:34:18,152 - MutationTests.Parsing_test - INFO - Running parsing population test
+2025-03-24 16:34:18,154 - MutationTests.Parsing_test - INFO - Running parsing startup test
+2025-03-24 16:34:43,615 - MutationTests.Parsing_test - INFO - Running parsing population test
+2025-03-24 16:34:43,617 - MutationTests.Parsing_test - INFO - Running parsing startup test
+2025-03-24 16:37:05,538 - MutationTests.Parsing_test - INFO - Running parsing population test
+2025-03-24 16:37:05,540 - MutationTests.Parsing_test - INFO - Running parsing startup test
+2025-03-24 16:37:25,484 - MutationTests.Parsing_test - INFO - Running parsing population test
+2025-03-24 16:37:25,487 - MutationTests.Parsing_test - INFO - Running parsing startup test
+2025-03-24 16:38:51,085 - MutationTests.Parsing_test - INFO - Running parsing population test
+2025-03-24 16:38:51,087 - MutationTests.Parsing_test - INFO - Running parsing startup test
+2025-03-24 16:40:24,439 - MutationTests.Parsing_test - INFO - Running parsing population test
+2025-03-24 16:40:24,443 - MutationTests.Parsing_test - INFO - Running parsing startup test
