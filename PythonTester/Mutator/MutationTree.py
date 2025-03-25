@@ -18,7 +18,12 @@ class MutationTree:
     def nextNode(self):
         if(self.currentNode.children is not None and not self.currentNode.flagToExclude):
             for node in self.currentNode.children:
-                self.queue.append(node)
+                if(node is not None):
+                    if isinstance(node, MutationNode):
+                        self.queue.append(node)
+                    else:
+                        for actualNode in node:
+                            self.queue.append(actualNode)
         if(self.queue is not None):
             self.currentNode = self.queue.pop(0)
             return True
@@ -52,7 +57,11 @@ class MutationNode:
     def attachChildren(self, nodes):
         self.children = nodes
         for node in nodes:
-            node.parent = self
+            if isinstance(node, MutationNode):
+                node.parent = self
+            else:
+                for actualNode in node:
+                    actualNode.parent = self
     
     def excludeNode(self):
         self.flagToExclude = True
