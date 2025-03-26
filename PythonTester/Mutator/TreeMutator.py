@@ -14,7 +14,8 @@ class TreeMutator:
         return self.mutants
     
     def checkForMutation(self, param):
-        if param[self.tree.retCurNode().nodeType] != None:
+        print('Current Node: ' + str(self.tree.retCurNode().nodeType) + '\n') #debug
+        if param[self.tree.retCurNode().nodeType] is not None:
             self.tree.retCurNode().nodeType = param[self.tree.retCurNode().nodeType]
             self.tree.setMutatedNode()
             self.mutants.append(self.tree)

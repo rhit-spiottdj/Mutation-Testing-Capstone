@@ -38,75 +38,53 @@ class MutationGeneratorTester(unittest.TestCase):
         self.file_source = "/OriginalFiles/HelloCode/"
         self.test_source = "/OriginalFiles/HelloCodeTests/"
         self.manager = MutationManager()
-        self.test_tree_array = self.manager.obtainTrees(self.file_source)
+        self.tree_generator_array = self.manager.obtainTrees(self.file_source)
     
     def tearDown(self):
-        for test_tree in self.test_tree_array:
-            test_tree.loadOriginalCode()
-            with open(parent + test_tree.file_path, 'r', encoding='utf-8') as fd:
+        for tree_generator in self.tree_generator_array:
+            tree_generator.loadOriginalCode()
+            with open(parent + tree_generator.file_path, 'r', encoding='utf-8') as fd:
                 code = fd.read()
                 fd.close()
-                self.assertEqual(code, test_tree.original_code)
+                self.assertEqual(code, tree_generator.converter.original_code)
 
     def testStartup(self):
-        for test_tree in self.test_tree_array:
-            test_tree.loadOriginalCode()
-            self.assertIsNotNone(test_tree)
-            result = self.manager.manageMutations(test_tree.file_path, self.test_source)
+        for tree_generator in self.tree_generator_array:
+            tree_generator.loadOriginalCode()
+            self.assertIsNotNone(tree_generator)
+            result = self.manager.manageMutations(tree_generator.file_path, self.test_source)
             try:
                 self.assertTrue(result["allPassed"])
             except AssertionError as e:
-                with open(parent + test_tree.file_path, 'r', encoding='utf-8') as fd:
-                    code = fd.read()
-                    fd.close()
-                    print(code)
-                raise e
-        
-    def testOriginalTree(self):
-        test_tree = self.test_tree_array[0]
-        test_tree.loadOriginalCode()
-        test_tree.traverseTree()
-        for i in range(len(test_tree.retNodes())):
-            global code_line_num, code_col_num, og_node, new_node
-            code_line_num = test_tree.retLineNum()[i]
-            code_col_num = test_tree.retColNum()[i]
-            og_node = test_tree.retNodes()[i]
-
-            self.visitor = VisitNodes()
-            self.metaDataVisitor = cst.MetadataWrapper(test_tree.retTree())
-            self.metaDataVisitor.visit(self.visitor)
-            try:
-                self.assertEqual(og_node, new_node)
-            except AssertionError as e:
-                with open(parent + self.file_source, 'r', encoding='utf-8') as fd:
+                with open(parent + tree_generator.file_path, 'r', encoding='utf-8') as fd:
                     code = fd.read()
                     fd.close()
                     print(code)
                 raise e
 
     def testFirstMutation(self):
-        test_tree = self.test_tree_array[0]
-        test_tree.basicMutateTree()
-        test_tree.loadMutatedCode(0)
+        tree_generator = self.tree_generator_array[0]
+        tree_generator.basicMutateTree()
+        tree_generator.loadMutatedCode(0)
 
-        with open(parent + test_tree.file_path, 'r', encoding='utf-8') as fd:
+        with open(parent + tree_generator.file_path, 'r', encoding='utf-8') as fd:
             code = fd.read()
             fd.close()
-            self.assertNotEqual(code, test_tree.original_code)
-        result = self.manager.manageMutations(test_tree.file_path, self.test_source)
+            self.assertNotEqual(code, tree_generator.original_code)
+        result = self.manager.manageMutations(tree_generator.file_path, self.test_source)
         print(result)
         try:
             self.assertFalse(result["allPassed"])
             print("\033[32mCorrectly failed test\033[0m")
         except AssertionError as e:
             print("\033[31mERROR Test Is Passing\033[0m")
-            test_tree.loadOriginalCode()
+            tree_generator.loadOriginalCode()
             print("Mutated code:")
-            print(test_tree.mutations[0])
-            with open(parent + test_tree.file_path, 'r', encoding='utf-8') as fd:
+            print(tree_generator.mutations[0])
+            with open(parent + tree_generator.file_path, 'r', encoding='utf-8') as fd:
                 code = fd.read()
                 fd.close()
-                self.assertEqual(code, test_tree.original_code) 
+                self.assertEqual(code, tree_generator.original_code) 
             raise e
     
     def testPrintReport(self):
@@ -124,29 +102,29 @@ class MutationGeneratorTester(unittest.TestCase):
         kwargs['suppressOut'] = True
         kwargs['suppressErr'] = True
         kwargs['genReport'] = False
-        MutationManager.generateMutations(**kwargs)
+        self.manager.generateMutations(**kwargs)
         stream_content = stream.getvalue()
         self.assertEqual(stream_content, "Successfully killed 100.00% of mutations\nNo surviving mutants\n")
 
-        test_tree = self.test_tree_array[0]
-        test_tree.basicMutateTree()
+        tree_generator = self.tree_generator_array[0]
+        tree_generator.basicMutateTree()
         
-        for i in range(test_tree.retMutationLength()):
-            test_tree.loadMutatedCode(i)
+        for i in range(tree_generator.retMutationLength()):
+            tree_generator.loadMutatedCode(i)
             
             global code_line_num, code_col_num, og_node, new_node
-            code_line_num = test_tree.retLineNum()[i]
-            code_col_num = test_tree.retColNum()[i]
-            og_node = test_tree.retNodes()[i]
+            code_line_num = tree_generator.retLineNum()[i]
+            code_col_num = tree_generator.retColNum()[i]
+            og_node = tree_generator.retNodes()[i]
 
             self.visitor = VisitNodes()
-            self.metaDataVisitor = cst.MetadataWrapper(test_tree.retTree())
+            self.metaDataVisitor = cst.MetadataWrapper(tree_generator.retTree())
             self.metaDataVisitor.visit(self.visitor)
 
 
-            result = self.manager.manageMutations(test_tree.file_path, self.test_source)
+            result = self.manager.manageMutations(tree_generator.file_path, self.test_source)
             print(result)
-            print(test_tree.nodes[i])
+            print(tree_generator.nodes[i])
             try:
                 self.assertEqual(mutation_map[og_node], new_node)
                 self.assertFalse(result["allPassed"])
@@ -154,20 +132,20 @@ class MutationGeneratorTester(unittest.TestCase):
             except AssertionError as e:
                 print("\033[31mERROR Test Is Passing\033[0m")
                 print("Mutated code:")
-                print(test_tree.retMutations()[i])
-                test_tree.loadOriginalCode()
-                with open(parent + test_tree.file_path, 'r', encoding='utf-8') as fd:
+                print(tree_generator.retMutations()[i])
+                tree_generator.loadOriginalCode()
+                with open(parent + test_ttree_generatorree.file_path, 'r', encoding='utf-8') as fd:
                     code = fd.read()
                     fd.close()
-                    self.assertEqual(code, test_tree.retOriginalCode()) 
+                    self.assertEqual(code, tree_generator.retOriginalCode()) 
                 raise e
             
-            test_tree.loadOriginalCode()
+            tree_generator.loadOriginalCode()
             print("\tRestored original code for next mutation")
-            with open(parent + test_tree.file_path, 'r', encoding='utf-8') as fd:
+            with open(parent + tree_generator.file_path, 'r', encoding='utf-8') as fd:
                 code = fd.read()
                 fd.close()
-                self.assertEqual(code, test_tree.retOriginalCode()) 
+                self.assertEqual(code, tree_generator.retOriginalCode()) 
         
 
 

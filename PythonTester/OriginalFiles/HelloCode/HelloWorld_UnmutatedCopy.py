@@ -45,3 +45,47 @@ def modMe():
     for x in testArray:
         count = count % x
     return count
+
+def greaterThanMe():
+    return 1 > 0
+
+def lessThanMe():
+    return 0 < 1
+
+def greaterThanEqualMe():
+    return 1 >= 0
+
+def lessThanEqualMe():
+    return 0 <= 1
+
+def equalMe():
+    return 1 == 1
+
+def notEqualMe():
+    return 0 != 1
+
+def andMe():
+    return (0 == 0 and 1 == 1)
+
+def orMe():
+    return (0 == 0 or 1 == 1)
+
+def bitwiseAndMe():
+    return (0 & 1)
+
+def bitwiseOrMe():
+    return (0 | 1)
+
+def ternaryNullOperator():
+    p = None
+    q = "Passed"
+    return (q if p is None else p)
+
+def changeStringToEmpty():
+    return "I am not null!"
+
+def changeZeroToOne():
+    return 0
+
+def changeOneToZero():
+    return 1

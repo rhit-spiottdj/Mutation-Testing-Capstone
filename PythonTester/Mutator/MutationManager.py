@@ -39,11 +39,11 @@ class MutationManager:
             test_source = kwargs['test_source']
         if file_source == "" or test_source == "":
             raise Exception("File or test source not found")
-        test_tree_array = self.obtainTrees(file_source)
+        tree_generator_array = self.obtainTrees(file_source)
         
-        for test_tree in test_tree_array:
-            test_tree.basicMutateTree()
-            totalMutants += test_tree.retMutationLength()
+        for tree_generator in tree_generator_array:
+            tree_generator.generateMutants()
+            totalMutants += tree_generator.retNumMutants()
         
         if genReport:
             # obtain report folder from config and pass in to generateReport
@@ -55,11 +55,11 @@ class MutationManager:
 
         #start printing progress_bar here
         with progressbar.ProgressBar(maxval=totalMutants, redirect_stdout=True).start() as progress_bar:
-            for test_tree in test_tree_array:
+            for tree_generator in tree_generator_array:
                 try: 
-                    for i in range(test_tree.retMutationLength()):
-                        test_tree.loadMutatedCode(i)
-                        result = self.manageMutations(test_tree.file_path, test_source, suppressOut, suppressErr)
+                    for i in range(tree_generator.retNumMutants()):
+                        tree_generator.loadMutatedCode(i)
+                        result = self.manageMutations(tree_generator.file_path, test_source, suppressOut, suppressErr)
                         currentMutants += 1
                         # print(result)
                         # print(test_tree.nodes[i])
@@ -71,15 +71,15 @@ class MutationManager:
                             else:
                                 self.updateReport("garbage")
                         else:
-                            survivingMutants.append(test_tree.nodes[i]) # add more helpful info here
+                            survivingMutants.append(tree_generator.nodes[i]) # add more helpful info here
                             if not genReport:
                                 print("\033[31mERROR Test Is Passing\033[0m")
                                 progress_bar.update(currentMutants)
                             else:
                                 self.updateReport("garbage but bad")
-                        test_tree.loadOriginalCode()
+                        tree_generator.loadOriginalCode()
                 except Exception as e:
-                    test_tree.loadOriginalCode()
+                    tree_generator.loadOriginalCode()
                     self.printMutantReport(killedMutants, totalMutants, survivingMutants, streamToPrintTo)
                     raise e
         self.printMutantReport(killedMutants, totalMutants, survivingMutants, streamToPrintTo)
@@ -87,15 +87,16 @@ class MutationManager:
 
     def obtainTrees(self, file_source):
         excluded_files = []
-        test_tree_array =  []
+        tree_generator_array =  []
         with open(self.config, 'r', encoding='utf-8') as fd:
             excluded_files = yaml.safe_load(fd)['exclusions']['files']
             fd.close()
         for filename in os.listdir(parent + file_source):
-            generator = MutationGenerator(file_source + filename, self.config)
+            generator = None
             if filename.endswith('.py') and filename != "__init__.py" and not any(filename in d['filename'] for d in excluded_files):
-                test_tree_array.append(generator)
-        return test_tree_array
+                generator = MutationGenerator(file_source + filename, self.config)
+                tree_generator_array.append(generator)
+        return tree_generator_array
 
     def printMutantReport(self, killedMutants, totalMutants, survivingMutants, streamToPrintTo = None):
             print("Successfully killed " + "{:.2f}".format(float(killedMutants)/totalMutants*100) + "% of mutations", file=streamToPrintTo)

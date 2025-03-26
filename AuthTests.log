@@ -49,3 +49,54 @@
 2025-03-25 16:42:27,385 - MutationTests.Parsing_test - INFO - Done running parsing population test
 2025-03-25 16:43:04,449 - MutationTests.Parsing_test - INFO - Running parsing population test
 2025-03-25 16:43:04,449 - MutationTests.Parsing_test - INFO - Done running parsing population test
+2025-03-25 16:49:45,664 - MutationTests.Parsing_test - INFO - Running parsing population test
+2025-03-25 16:49:45,665 - MutationTests.Parsing_test - INFO - Done running parsing population test
+2025-03-25 16:49:45,700 - miniauth_test - INFO - User: "testuser", Logged on successfully.
+
+
+2025-03-25 16:49:45,724 - miniauth_test - INFO - User: "testuser", Added new mutation: "/ -> *" to the list of mutations.
+
+
+2025-03-25 16:49:45,724 - miniauth_test - INFO - User: "testuser", Logged off successfully.
+
+
+2025-03-25 16:49:45,758 - miniauth_test - INFO - User: "testuser", Logged on successfully.
+
+
+2025-03-25 16:49:45,758 - miniauth_test - INFO - User: "testuser", Logged off successfully.
+
+
+2025-03-26 12:35:21,746 - MutationTests.Parsing_test - INFO - Running parsing population test
+2025-03-26 12:35:21,746 - MutationTests.Parsing_test - INFO - Done running parsing population test
+2025-03-26 12:35:21,782 - miniauth_test - INFO - User: "testuser", Logged on successfully.
+
+
+2025-03-26 12:35:21,790 - miniauth_test - INFO - User: "testuser", Added new mutation: "/ -> *" to the list of mutations.
+
+
+2025-03-26 12:35:21,790 - miniauth_test - INFO - User: "testuser", Logged off successfully.
+
+
+2025-03-26 12:35:21,818 - miniauth_test - INFO - User: "testuser", Logged on successfully.
+
+
+2025-03-26 12:35:21,818 - miniauth_test - INFO - User: "testuser", Logged off successfully.
+
+
+2025-03-26 12:40:47,638 - MutationTests.Parsing_test - INFO - Running parsing population test
+2025-03-26 12:40:47,638 - MutationTests.Parsing_test - INFO - Done running parsing population test
+2025-03-26 12:40:47,658 - miniauth_test - INFO - User: "testuser", Logged on successfully.
+
+
+2025-03-26 12:40:47,665 - miniauth_test - INFO - User: "testuser", Added new mutation: "/ -> *" to the list of mutations.
+
+
+2025-03-26 12:40:47,665 - miniauth_test - INFO - User: "testuser", Logged off successfully.
+
+
+2025-03-26 12:40:47,692 - miniauth_test - INFO - User: "testuser", Logged on successfully.
+
+
+2025-03-26 12:40:47,692 - miniauth_test - INFO - User: "testuser", Logged off successfully.
+
+

@@ -76,7 +76,7 @@ class TreeConverter:
 
     # parser = Parser(PY_LANGUAGE)
     # treeSitter = None
-    originalCode = None
+    original_code = None
     file = ""
     C = ""
     
@@ -86,6 +86,8 @@ class TreeConverter:
         with open(self.C + self.file, 'r', encoding='utf-8') as fd:
             self.original_code = fd.read()
         fd.close()
+
+        print('OG file dest: ' + self.C + self.file + '\n') #debug
 
         self.metaDataVisitor = None
         self.visitor = VisitNodes()
@@ -113,8 +115,8 @@ class TreeConverter:
 
     def loadOriginalCode(self):
         # load originalCode
-        with open(self.file, 'w', encoding='utf-8') as fd:
-            fd.write(self.originalCode)
+        with open(self.C + self.file, 'w', encoding='utf-8') as fd:
+            fd.write(self.original_code)
             fd.flush()
             fd.close()
         return
@@ -136,7 +138,7 @@ class TreeConverter:
         return code
     
     def getOriginalCode(self):
-        return self.originalCode
+        return self.original_code
     
     def convertNode(self, node):
         if (node is None):

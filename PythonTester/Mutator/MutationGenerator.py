@@ -41,19 +41,25 @@ class MutationGenerator:
         
         self.converter = TreeConverter(fs, self.C)
         self.tree = self.converter.getTree()
+        self.nodes = [] #Not sure what this is going to do yet
 
         self.mutator = TreeMutator()
         self.config_path = config
+        self.file_path = fs
 
-        with open(self.C + self.config_path, 'r', encoding='utf-8') as fd:
+        with open(self.config_path, 'r', encoding='utf-8') as fd:
             self.param = fd.read()
             # Get Actual params
             self.param = self.mutation_map #temporary
-            # self.mutants = self.mutator.generateMutations(self.tree, self.param)
             
             # Important to print out the syntax of node tree
             # print("\n", dump(self.tree)) ##Used for understanding utilization of ast methods
 
+    def generateMutants(self):
+        self.mutants = self.mutator.generateMutations(self.tree, self.param)
+
+    def retNumMutants(self):
+        return len(self.mutants)
 
     def loadMutatedCode(self, i):
         self.converter.loadMutatedCode(self.mutants[i])
