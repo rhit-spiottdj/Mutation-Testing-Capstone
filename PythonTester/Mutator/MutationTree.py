@@ -1,4 +1,4 @@
-import queue
+from queue import Queue
 
 class MutationTree:
 
@@ -6,26 +6,33 @@ class MutationTree:
     currentNode = None
     mutatedNode = None
     # methodsToExclude = None
-    queue = []
+    queue = None
 
 
     def __init__(self, node):
         # create the actual tree here from a set of nodes? idk
         self.headNode = node
         self.currentNode = node
-        
+        self.queue = Queue()
 
     def nextNode(self):
-        if(self.currentNode.children is not None and not self.currentNode.flagToExclude):
+        print("Old curNode: " + str(self.currentNode))
+        print("Old curNode type: " + str(self.currentNode.nodeType) + "\n")
+        if(not self.currentNode.flagToExclude):
             for node in self.currentNode.children:
                 if(node is not None):
+                    # if(not isinstance(node, list) or (isinstance(node, list) and not node))
                     if isinstance(node, MutationNode):
-                        self.queue.append(node)
+                        self.queue.put(node)
                     else:
+                        if (isinstance(node, list)):
+                            print("The 'node' is a list")
                         for actualNode in node:
-                            self.queue.append(actualNode)
-        if(self.queue is not None):
-            self.currentNode = self.queue.pop(0)
+                            print("Iterating over child nodes: " + str(actualNode) + "\t" + str(actualNode.nodeType))
+                            if isinstance(actualNode, MutationNode):
+                                self.queue.put(actualNode)
+        if(not self.queue.empty()):
+            self.currentNode = self.queue.get()
             return True
         return False
 
@@ -38,7 +45,7 @@ class MutationTree:
 class MutationNode:
     nodeType = None
     value = None
-    children = None
+    children = []
     parent = None
     flagToExclude = False
     rowNumber = None
@@ -48,7 +55,10 @@ class MutationNode:
     def __init__(self, nodeType, rowNumber, colNumber, dataDict, value = None, children = None, parent = None):
         self.nodeType = nodeType
         self.value = value
-        self.children = children
+        if (children):
+            self.children = children
+        else:
+            self.children = []
         self.parent = parent
         self.rowNumber = rowNumber
         self.colNumber = colNumber
@@ -56,6 +66,7 @@ class MutationNode:
 
     def attachChildren(self, nodes):
         self.children = nodes
+        print("Attached children: " + str(self.children))
         for node in nodes:
             if isinstance(node, MutationNode):
                 node.parent = self

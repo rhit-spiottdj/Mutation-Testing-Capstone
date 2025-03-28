@@ -1,5 +1,5 @@
 import os
-import libcst as cst
+# import libcst as cst
 
 from Mutator.TreeMutator import TreeMutator
 from Mutator.TreeConverter import TreeConverter
@@ -23,7 +23,7 @@ class MutationGenerator:
     }
 
     C = ""
-    # mutatant_path = ""
+    # mutant_path = ""
     config_path = ""
 
     converter = None

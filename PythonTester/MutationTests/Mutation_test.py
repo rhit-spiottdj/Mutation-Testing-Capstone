@@ -9,7 +9,6 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
 from PythonTester.Mutator.MutationManager import MutationManager
-# Mutator import MutationManager
 
 code_line_num = -1
 code_col_num = -1
@@ -35,7 +34,7 @@ sys.path.append(parent)
 
 class MutationGeneratorTester(unittest.TestCase):
     def setUp(self):
-        self.file_source = "/OriginalFiles/HelloCode/"
+        self.file_source = "/OriginalFiles/SimplerHelloCode/"
         self.test_source = "/OriginalFiles/HelloCodeTests/"
         self.manager = MutationManager()
         self.tree_generator_array = self.manager.obtainTrees(self.file_source)
@@ -64,13 +63,13 @@ class MutationGeneratorTester(unittest.TestCase):
 
     def testFirstMutation(self):
         tree_generator = self.tree_generator_array[0]
-        tree_generator.basicMutateTree()
+        tree_generator.generateMutants()
         tree_generator.loadMutatedCode(0)
 
         with open(parent + tree_generator.file_path, 'r', encoding='utf-8') as fd:
             code = fd.read()
             fd.close()
-            self.assertNotEqual(code, tree_generator.original_code)
+            self.assertNotEqual(code, tree_generator.converter.original_code)
         result = self.manager.manageMutations(tree_generator.file_path, self.test_source)
         print(result)
         try:
@@ -80,11 +79,11 @@ class MutationGeneratorTester(unittest.TestCase):
             print("\033[31mERROR Test Is Passing\033[0m")
             tree_generator.loadOriginalCode()
             print("Mutated code:")
-            print(tree_generator.mutations[0])
+            print(tree_generator.mutants[0])
             with open(parent + tree_generator.file_path, 'r', encoding='utf-8') as fd:
                 code = fd.read()
                 fd.close()
-                self.assertEqual(code, tree_generator.original_code) 
+                self.assertEqual(code, tree_generator.converter.original_code) 
             raise e
     
     def testPrintReport(self):
@@ -134,7 +133,7 @@ class MutationGeneratorTester(unittest.TestCase):
                 print("Mutated code:")
                 print(tree_generator.retMutations()[i])
                 tree_generator.loadOriginalCode()
-                with open(parent + test_ttree_generatorree.file_path, 'r', encoding='utf-8') as fd:
+                with open(parent + tree_generator.file_path, 'r', encoding='utf-8') as fd:
                     code = fd.read()
                     fd.close()
                     self.assertEqual(code, tree_generator.retOriginalCode()) 

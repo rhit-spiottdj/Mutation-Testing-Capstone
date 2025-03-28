@@ -63,6 +63,7 @@ class NodeType(Enum):
     BITINVERT = 60
     NOT = 61
     PLUS = 62
+    MAYBESENTINEL = 63
 
 
 
@@ -76,4 +77,4 @@ NodeType = Enum('NodeType', [('ADD', 1), ('ADDASSIGN', 2), ('SUBTRACT', 3), ('SU
                             ('LIST', 38), ('LEFTSQUAREBRACKET', 39), ('ELEMENT', 40), ('INTEGER', 41), ('COMMA', 42), ('RIGHTSQUAREBRACKET', 43),
                             ('BINARYOPERATION', 44), ('FOR', 45), ('AUGASSIGN', 46), ('UNARYOPERATION', 47), ('MINUS', 48), ('COMPARISON', 49), 
                             ('COMPARISONTARGET', 50), ('BOOLEANOPERATION', 51), ('LEFTPAREN', 52), ('AND', 53), ('RIGHTPAREN', 54), ('OR', 55), 
-                            ('IFEXP', 56), ('IS', 57), ('BITANDASSIGN', 58), ('BITORASSIGN', 59), ('BITINVERT', 60), ('NOT', 61), ('PLUS', 62)])
+                            ('IFEXP', 56), ('IS', 57), ('BITANDASSIGN', 58), ('BITORASSIGN', 59), ('BITINVERT', 60), ('NOT', 61), ('PLUS', 62), ('MAYBESENTINEL', 63)])

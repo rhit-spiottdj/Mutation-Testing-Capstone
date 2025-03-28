@@ -72,6 +72,7 @@ class TreeConverter:
         "BitInvert" : NodeType.BINARYOPERATION,
         "Not" : NodeType.NOT,
         "Plus" : NodeType.PLUS,
+        "MaybeSentinel" : NodeType.MAYBESENTINEL,
     }
 
     # parser = Parser(PY_LANGUAGE)

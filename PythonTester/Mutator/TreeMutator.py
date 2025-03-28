@@ -3,20 +3,23 @@ class TreeMutator:
     tree = None
     mutants = []
 
-    def generateMutations(self, tree, param):
+    def generateMutations(self, tree, params):
         self.tree = tree
         self.og_tree = tree
 
-        self.checkForMutation(param)
+        mutationMap = params # Would get map from params
+
+        self.checkForMutation(mutationMap)
         while self.tree.nextNode() and self.og_tree.nextNode():
-          self.checkForMutation(param)
+          self.checkForMutation(mutationMap)
         
         return self.mutants
     
-    def checkForMutation(self, param):
+    def checkForMutation(self, mutationMap):
         print('Current Node: ' + str(self.tree.retCurNode().nodeType) + '\n') #debug
-        if param[self.tree.retCurNode().nodeType] is not None:
-            self.tree.retCurNode().nodeType = param[self.tree.retCurNode().nodeType]
+        print('Current Node Children: ' + str(self.tree.retCurNode().children) + '\n') #debug
+        if(self.tree.retCurNode().nodeType in mutationMap):
+            self.tree.retCurNode().nodeType = mutationMap[self.tree.retCurNode().nodeType]
             self.tree.setMutatedNode()
             self.mutants.append(self.tree)
             self.tree = self.og_tree 
