@@ -73,6 +73,7 @@ class TreeConverter:
         "Not" : NodeType.NOT,
         "Plus" : NodeType.PLUS,
         "MaybeSentinel" : NodeType.MAYBESENTINEL,
+        "ClassDef" : NodeType.CLASSDEF,
     }
 
     # parser = Parser(PY_LANGUAGE)
@@ -639,6 +640,53 @@ class TreeConverter:
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
             mNode.attachChildren([testNode, bodyNode, orelseNode, lparNode,
                                   rparNode, wBINode, wAINode, wBENode, wAENode])
+        elif(newType == NodeType.CLASSDEF):
+            nameNode = self.convertNode(node.name)
+            dataDict['name'] = nameNode
+            bNode = self.convertNode(node.body)
+            dataDict['body'] = bNode
+            baseNode = []
+            for n in node.bases:
+                baseNode.append(self.convertNode(n))
+            dataDict['bases'] = baseNode
+            dNode = []
+            for n in node.decorators:
+                dNode.append(self.convertNode(n))
+            dataDict['decorators'] = dNode
+            kNode = []
+            for n in node.keywords:
+                kNode.append(self.convertNode(n))
+            dataDict['keywords'] = kNode
+            lparNode = self.convertNode(node.lpar)
+            dataDict['leftParenthesis'] = lparNode
+            rparNode = self.convertNode(node.rpar)
+            dataDict['rightParenthesis'] = rparNode
+            llNode = []
+            for n in node.leading_lines:
+                llNode.append(self.convertNode(n))
+            dataDict['leadingLines'] = llNode
+            lADNode = []
+            for n in node.lines_after_decorators:
+                lADNode.append(self.convertNode(n))
+            dataDict['linesAfterDecorators'] = lADNode
+            wAClassNode = self.convertNode(node.whitespace_after_class)
+            dataDict['whitespaceAfterClass'] = wAClassNode
+            wANode = self.convertNode(node.whitespace_after_name)
+            dataDict['whitespaceAfterName'] = wANode
+            wAColonNode = self.convertNode(node.whitespace_after_colon)
+            dataDict['whitespaceAfterColon'] = wAColonNode
+            if(hasattr(node, 'type_parameters')):
+                tPNode = self.convertNode(node.type_parameters)
+            else:
+                tPNode = None
+            dataDict['typeParameters'] = tPNode
+            wATPNode = self.convertNode(node.whitespace_after_type_parameters)
+            dataDict['whitespaceAfterTypeParameters'] = wATPNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([nameNode, bNode, baseNode, dNode, kNode,
+                                  lparNode, rparNode, llNode, lADNode,
+                                  wAClassNode, wANode, wAColonNode,
+                                  tPNode, wATPNode])
         with open("test.txt", "a", encoding='utf-8') as f:
             if type(node).__name__ not in self.lst:
                 self.lst.append(type(node).__name__)
