@@ -71,8 +71,11 @@ class MutationNode:
             if isinstance(node, MutationNode):
                 node.parent = self
             else:
+                if (node is None):
+                    continue
                 for actualNode in node:
-                    actualNode.parent = self
+                    if isinstance(actualNode, MutationNode):
+                        actualNode.parent = self
     
     def excludeNode(self):
         self.flagToExclude = True
