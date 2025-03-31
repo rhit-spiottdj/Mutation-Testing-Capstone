@@ -81,6 +81,7 @@ class TreeConverter:
         "Annotation" : NodeType.ANNOTATION,
         "BaseParenthesizableWhitespace" : NodeType.BASEPARENTHESIZABLEWHITESPACE,
         "Semicolon" : NodeType.SEMICOLON,
+        "BaseCompoundStatement" : NodeType.BASECOMPOUNDSTATEMENT,
     }
 
     # parser = Parser(PY_LANGUAGE)
@@ -186,14 +187,9 @@ class TreeConverter:
             mNode.attachChildren([wBNode, wANode])
         elif(newType == NodeType.MODULE):
             bNode = []
-            print("Trying to convert body nodes:\n") # debug
             for n in node.body:
                 bNodeChild = self.convertNode(n)
-                print(bNodeChild.nodeType) # debug
-                print("Is the node a FunctionDef? " + str(bNodeChild.nodeType == NodeType.FUNCTIONDEF)) # debug
-                print(bNodeChild) # debug
                 bNode.append(bNodeChild) # do a loop of the contents as it is a sequence of LibCST stuff
-            print(bNode) # debug
             dataDict['body'] = bNode
             hNode = []
             for n in node.header:
@@ -213,8 +209,6 @@ class TreeConverter:
             dataDict['hasTrailingNewline'] = hTNewline
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
             mNode.attachChildren([bNode, hNode, fNode])
-            print("mNode's children:") # debug
-            print(mNode.children) # debug
         elif(newType == NodeType.EMPTYLINE):
             indent = node.indent
             dataDict['indent'] = indent
@@ -225,7 +219,6 @@ class TreeConverter:
             else:
                 cNode = None
             dataDict['comment'] = cNode
-            print(node.newline) # debug
             nNode = self.convertNode(node.newline)
             dataDict['newline'] = nNode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
@@ -286,10 +279,7 @@ class TreeConverter:
             wATPNode = self.convertNode(node.whitespace_after_type_parameters)
             dataDict['whitespaceAfterTypeParameters'] = wATPNode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
-            print("Trying to attach children to FunctionDef") # debug
             mNode.attachChildren([nameNode, pNode, bNode, dNode, rNode, aNode, lLNode, lADNode, wADNode, wANNode, wBPNode, wBCNode, tPNode, wATPNode])
-            print(mNode.children) # debug
-            print("Attached children to FunctionDef") # debug
         elif(newType == NodeType.NAME):
             value = node.value
             lNode = []

@@ -16,7 +16,7 @@ class TreeMutator:
         return self.mutants
     
     def checkForMutation(self, mutationMap):
-        print('Current Node: ' + str(self.tree.retCurNode().nodeType) + '\n') #debug
+        print('Current Node: ' + str(self.tree.retCurNode().nodeType)) #debug
         print('Current Node Children: ' + str(self.tree.retCurNode().children) + '\n') #debug
         if(self.tree.retCurNode().nodeType in mutationMap):
             self.tree.retCurNode().nodeType = mutationMap[self.tree.retCurNode().nodeType]
