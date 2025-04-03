@@ -1,17 +1,16 @@
+import copy
+
 class TreeMutator:
-    og_tree = None
     tree = None
     mutants = []
 
     def generateMutations(self, tree, params):
         self.tree = tree
-        self.og_tree = tree
 
         mutationMap = params # Would get map from params
 
         self.checkForMutation(mutationMap)
-        while self.tree.nextNode() and self.og_tree.nextNode(): # Calls nextNode() on the same tree
-        # while self.tree.nextNode(): # Temporary fix
+        while self.tree.nextNode(): 
           self.checkForMutation(mutationMap)
         
         return self.mutants
@@ -32,7 +31,7 @@ class TreeMutator:
         print('Current Node Children Types: ' + str(children)) #debug
 
         if(self.tree.retCurNode().nodeType in mutationMap):
-            self.tree.retCurNode().nodeType = mutationMap[self.tree.retCurNode().nodeType]
-            self.tree.setMutatedNode()
-            self.mutants.append(self.tree)
-            self.tree = self.og_tree 
+            deepCopy = copy.deepcopy(self.tree)
+            deepCopy.retCurNode().nodeType = mutationMap[deepCopy.retCurNode().nodeType]
+            deepCopy.setMutatedNode()
+            self.mutants.append(deepCopy)
