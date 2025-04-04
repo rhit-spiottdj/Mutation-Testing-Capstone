@@ -54,9 +54,9 @@ class MutationNode:
     rowNumber = None
     colNumber = None
     dataDict = {}
-    mutateMe = False
+    isMutated = False
 
-    def __init__(self, nodeType, rowNumber, colNumber, dataDict, value = None, children = None, parent = None, mutateMe = False):
+    def __init__(self, nodeType, rowNumber, colNumber, dataDict, value = None, children = None, parent = None, isMutated = False):
         self.nodeType = nodeType
         self.value = value
         if (children):
@@ -67,7 +67,7 @@ class MutationNode:
         self.rowNumber = rowNumber
         self.colNumber = colNumber
         self.dataDict = dataDict
-        self.mutateMe = mutateMe
+        self.isMutated = isMutated
 
     def attachChildren(self, nodes):
         self.children = nodes

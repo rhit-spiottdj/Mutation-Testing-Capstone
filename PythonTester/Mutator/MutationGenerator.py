@@ -56,7 +56,11 @@ class MutationGenerator:
             # print("\n", dump(self.tree)) ##Used for understanding utilization of ast methods
 
     def generateMutants(self):
-        self.mutants = self.mutator.generateMutations(self.tree, self.param)
+        mutant = self.mutator.generateMutations(self.tree, self.param)
+        self.mutants.append(self.converter.unmakeMTree(mutant))
+        while(mutant is not None):
+            mutant = self.mutator.generateMutations(self.tree, self.param)
+            self.mutants.append(self.converter.unmakeMTree(mutant))
 
     def retNumMutants(self):
         return len(self.mutants)
