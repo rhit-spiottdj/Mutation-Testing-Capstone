@@ -4,6 +4,7 @@ from Mutator.NodeTypes import NodeType
 # import tree_sitter_python as tspython
 # from tree_sitter import Language, Parser
 import libcst as cst
+from libcst.metadata import PositionProvider
 
 # PY_LANGUAGE = Language(tspython.language())
 lst = []
@@ -69,7 +70,7 @@ class TreeConverter:
         "Or" : NodeType.OR,
         "IfExp" : NodeType.IFEXP,
         "Is" : NodeType.IS,
-        "BitInvert" : NodeType.BINARYOPERATION,
+        "BitInvert" : NodeType.BITINVERT,
         "Not" : NodeType.NOT,
         "Plus" : NodeType.PLUS,
         "MaybeSentinel" : NodeType.MAYBESENTINEL,
@@ -82,6 +83,79 @@ class TreeConverter:
         "BaseParenthesizableWhitespace" : NodeType.BASEPARENTHESIZABLEWHITESPACE,
         "Semicolon" : NodeType.SEMICOLON,
         "BaseCompoundStatement" : NodeType.BASECOMPOUNDSTATEMENT,
+    }
+    
+    unconversion_map = {
+        NodeType.ADD : "Add",
+        NodeType.ADDASSIGN : "AddAssign",
+        NodeType.SUBTRACT : "Subtract",
+        NodeType.SUBTRACTASSIGN : "SubtractAssign",
+        NodeType.MULTIPLY : "Multiply",
+        NodeType.MULTIPLYASSIGN : "MultiplyAssign",
+        NodeType.DIVIDE : "Divide",
+        NodeType.DIVIDEASSIGN : "DivideAssign",
+        NodeType.MODULO : "Modulo",
+        NodeType.MODULOASSIGN : "ModuloAssign",
+        NodeType.BITAND : "BitAnd",
+        NodeType.BITOR : "BitOr",
+        NodeType.POWER : "Power",
+        NodeType.LESSTHAN : "LessThan",
+        NodeType.GREATERTHAN : "GreaterThan",
+        NodeType.EQUAL : "Equal",
+        NodeType.NOTEQUAL : "NotEqual",
+        NodeType.LESSTHANEQUAL : "LessThanEqual",
+        NodeType.GREATERTHANEQUAL : "GreaterThanEqual",
+        NodeType.MODULE : "Module",
+        NodeType.EMPTYLINE : "EmptyLine",
+        NodeType.SIMPLEWHITESPACE : "SimpleWhitespace",
+        NodeType.COMMENT : "Comment",
+        NodeType.NEWLINE : "Newline",
+        NodeType.FUNCTIONDEF : "FunctionDef",
+        NodeType.NAME : "Name",
+        NodeType.PARAMETERS : "Parameters",
+        NodeType.INDENTEDBLOCK : "IndentedBlock",
+        NodeType.TRAILINGWHITESPACE : "TrailingWhitespace",
+        NodeType.SIMPLESTATEMENTLINE : "SimpleStatementLine",
+        NodeType.EXPR : "Expr",
+        NodeType.CALL : "Call",
+        NodeType.ARG : "Arg",
+        NodeType.SIMPLESTRING : "SimpleString",
+        NodeType.RETURN : "Return",
+        NodeType.ASSIGN : "Assign",
+        NodeType.ASSIGNTARGET : "AssignTarget",
+        NodeType.LIST : "List",
+        NodeType.LEFTSQUAREBRACKET : "LeftSquareBracket",
+        NodeType.ELEMENT : "Element",
+        NodeType.INTEGER : "Integer",
+        NodeType.COMMA : "Comma",
+        NodeType.RIGHTSQUAREBRACKET : "RightSquareBracket",
+        NodeType.BINARYOPERATION : "BinaryOperation",
+        NodeType.FOR : "For",
+        NodeType.AUGASSIGN : "AugAssign",
+        NodeType.UNARYOPERATION : "UnaryOperation",
+        NodeType.MINUS : "Minus",
+        NodeType.COMPARISON : "Comparison",
+        NodeType.COMPARISONTARGET : "ComparisonTarget",
+        NodeType.BOOLEANOPERATION : "BooleanOperation",
+        NodeType.LEFTPAREN : "LeftParen",
+        NodeType.AND : "And",
+        NodeType.RIGHTPAREN : "RightParen",
+        NodeType.OR : "Or",
+        NodeType.IFEXP : "IfExp",
+        NodeType.IS : "Is",
+        NodeType.BITINVERT : "BitInvert",
+        NodeType.NOT : "Not",
+        NodeType.PLUS : "Plus",
+        NodeType.MAYBESENTINEL : "MaybeSentinel",
+        NodeType.CLASSDEF : "ClassDef",
+        NodeType.PARAM : "Param",
+        NodeType.PARAMSTAR : "ParamStar",
+        NodeType.ASSIGNEQUAL : "AssignEqual",
+        NodeType.BASEEXPRESSION : "BaseExpression",
+        NodeType.ANNOTATION : "Annotation",
+        NodeType.BASEPARENTHESIZABLEWHITESPACE : "BaseParenthesizableWhitespace",
+        NodeType.SEMICOLON : "Semicolon",
+        NodeType.BASECOMPOUNDSTATEMENT : "BaseCompoundStatement",
     }
 
     # parser = Parser(PY_LANGUAGE)
@@ -120,8 +194,8 @@ class TreeConverter:
     
     def unmakeMTree(self, mTree):
         # do conversion back to library tree
-        newTree = None
-        return newTree
+        headNode = self.unconvertNode(mTree.headNode)
+        return headNode
 
     def loadOriginalCode(self):
         # load originalCode
@@ -143,8 +217,8 @@ class TreeConverter:
             # self.tree = cst.parse_module(self.mutations[i])
         return
     
-    def backToCode(self, tree):
-        code = None
+    def backToCode(self, headNode):
+        code = headNode.code
         return code
     
     def getOriginalCode(self):
@@ -207,6 +281,9 @@ class TreeConverter:
             dataDict['defaultNewline'] = dNewline
             hTNewline = node.has_trailing_newline
             dataDict['hasTrailingNewline'] = hTNewline
+            
+            # Add code property for module node?
+
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
             mNode.attachChildren([bNode, hNode, fNode])
         elif(newType == NodeType.EMPTYLINE):
@@ -225,8 +302,6 @@ class TreeConverter:
             mNode.attachChildren([wNode, cNode, nNode])
         elif(newType == NodeType.SIMPLEWHITESPACE):
             value = node.value
-            empty = node.empty # Is a property. 
-            dataDict['empty'] = empty
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict, value=value)
         elif(newType == NodeType.COMMENT or newType == NodeType.NEWLINE):
             if(hasattr(node, 'value')):
@@ -235,8 +310,8 @@ class TreeConverter:
                 value = None
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict, value=value)
         elif(newType == NodeType.FUNCTIONDEF):
-            nameNode = self.convertNode(node.name)
-            dataDict['name'] = nameNode
+            nNode = self.convertNode(node.name)
+            dataDict['name'] = nNode
             pNode = self.convertNode(node.params)
             dataDict['params'] = pNode
             bNode = self.convertNode(node.body)
@@ -257,11 +332,11 @@ class TreeConverter:
             dataDict['asynchronous'] = aNode
             lLNode = []
             for n in node.leading_lines:
-                self.convertNode(n) # do a loop of the contents as it is a sequence of LibCST stuff
+                lLNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['leadingLines'] = lLNode
             lADNode = []
             for n in node.lines_after_decorators:
-                self.convertNode(n) # do a loop of the contents as it is a sequence of LibCST stuff
+                lADNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['linesAfterDecorators'] = lADNode
             wADNode = self.convertNode(node.whitespace_after_def)
             dataDict['whitespaceAfterDef'] = wADNode
@@ -279,7 +354,7 @@ class TreeConverter:
             wATPNode = self.convertNode(node.whitespace_after_type_parameters)
             dataDict['whitespaceAfterTypeParameters'] = wATPNode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
-            mNode.attachChildren([nameNode, pNode, bNode, dNode, rNode, aNode, lLNode, lADNode, wADNode, wANNode, wBPNode, wBCNode, tPNode, wATPNode])
+            mNode.attachChildren([nNode, pNode, bNode, dNode, rNode, aNode, lLNode, lADNode, wADNode, wANNode, wBPNode, wBCNode, tPNode, wATPNode])
         elif(newType == NodeType.NAME):
             value = node.value
             lNode = []
@@ -361,10 +436,10 @@ class TreeConverter:
             mNode.attachChildren([bNode, lLNode, tWNode])
         elif(newType == NodeType.EXPR):
             value = node.value
-            semicolon = self.convertNode(node.semicolon)
-            dataDict['semicolon'] = semicolon
+            sNode = self.convertNode(node.semicolon)
+            dataDict['semicolon'] = sNode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
-            mNode.attachChildren([semicolon])
+            mNode.attachChildren([sNode])
         elif(newType == NodeType.CALL):
             fNode = self.convertNode(node.func)
             dataDict['func'] = fNode
@@ -380,12 +455,12 @@ class TreeConverter:
             for n in node.rpar:
                 rparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['rightParenthesis'] = rparNode 
-            wafNode = self.convertNode(node.whitespace_after_func)
-            dataDict['whitespaceAfterFunc'] = wafNode
-            wbaNode = self.convertNode(node.whitespace_before_args)
-            dataDict['whitespaceBeforeArgs'] = wbaNode
+            wAFNode = self.convertNode(node.whitespace_after_func)
+            dataDict['whitespaceAfterFunc'] = wAFNode
+            wBANode = self.convertNode(node.whitespace_before_args)
+            dataDict['whitespaceBeforeArgs'] = wBANode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
-            mNode.attachChildren([fNode, aNode, lparNode, rparNode, wafNode, wbaNode])
+            mNode.attachChildren([fNode, aNode, lparNode, rparNode, wAFNode, wBANode])
         elif(newType == NodeType.ARG):
             valueNode = self.convertNode(node.value)
             dataDict['value'] = valueNode
@@ -415,9 +490,7 @@ class TreeConverter:
             rparNode = []
             for n in node.rpar:
                 rparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
-            dataDict['rightParenthesis'] = rparNode 
-            dataDict['prefix'] = node.prefix
-            dataDict['quote'] = node.quote
+            dataDict['rightParenthesis'] = rparNode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict, value=value)
             mNode.attachChildren([lparNode, rparNode])
         elif(newType == NodeType.RETURN):
@@ -546,6 +619,8 @@ class TreeConverter:
             dataDict['whitespaceAfterIn'] = wsaiNode
             wsbcNode = self.convertNode(node.whitespace_before_colon)
             dataDict['whitespaceBeforeColon'] = wsbcNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([targetNode, iterNode, bNode, orElseNode, asyncNode, leadLineNode, wsafNode, wsbiNode, wsaiNode, wsbcNode])
         elif(newType == NodeType.AUGASSIGN):    
             tNode = self.convertNode(node.target)
             dataDict['target'] = tNode
@@ -553,10 +628,10 @@ class TreeConverter:
             dataDict['operator'] = opNode
             vNode = self.convertNode(node.value)
             dataDict['value'] = vNode
-            scNode = self.convertNode(node.semicolon) # could be a MaybeSentinel, need to handle
-            dataDict['semicolon'] = scNode
+            sNode = self.convertNode(node.semicolon) # could be a MaybeSentinel, need to handle
+            dataDict['semicolon'] = sNode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
-            mNode.attachChildren([tNode, opNode, vNode, scNode])
+            mNode.attachChildren([tNode, opNode, vNode, sNode])
         elif(newType == NodeType.UNARYOPERATION):
             opNode = self.convertNode(node.operator)
             dataDict['operator'] = opNode
@@ -645,30 +720,30 @@ class TreeConverter:
             mNode.attachChildren([testNode, bodyNode, orelseNode, lparNode,
                                   rparNode, wBINode, wAINode, wBENode, wAENode])
         elif(newType == NodeType.CLASSDEF):
-            nameNode = self.convertNode(node.name)
-            dataDict['name'] = nameNode
+            nNode = self.convertNode(node.name)
+            dataDict['name'] = nNode
             bNode = self.convertNode(node.body)
             dataDict['body'] = bNode
             baseNode = []
             for n in node.bases:
                 baseNode.append(self.convertNode(n))
             dataDict['bases'] = baseNode
-            dNode = []
-            for n in node.decorators:
-                dNode.append(self.convertNode(n))
-            dataDict['decorators'] = dNode
             kNode = []
             for n in node.keywords:
                 kNode.append(self.convertNode(n))
             dataDict['keywords'] = kNode
+            dNode = []
+            for n in node.decorators:
+                dNode.append(self.convertNode(n))
+            dataDict['decorators'] = dNode
             lparNode = self.convertNode(node.lpar)
             dataDict['leftParenthesis'] = lparNode
             rparNode = self.convertNode(node.rpar)
             dataDict['rightParenthesis'] = rparNode
-            llNode = []
+            lLNode = []
             for n in node.leading_lines:
-                llNode.append(self.convertNode(n))
-            dataDict['leadingLines'] = llNode
+                lLNode.append(self.convertNode(n))
+            dataDict['leadingLines'] = lLNode
             lADNode = []
             for n in node.lines_after_decorators:
                 lADNode.append(self.convertNode(n))
@@ -677,8 +752,8 @@ class TreeConverter:
             dataDict['whitespaceAfterClass'] = wAClassNode
             wANode = self.convertNode(node.whitespace_after_name)
             dataDict['whitespaceAfterName'] = wANode
-            wAColonNode = self.convertNode(node.whitespace_after_colon)
-            dataDict['whitespaceAfterColon'] = wAColonNode
+            wBColonNode = self.convertNode(node.whitespace_before_colon)
+            dataDict['whitespaceBeforeColon'] = wBColonNode
             if(hasattr(node, 'type_parameters')):
                 tPNode = self.convertNode(node.type_parameters)
             else:
@@ -687,9 +762,9 @@ class TreeConverter:
             wATPNode = self.convertNode(node.whitespace_after_type_parameters)
             dataDict['whitespaceAfterTypeParameters'] = wATPNode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
-            mNode.attachChildren([nameNode, bNode, baseNode, dNode, kNode,
-                                  lparNode, rparNode, llNode, lADNode,
-                                  wAClassNode, wANode, wAColonNode,
+            mNode.attachChildren([nNode, bNode, baseNode, dNode, kNode,
+                                  lparNode, rparNode, lLNode, lADNode,
+                                  wAClassNode, wANode, wBColonNode,
                                   tPNode, wATPNode])
         elif(newType == NodeType.PARAM):
             nNode = node.name
@@ -735,18 +810,441 @@ class TreeConverter:
             mNode.attachChildren([aNode, wBINode, wAINode])
         elif(newType == NodeType.MAYBESENTINEL or newType == NodeType.BASEEXPRESSION or newType == NodeType.BASEPARENTHESIZABLEWHITESPACE):
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
-        with open("test.txt", "a", encoding='utf-8') as f:
-            if type(node).__name__ not in self.lst:
-                self.lst.append(type(node).__name__)
-                f.write(type(node).__name__ + '\n')
-                # print(str(node.field()) + '\n')
                 
         return mNode
     
+    def unconvertNode(self, mNode):
+        if (mNode is None):
+            return None
+        node = None
+        basicOps = [NodeType.ADD, NodeType.ADDASSIGN, 
+                    NodeType.SUBTRACT, NodeType.SUBTRACTASSIGN,
+                    NodeType.MULTIPLY, NodeType.MULTIPLYASSIGN,
+                    NodeType.DIVIDE, NodeType.DIVIDEASSIGN,
+                    NodeType.MODULO, NodeType.MODULOASSIGN,
+                    NodeType.BITAND, NodeType.BITANDASSIGN,
+                    NodeType.BITOR, NodeType.BITORASSIGN,
+                    NodeType.POWER, NodeType.COMMA,
+                    NodeType.LESSTHAN, NodeType.GREATERTHAN, NodeType.EQUAL,
+                    NodeType.LESSTHANEQUAL, NodeType.GREATERTHANEQUAL,
+                    NodeType.AND, NodeType.OR, NodeType.IS, NodeType.ASSIGNEQUAL, 
+                    NodeType.SEMICOLON]
+        unaryOps = [NodeType.BITINVERT, NodeType.MINUS, NodeType.NOT, NodeType.PLUS]
+
+        dataDict = mNode.dataDict
+        if(mNode.nodeType in basicOps):
+            wBNode = self.unconvertNode(dataDict['whitespaceBefore'])
+            wANode = self.unconvertNode(dataDict['whitespaceAfter'])    
+            match mNode.nodeType:
+                case NodeType.ADD:
+                    node = cst.Add(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.ADDASSIGN:
+                    node = cst.AddAssign(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.SUBTRACT:
+                    node = cst.Subtract(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.SUBTRACTASSIGN:
+                    node = cst.SubtractAssign(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.MULTIPLY:
+                    node = cst.Multiply(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.MULTIPLYASSIGN:
+                    node = cst.MultiplyAssign(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.DIVIDE:
+                    node = cst.Divide(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.DIVIDEASSIGN:
+                    node = cst.DivideAssign(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.MODULO:
+                    node = cst.Modulo(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.MODULOASSIGN:
+                    node = cst.ModuloAssign(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.BITAND:
+                    node = cst.BitAnd(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.BITANDASSIGN:
+                    node = cst.BitAndAssign(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.BITOR:
+                    node = cst.BitOr(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.BITORASSIGN:
+                    node = cst.BitOrAssign(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.POWER:
+                    node = cst.Power(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.COMMA:
+                    node = cst.Comma(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.LESSTHAN:
+                    node = cst.LessThan(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.GREATERTHAN:
+                    node = cst.GreaterThan(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.EQUAL:
+                    node = cst.Equal(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.LESSTHANEQUAL:
+                    node = cst.LessThanEqual(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.GREATERTHANEQUAL:
+                    node = cst.GreaterThanEqual(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.AND:
+                    node = cst.And(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.OR:
+                    node = cst.Or(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.IS:
+                    node = cst.Is(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.ASSIGNEQUAL:
+                    node = cst.AssignEqual(whitespace_before=wBNode, whitespace_after=wANode)
+                case NodeType.SEMICOLON:
+                    node = cst.Semicolon(whitespace_before=wBNode, whitespace_after=wANode)
+                case _:
+                    raise ValueError(f"Unknown node type: {mNode.nodeType}")
+        elif(mNode.nodeType == NodeType.NOTEQUAL):
+            wBNode = self.unconvertNode(dataDict['whitespaceBefore'])
+            wANode = self.unconvertNode(dataDict['whitespaceAfter'])
+            node = cst.NotEqual(value=mNode.value, whitespace_before=wBNode, whitespace_after=wANode)
+        elif(mNode.nodeType == NodeType.MODULE):
+            bNode = []
+            for n in dataDict['body']:
+                bNodeChild = self.unconvertNode(n)
+                bNode.append(bNodeChild)
+            hNode = []
+            for n in dataDict['header']:
+                hNodeChild = self.unconvertNode(n)
+                hNode.append(hNodeChild)
+            fNode = []
+            for n in dataDict['footer']:
+                fNodeChild = self.unconvertNode(n)
+                fNode.append(fNodeChild)
+            node = cst.Module(body=bNode, header=hNode, footer=fNode, encoding=dataDict['encoding'], default_indent=dataDict['defaultIndent'], default_newline=dataDict['defaultNewline'], has_trailing_newline=dataDict['hasTrailingNewline'])
+        elif(mNode.nodeType == NodeType.EMPTYLINE):
+            wNode = self.unconvertNode(dataDict['whitespace'])
+            cNode = self.unconvertNode(dataDict['comment'])
+            nNode = self.unconvertNode(dataDict['newline'])
+            if cNode:
+                node = cst.EmptyLine(indent=dataDict['indent'], whitespace=wNode, comment=cNode, newline=nNode)
+            else:
+                node = cst.EmptyLine(indent=dataDict['indent'], whitespace=wNode, newline=nNode)
+        elif(mNode.nodeType == NodeType.SIMPLEWHITESPACE):
+            node = cst.SimpleWhitespace(value=mNode.value)
+        elif(mNode.nodeType == NodeType.COMMENT):
+            node = cst.Comment(value=mNode.value)
+        elif(mNode.nodeType == NodeType.NEWLINE):
+            node = cst.Newline(value=mNode.value)
+        elif(mNode.nodeType == NodeType.FUNCTIONDEF):
+            nNode = self.unconvertNode(dataDict['name'])
+            pNode = self.unconvertNode(dataDict['params'])
+            bNode = self.unconvertNode(dataDict['body'])
+            dNode = []
+            for n in dataDict['decorators']:
+                dNode.append(self.unconvertNode(n))
+            rNode = self.unconvertNode(dataDict['returns'])
+            aNode = self.unconvertNode(dataDict['asynchronous'])
+            lLNode = []
+            for n in dataDict['leadingLines']:
+                lLNode.append(self.unconvertNode(n))
+            lADNode = []
+            for n in dataDict['linesAfterDecorators']:
+                lADNode.append(self.unconvertNode(n))
+            wADNode = self.unconvertNode(dataDict['whitespaceAfterDef'])
+            wANNode = self.unconvertNode(dataDict['whitespaceAfterName'])
+            wBPNode = self.unconvertNode(dataDict['whitespaceBeforeParams'])
+            wBCNode = self.unconvertNode(dataDict['whitespaceBeforeColon'])
+            tPNode = self.unconvertNode(dataDict['typeParameters'])
+            wATPNode = self.unconvertNode(dataDict['whitespaceAfterTypeParameters'])
+            node = cst.FunctionDef(name=nNode, params=pNode, body=bNode, decorators=dNode, returns=rNode, asynchronous=aNode, leading_lines=lLNode, lines_after_decorators=lADNode, whitespace_after_def=wADNode, whitespace_after_name=wANNode, whitespace_before_params=wBPNode, whitespace_before_colon=wBCNode, type_parameters=tPNode, whitespace_after_type_parameters=wATPNode)
+        elif(mNode.nodeType == NodeType.NAME):
+            lNode = []
+            for n in dataDict['lpar']:
+                lNode.append(self.unconvertNode(n))
+            rNode = []
+            for n in dataDict['rpar']:
+                rNode.append(self.unconvertNode(n))
+            node = cst.Name(value=mNode.value, lpar=lNode, rpar=rNode)
+        elif(mNode.nodeType == NodeType.PARAMETERS):
+            pNode = []
+            for n in dataDict['params']:
+                pNode.append(self.unconvertNode(n))
+            sANode = self.unconvertNode(dataDict['starArg'])
+            kPNode = []
+            for n in dataDict['kwonlyParams']:
+                kPNode.append(self.unconvertNode(n))
+            sKNode = self.unconvertNode(dataDict['starKwarg'])
+            pPNode = []
+            for n in dataDict['posonlyParams']:
+                pPNode.append(self.unconvertNode(n))
+            pINode = self.unconvertNode(dataDict['posonlyInd'])
+            node = cst.Parameters(params=pNode, star_arg=sANode, kwonly_params=kPNode, star_kwarg=sKNode, posonly_params=pPNode, posonly_ind=pINode)
+        elif(mNode.nodeType == NodeType.INDENTEDBLOCK):
+            bNode = []
+            for n in dataDict['body']:
+                bNode.append(self.unconvertNode(n))
+            hNode = self.unconvertNode(dataDict['header'])
+            indent = dataDict['indent']
+            fNode = []
+            for n in dataDict['footer']:
+                fNode.append(self.unconvertNode(n))
+            node = cst.IndentedBlock(body=bNode, header=hNode, indent=indent, footer=fNode)
+        elif(mNode.nodeType == NodeType.TRAILINGWHITESPACE):
+            wNode = self.unconvertNode(dataDict['whitespace'])
+            cNode = self.unconvertNode(dataDict['comment'])
+            nNode = self.unconvertNode(dataDict['newline'])
+            node = cst.TrailingWhitespace(whitespace=wNode, comment=cNode, newline=nNode)
+        elif(mNode.nodeType == NodeType.SIMPLESTATEMENTLINE):
+            bNode = []
+            for n in dataDict['body']:
+                bNode.append(self.unconvertNode(n))
+            lLNode = []
+            for n in dataDict['leadingLines']:
+                lLNode.append(self.unconvertNode(n))
+            tWNode = self.unconvertNode(dataDict['trailingWhitespace'])
+            node = cst.SimpleStatementLine(body=bNode, leading_lines=lLNode, trailing_whitespace=tWNode)
+        elif(mNode.nodeType == NodeType.EXPR):
+            sNode = self.unconvertNode(dataDict['semicolon'])
+            node = cst.Expr(value=mNode.value, semicolon=sNode)
+        elif(mNode.nodeType == NodeType.CALL):
+            fNode = self.unconvertNode(dataDict['func'])
+            aNode = []
+            for n in dataDict['args']:
+                aNode.append(self.unconvertNode(n))
+            lparNode = []
+            for n in dataDict['leftParenthesis']:
+                lparNode.append(self.unconvertNode(n))
+            rparNode = []
+            for n in dataDict['rightParenthesis']:
+                rparNode.append(self.unconvertNode(n))
+            wAFNode = self.unconvertNode(dataDict['whitespaceAfterFunc'])
+            wBANode = self.unconvertNode(dataDict['whitespaceBeforeArgs'])
+            node = cst.Call(func=fNode, args=aNode, lpar=lparNode, rpar=rparNode, whitespace_after_func=wAFNode, whitespace_before_args=wBANode)
+        elif(mNode.nodeType == NodeType.ARG):
+            valueNode = self.unconvertNode(dataDict['value'])
+            keywordNode = self.unconvertNode(dataDict['keyword'])
+            equalNode = self.unconvertNode(dataDict['equal'])
+            commaNode = self.unconvertNode(dataDict['comma'])
+            star = dataDict['star']
+            wasNode = self.unconvertNode(dataDict['whitespaceAfterStar'])
+            waaNode = self.unconvertNode(dataDict['whitespaceAfterArg'])
+            node = cst.Arg(value=valueNode, keyword=keywordNode, equal=equalNode, comma=commaNode, star=star, 
+                           whitespace_after_star=wasNode, whitespace_after_arg=waaNode)
+        elif(mNode.nodeType == NodeType.SIMPLESTRING):
+            value = mNode.value
+            lparNode = []
+            for n in dataDict['leftParenthesis']:
+                lparNode.append(self.unconvertNode(n))
+            rparNode = []
+            for n in dataDict['rightParenthesis']:
+                rparNode.append(self.unconvertNode(n))
+            node = cst.SimpleString(value=value, lpar=lparNode, rpar=rparNode)    
+        elif(mNode.nodeType == NodeType.RETURN):
+            vNode = self.unconvertNode(dataDict['value'])
+            warNode = self.unconvertNode(dataDict['whitespaceAfterReturn']) 
+            sNode = self.unconvertNode(dataDict['semicolon'])
+            node = cst.Return(value=vNode, whitespace_after_return=warNode, semicolon=sNode)
+        elif(mNode.nodeType == NodeType.ASSIGN):
+            tNode = []
+            for n in dataDict['targets']:
+                tNode.append(self.unconvertNode(n))
+            vNode = self.unconvertNode(dataDict['value'])
+            sNode = self.unconvertNode(dataDict['semicolon'])
+            node = cst.Assign(targets=tNode, value=vNode, semicolon=sNode)
+        elif(mNode.nodeType == NodeType.ASSIGNTARGET):                        
+            tNode = self.unconvertNode(dataDict['target'])
+            wbeNode = self.unconvertNode(dataDict['whitespaceBeforeEqual'])
+            waeNode = self.unconvertNode(dataDict['whitespaceAfterEqual'])
+            node = cst.AssignTarget(target=tNode, whitespace_before_equal=wbeNode, whitespace_after_equal=waeNode)
+        elif(mNode.nodeType == NodeType.LIST):
+            eNode = []
+            for n in dataDict['elements']:
+                eNode.append(self.unconvertNode(n)) 
+            lbNode = self.unconvertNode(dataDict['leftBracket'])    
+            rbNode = self.unconvertNode(dataDict['rightBracket'])
+            lparNode = []
+            for n in dataDict['leftParenthesis']:
+                lparNode.append(self.unconvertNode(n))
+            rparNode = []
+            for n in dataDict['rightParenthesis']:
+                rparNode.append(self.unconvertNode(n))
+            node = cst.List(elements=eNode, lbracket=lbNode, rbracket=rbNode, lpar=lparNode, rpar=rparNode)
+        elif(mNode.nodeType == NodeType.LEFTSQUAREBRACKET or mNode.nodeType == NodeType.LEFTPAREN):            
+            waNode = self.unconvertNode(dataDict['whitespaceAfter'])
+            match mNode.nodeType:
+                case NodeType.LEFTSQUAREBRACKET:   
+                    node = cst.LeftSquareBracket(whitespace_after=waNode)
+                case NodeType.LEFTPAREN:
+                    node = cst.LeftParen(whitespace_after=waNode)
+        elif(mNode.nodeType == NodeType.RIGHTSQUAREBRACKET or mNode.nodeType == NodeType.RIGHTPAREN):
+            wbNode = self.unconvertNode(dataDict['whitespaceBefore'])
+            match mNode.nodeType:
+                case NodeType.RIGHTSQUAREBRACKET:
+                    node = cst.RightSquareBracket(whitespace_before=wbNode)
+                case NodeType.RIGHTPAREN:
+                    node = cst.RightParen(whitespace_before=wbNode)
+        elif(mNode.nodeType == NodeType.ELEMENT):
+            vNode = self.unconvertNode(dataDict['value'])
+            cNode = self.unconvertNode(dataDict['comma'])
+            node = cst.Element(value=vNode, comma=cNode)
+        elif(mNode.nodeType == NodeType.INTEGER):
+            value = dataDict['value']
+            lparNode = []
+            for n in dataDict['leftParenthesis']:
+                lparNode.append(self.unconvertNode(n))
+            rparNode = []
+            for n in dataDict['rightParenthesis']:  
+                rparNode.append(self.unconvertNode(n))
+            node = cst.Integer(value=value, lpar=lparNode, rpar=rparNode)                
+        elif(mNode.nodeType == NodeType.BINARYOPERATION):
+            lNode = self.unconvertNode(dataDict['left'])
+            opNode = self.unconvertNode(dataDict['operator'])
+            rNode = self.unconvertNode(dataDict['right'])
+            lparNode = []
+            for n in dataDict['leftParenthesis']:
+                lparNode.append(self.unconvertNode(n))
+            rparNode = []
+            for n in dataDict['rightParenthesis']:
+                rparNode.append(self.unconvertNode(n))
+            node = cst.BinaryOperation(left=lNode, operator=opNode, right=rNode, lpar=lparNode, rpar=rparNode)
+        elif(mNode.nodeType == NodeType.FOR):
+            targetNode = self.unconvertNode(dataDict['target'])
+            iterNode = self.unconvertNode(dataDict['iter'])
+            bNode = self.unconvertNode(dataDict['body'])
+            orElseNode = self.unconvertNode(dataDict['orelse'])
+            asyncNode = self.unconvertNode(dataDict['asynchronous'])
+            leadLineNode = self.unconvertNode(dataDict['leadingLines'])
+            wsafNode = self.unconvertNode(dataDict['whitespaceAfterFor'])
+            wsbiNode = self.unconvertNode(dataDict['whitespaceBeforeIn'])
+            wsaiNode = self.unconvertNode(dataDict['whitespaceAfterIn'])
+            wsbcNode = self.unconvertNode(dataDict['whitespaceBeforeColon'])
+            node = cst.For(target=targetNode, iter=iterNode, body=bNode, orelse=orElseNode, 
+                           asynchronous=asyncNode, leading_lines=leadLineNode, whitespace_after_for=wsafNode, 
+                           whitespace_before_in=wsbiNode, whitespace_after_in=wsaiNode, whitespace_before_colon=wsbcNode)
+        elif(mNode.nodeType == NodeType.AUGASSIGN):    
+            tNode = self.unconvertNode(dataDict['target'])
+            opNode = self.unconvertNode(dataDict['operator'])   
+            vNode = self.unconvertNode(dataDict['value'])
+            sNode = self.unconvertNode(dataDict['semicolon'])
+            node = cst.AugAssign(target=tNode, operator=opNode, value=vNode, semicolon=sNode)
+        elif(mNode.nodeType == NodeType.UNARYOPERATION):
+            opNode = self.unconvertNode(dataDict['operator'])
+            exNode = self.unconvertNode(dataDict['expression'])
+            lparNode = []
+            for n in dataDict['lpar']:
+                lparNode.append(self.unconvertNode(n))
+            rparNode = []
+            for n in dataDict['rpar']:
+                rparNode.append(self.unconvertNode(n))  
+            node = cst.UnaryOperation(operator=opNode, expression=exNode, lpar=lparNode, rpar=rparNode)
+        elif(mNode.nodeType in unaryOps):
+            wANode = self.unconvertNode(dataDict['whitespaceAfter'])  
+            match mNode.nodeType:
+                case NodeType.BITINVERT:
+                    node = cst.BitInvert(whitespace_after=wANode)
+                case NodeType.MINUS:
+                    node = cst.Minus(whitespace_after=wANode)
+                case NodeType.NOT:
+                    node = cst.Not(whitespace_after=wANode)
+                case NodeType.PLUS:
+                    node = cst.Plus(whitespace_after=wANode)
+                case _:
+                    raise ValueError(f"Unknown node type: {mNode.nodeType}")            
+        elif(mNode.nodeType == NodeType.COMPARISON):
+            lNode = self.unconvertNode(dataDict['left'])
+            compsNode = []
+            for n in dataDict['comparisons']:
+                compsNode.append(self.unconvertNode(n))
+            lparNode = []
+            for n in dataDict['leftParenthesis']:
+                lparNode.append(self.unconvertNode(n))
+            rparNode = []
+            for n in dataDict['rightParenthesis']:
+                rparNode.append(self.unconvertNode(n))
+            node = cst.Comparison(left=lNode, comparisons=compsNode, lpar=lparNode, rpar=rparNode)
+        elif(mNode.nodeType == NodeType.COMPARISONTARGET):
+            opNode = self.unconvertNode(dataDict['operator'])
+            compNode = self.unconvertNode(dataDict['comparator'])
+            node = cst.ComparisonTarget(operator=opNode, comparator=compNode)
+        elif(mNode.nodeType == NodeType.BOOLEANOPERATION):
+            lNode = self.unconvertNode(dataDict['left'])
+            opNode = self.unconvertNode(dataDict['operator'])
+            rNode = self.unconvertNode(dataDict['right'])
+            lparNode = []
+            for n in dataDict['leftParenthesis']:
+                lparNode.append(self.unconvertNode(n))
+            rparNode = []
+            for n in dataDict['rightParenthesis']:
+                rparNode.append(self.unconvertNode(n))
+            node = cst.BooleanOperation(left=lNode, operator=opNode, right=rNode, lpar=lparNode, rpar=rparNode)
+        elif(mNode.nodeType == NodeType.IFEXP):
+            testNode = self.unconvertNode(dataDict['test'])
+            bodyNode = self.unconvertNode(dataDict['body'])
+            orelseNode = self.unconvertNode(dataDict['orelse'])
+            lParNode = []
+            for n in dataDict['leftParenthesis']:
+                lParNode.append(self.unconvertNode(n))
+            rParNode = []
+            for n in dataDict['rightParenthesis']:
+                rParNode.append(self.unconvertNode(n))
+            wBINode = self.unconvertNode(dataDict['whitespaceBeforeIf'])
+            wAINode = self.unconvertNode(dataDict['whitespaceAfterIf'])
+            wBENode = self.unconvertNode(dataDict['whitespaceBeforeElse'])
+            wAENode = self.unconvertNode(dataDict['whitespaceAfterElse'])
+            node = cst.IfExp(test=testNode, body=bodyNode, orelse=orelseNode, lpar=lParNode, rpar=rParNode,
+                    whitespace_before_if=wBINode, whitespace_after_if=wAINode, whitespace_before_else=wBENode, whitespace_after_else=wAENode)
+        elif(mNode.nodeType == NodeType.CLASSDEF):    
+            nNode = self.unconvertNode(dataDict['name'])
+            bNode = self.unconvertNode(dataDict['body'])
+            baseNode = []   
+            for n in dataDict['bases']:
+                baseNode.append(self.unconvertNode(n))
+            dNode = []
+            for n in dataDict['decorators']:
+                dNode.append(self.unconvertNode(n))
+            kNode = []
+            for n in dataDict['keywords']:
+                kNode.append(self.unconvertNode(n))
+            lparNode = self.unconvertNode(dataDict['leftParenthesis'])
+            rparNode = self.unconvertNode(dataDict['rightParenthesis'])
+            lLNode = []
+            for n in dataDict['leadingLines']:
+                lLNode.append(self.unconvertNode(n))
+            lADNode = []
+            for n in dataDict['linesAfterDecorators']:
+                lADNode.append(self.unconvertNode(n))
+            wAClassNode = self.unconvertNode(dataDict['whitespaceAfterClass'])
+            wANode = self.unconvertNode(dataDict['whitespaceAfterName'])
+            wBCNode = self.unconvertNode(dataDict['whitespaceBeforeColon'])
+            tPNode = self.unconvertNode(dataDict['typeParameters'])
+            wATPNode = self.unconvertNode(dataDict['whitespaceAfterTypeParameters'])
+            node = cst.ClassDef(name=nNode, body=bNode, bases=baseNode, decorators=dNode, keywords=kNode, 
+                    lpar=lparNode, rpar=rparNode, leading_lines=lLNode, lines_after_decorators=lADNode, 
+                    whitespace_after_class=wAClassNode, whitespace_after_name=wANode, whitespace_before_colon=wBCNode,
+                    type_parameters=tPNode, whitespace_after_type_parameters=wATPNode)
+        elif(mNode.nodeType == NodeType.PARAM):
+            nNode = self.unconvertNode(dataDict['name'])
+            aNode = self.unconvertNode(dataDict['annotation'])
+            eNode = self.unconvertNode(dataDict['equal'])
+            dNode = self.unconvertNode(dataDict['default'])
+            cNode = self.unconvertNode(dataDict['comma'])
+            sNode = self.unconvertNode(dataDict['star'])
+            wASNode = self.unconvertNode(dataDict['whitespaceAfterStar'])
+            wAPNode = self.unconvertNode(dataDict['whitespaceAfterParam'])
+            node = cst.Param(name=nNode, annotation=aNode, equal=eNode, default=dNode, 
+                             comma=cNode, star=sNode, whitespace_after_star=wASNode, 
+                             whitespace_after_param=wAPNode)
+        elif(mNode.nodeType == NodeType.PARAMSTAR):
+            cNode = self.unconvertNode(dataDict['comma'])
+            node = cst.ParamStar(comma=cNode)
+        elif(mNode.nodeType == NodeType.ANNOTATION):
+            aNode = self.unconvertNode(dataDict['annotation'])
+            wBINode = self.unconvertNode(dataDict['whitespaceBeforeIndicator'])
+            wAINode = self.unconvertNode(dataDict['whitespaceAfterIndicator'])
+            node = cst.Annotation(annotation=aNode, whitespace_before_indicator=wBINode, whitespace_after_indicator=wAINode)
+        elif(mNode.nodeType == NodeType.MAYBESENTINEL):
+            node = cst.MaybeSentinel(value=mNode.value)
+        return node
+    
     def getRowNumber(self, node):
+        # wrapper = cst.metadata.MetadataWrapper(node)
+        # positions = wrapper.resolve(PositionProvider)
+        # print("Row number is: " + positions.line)
+        # return positions.line
         return 0
     
     def getColNumber(self, node):
+        # wrapper = cst.metadata.MetadataWrapper(node)
+        # positions = wrapper.resolve(PositionProvider)
+        # print("Row number is: " + positions.column)
+        # return positions.column
         return 0
     
 class VisitNodes(cst.CSTVisitor):

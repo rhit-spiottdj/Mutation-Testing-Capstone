@@ -1,11 +1,8 @@
 import unittest
 import sys
 import os
-import io
-import libcst as cst
 import logging
 
-from libcst.display import dump
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
@@ -30,10 +27,6 @@ class MutationGeneratorTester(unittest.TestCase):
         self.assertIsNotNone(self.generator)
         self.assertIsNotNone(self.converter)
         self.logger.info("Done running parsing population test")
-
-    # def testParse(self):
-    #     self.converter.getTree()
-
 
 
 
