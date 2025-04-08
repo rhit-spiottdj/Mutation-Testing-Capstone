@@ -25,19 +25,19 @@ class TreeMutator:
     
     def checkForMutation(self, mutationMap):
         curNode = self.tree.retCurNode()
-        print('\nCurrent Node: ' + str(curNode.nodeType)) #debug
+        # print('\nCurrent Node: ' + str(curNode.nodeType)) #debug
         # print('Current Node Children: ' + str(self.tree.retCurNode().children) + '\n') #debug
-        temp = curNode.children
-        children = []
-        for x in temp:
-            if not x:
-                    children.append([])
-            else:
-                if isinstance(x, list):
-                    children.append(x[0].nodeType.name)
-                else:
-                    children.append(x.nodeType.name)
-        print('Current Node Children Types: ' + str(children)) #debug
+        # temp = curNode.children
+        # children = []
+        # for x in temp:
+        #     if not x:
+        #             children.append([])
+        #     else:
+        #         if isinstance(x, list):
+        #             children.append(x[0].nodeType.name)
+        #         else:
+        #             children.append(x.nodeType.name)
+        # print('Current Node Children Types: ' + str(children)) #debug
 
         if(curNode.nodeType in mutationMap):
             self.ogNode = MutationNode(curNode.nodeType, curNode.rowNumber, curNode.colNumber, curNode.dataDict, curNode.value, curNode.children, curNode.parent, False)

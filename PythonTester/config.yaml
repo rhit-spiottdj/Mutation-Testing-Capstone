@@ -1,5 +1,5 @@
 # Relative path to source code directory
-file_source: "/OriginalFiles/SimplerHelloCode/"
+file_source: "/OriginalFiles/HelloCode/"
 
 # Relative path to test code directory
 test_source: "/OriginalFiles/HelloCodeTests/"
@@ -22,6 +22,6 @@ exclusions:
 # The relative path where the mutation report will be generated
 report_directory: "/MutationReports/"
 
-report_filename: "simplerOutput.txt"
+report_filename: "output.txt"
 
 mutations: "mutations.txt"

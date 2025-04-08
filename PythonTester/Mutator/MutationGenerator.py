@@ -63,6 +63,9 @@ class MutationGenerator:
 
     def retNumMutants(self):
         return len(self.mutants)
+    
+    def retMutations(self):
+        return self.mutants
 
     def loadMutatedCode(self, i):
         self.converter.loadMutatedCode(self.mutants[i])

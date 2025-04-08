@@ -173,8 +173,8 @@ class TreeConverter:
 
         print('OG file dest: ' + self.C + self.file + '\n') #debug
 
-        self.metaDataVisitor = None
-        self.visitor = VisitNodes()
+        # self.metaDataVisitor = None
+        # self.visitor = VisitNodes()
         
 
     def getTree(self):
@@ -437,7 +437,7 @@ class TreeConverter:
             value = node.value
             sNode = self.convertNode(node.semicolon)
             dataDict['semicolon'] = sNode
-            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict, value = value)
             mNode.attachChildren([sNode])
         elif(newType == NodeType.CALL):
             fNode = self.convertNode(node.func)
@@ -1099,7 +1099,9 @@ class TreeConverter:
             bNode = self.unconvertNode(dataDict['body'])
             orElseNode = self.unconvertNode(dataDict['orelse'])
             asyncNode = self.unconvertNode(dataDict['asynchronous'])
-            leadLineNode = self.unconvertNode(dataDict['leadingLines'])
+            leadLineNode = []
+            for n in dataDict['leadingLines']: 
+                leadLineNode.append(self.unconvertNode(n))
             wsafNode = self.unconvertNode(dataDict['whitespaceAfterFor'])
             wsbiNode = self.unconvertNode(dataDict['whitespaceBeforeIn'])
             wsaiNode = self.unconvertNode(dataDict['whitespaceAfterIn'])
@@ -1229,7 +1231,7 @@ class TreeConverter:
             wAINode = self.unconvertNode(dataDict['whitespaceAfterIndicator'])
             node = cst.Annotation(annotation=aNode, whitespace_before_indicator=wBINode, whitespace_after_indicator=wAINode)
         elif(mNode.nodeType == NodeType.MAYBESENTINEL):
-            node = cst.MaybeSentinel(value=1)
+            node = cst.MaybeSentinel.DEFAULT
 
         return node
     
@@ -1247,28 +1249,28 @@ class TreeConverter:
         # return positions.column
         return 0
     
-class VisitNodes(cst.CSTVisitor):
-    METADATA_DEPENDENCIES = (cst.metadata.PositionProvider,)
-    global lst
+# class VisitNodes(cst.CSTVisitor):
+#     METADATA_DEPENDENCIES = (cst.metadata.PositionProvider,)
+#     global lst
 
-    def on_visit(self, node):
-        # Called every time a node is visited, before we've visited its children.
+#     def on_visit(self, node):
+#         # Called every time a node is visited, before we've visited its children.
 
-        # Returns ``True`` if children should be visited, and returns ``False``
-        # otherwise
+#         # Returns ``True`` if children should be visited, and returns ``False``
+#         # otherwise
 
-        with open("test.txt", "a", encoding='utf-8') as f:
-            if type(node).__name__ not in lst:
-                print(lst)
-                lst.append(type(node).__name__)
-                f.write(type(node).__name__ + '\n')
-            # f.write(type(node).__name__ + '\n')
-            # print(type(node).__name__)
-        visit_func = getattr(self, f"visit_{type(node).__name__}", None)
-        if visit_func is not None:
-            retval = visit_func(node)
-        else:
-            retval = True
-        # Don't visit children IFF the visit function returned False.
-        return False if retval is False else True
+#         with open("test.txt", "a", encoding='utf-8') as f:
+#             if type(node).__name__ not in lst:
+#                 print(lst)
+#                 lst.append(type(node).__name__)
+#                 f.write(type(node).__name__ + '\n')
+#             # f.write(type(node).__name__ + '\n')
+#             # print(type(node).__name__)
+#         visit_func = getattr(self, f"visit_{type(node).__name__}", None)
+#         if visit_func is not None:
+#             retval = visit_func(node)
+#         else:
+#             retval = True
+#         # Don't visit children IFF the visit function returned False.
+#         return False if retval is False else True
     
