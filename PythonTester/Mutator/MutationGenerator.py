@@ -57,10 +57,9 @@ class MutationGenerator:
 
     def generateMutants(self):
         mutant = self.mutator.generateMutations(self.tree, self.param)
-        self.mutants.append(self.converter.unmakeMTree(mutant))
         while(mutant is not None):
-            mutant = self.mutator.generateMutations(self.tree, self.param)
             self.mutants.append(self.converter.unmakeMTree(mutant))
+            mutant = self.mutator.generateMutations(self.tree, self.param)
 
     def retNumMutants(self):
         return len(self.mutants)

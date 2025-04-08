@@ -206,8 +206,7 @@ class TreeConverter:
         return
 
     def loadMutatedCode(self, mTree):
-        newTree = self.unmakeMTree(mTree)
-        mutatedCode = self.backToCode(newTree)
+        mutatedCode = self.backToCode(mTree)
 
         #load mutation
         with open(self.C + self.file, 'w', encoding='utf-8') as fd:
@@ -1075,7 +1074,7 @@ class TreeConverter:
             cNode = self.unconvertNode(dataDict['comma'])
             node = cst.Element(value=vNode, comma=cNode)
         elif(mNode.nodeType == NodeType.INTEGER):
-            value = dataDict['value']
+            value = mNode.value
             lparNode = []
             for n in dataDict['leftParenthesis']:
                 lparNode.append(self.unconvertNode(n))
@@ -1230,7 +1229,8 @@ class TreeConverter:
             wAINode = self.unconvertNode(dataDict['whitespaceAfterIndicator'])
             node = cst.Annotation(annotation=aNode, whitespace_before_indicator=wBINode, whitespace_after_indicator=wAINode)
         elif(mNode.nodeType == NodeType.MAYBESENTINEL):
-            node = cst.MaybeSentinel(value=mNode.value)
+            node = cst.MaybeSentinel(value=1)
+
         return node
     
     def getRowNumber(self, node):

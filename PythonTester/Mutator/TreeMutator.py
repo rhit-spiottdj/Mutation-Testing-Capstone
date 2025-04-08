@@ -16,9 +16,11 @@ class TreeMutator:
             curNode.nodeType = self.ogNode.nodeType
     
         foundMutant = self.checkForMutation(mutationMap)
-        while self.tree.nextNode() and not foundMutant: 
+        while not foundMutant and self.tree.nextNode(): 
             foundMutant = self.checkForMutation(mutationMap)
         
+        if(not foundMutant):
+            return None
         return self.tree
     
     def checkForMutation(self, mutationMap):
