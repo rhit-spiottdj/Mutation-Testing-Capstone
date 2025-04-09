@@ -4,7 +4,7 @@ from Mutator.NodeTypes import NodeType
 # import tree_sitter_python as tspython
 # from tree_sitter import Language, Parser
 import libcst as cst
-from libcst.metadata import PositionProvider
+from libcst.metadata import PositionProvider, MetadataWrapper
 
 # PY_LANGUAGE = Language(tspython.language())
 lst = []
@@ -179,8 +179,11 @@ class TreeConverter:
 
     def getTree(self):
         # newTree = self.parser.parse(self.original_code)
-        newTree = cst.parse_module(self.original_code)
-        mTree = self.makeMTree(newTree) # Convert to our tree
+        wrapper = cst.MetadataWrapper(cst.parse_module(self.original_code))
+        self.metadata = wrapper.resolve(PositionProvider)
+        module_with_metadata = wrapper.module
+        # newTree = cst.parse_module(self.original_code)
+        mTree = self.makeMTree(module_with_metadata) # Convert to our tree
         return mTree
 
     def makeMTree(self, tree):
@@ -1240,13 +1243,26 @@ class TreeConverter:
         # positions = wrapper.resolve(PositionProvider)
         # print("Row number is: " + positions.line)
         # return positions.line
-        return 0
+        try:
+            pos = self.metadata[node]
+            print("Row number is: " + str(pos.start.line))
+            return pos.start.line
+        except Exception:
+            print("Error in getting row number")
+            return -1
     
     def getColNumber(self, node):
         # wrapper = cst.metadata.MetadataWrapper(node)
         # positions = wrapper.resolve(PositionProvider)
         # print("Row number is: " + positions.column)
         # return positions.column
+        try:
+            pos = self.metadata[node]
+            print("Column number is: " + str(pos.start.column))
+            return pos.start.column
+        except Exception:
+            print("Error in getting column number")
+            return -1
         return 0
     
 # class VisitNodes(cst.CSTVisitor):
