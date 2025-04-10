@@ -1245,10 +1245,10 @@ class TreeConverter:
         # return positions.line
         try:
             pos = self.metadata[node]
-            print("Row number is: " + str(pos.start.line))
+            # print("Row number is: " + str(pos.start.line))
             return pos.start.line
         except Exception:
-            print("Error in getting row number")
+            # print("Error in getting row number")
             return -1
     
     def getColNumber(self, node):
@@ -1258,10 +1258,10 @@ class TreeConverter:
         # return positions.column
         try:
             pos = self.metadata[node]
-            print("Column number is: " + str(pos.start.column))
+            # print("Column number is: " + str(pos.start.column))
             return pos.start.column
         except Exception:
-            print("Error in getting column number")
+            # print("Error in getting column number")
             return -1
         return 0
     

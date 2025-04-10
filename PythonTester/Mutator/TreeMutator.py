@@ -1,4 +1,4 @@
-from PythonTester.Mutator.MutationTree import MutationNode
+from Mutator.MutationTree import MutationNode
 class TreeMutator:
     tree = None
     mutants = []

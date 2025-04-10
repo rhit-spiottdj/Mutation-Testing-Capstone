@@ -127,7 +127,7 @@ def main():
     manager = Manager.MutationManager()
     logger.info("\nBeginning mutation testing with file directory: %s\nAnd test directory: %s\n", files, tests)
     if (manager.generateMutations(**kwargs)):
-        logger.info("\Completed mutation testing with file directory: %s\nAnd test directory: %s\nTerminating application\n", files, tests)
+        logger.info("\nCompleted mutation testing with file directory: %s\nAnd test directory: %s\nTerminating application\n", files, tests)
         
     
 if __name__ == '__main__':

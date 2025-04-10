@@ -17,3 +17,69 @@
 Beginning mutation testing with file directory: /OriginalFiles/HelloCode/
 And test directory: /OriginalFiles/HelloCodeTests/
 
+2025-04-10 16:33:37 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-04-10 16:33:37 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: /OriginalFiles/HelloCode/
+And test directory: /OriginalFiles/HelloCodeTests/
+
+2025-04-10 16:33:46 UTC - __main__ - INFO - \Completed mutation testing with file directory: /OriginalFiles/HelloCode/
+And test directory: /OriginalFiles/HelloCodeTests/
+Terminating application
+
+2025-04-10 16:34:38 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-04-10 16:34:38 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: /OriginalFiles/HelloCode/
+And test directory: /OriginalFiles/HelloCodeTests/
+
+2025-04-10 16:34:47 UTC - __main__ - INFO - \Completed mutation testing with file directory: /OriginalFiles/HelloCode/
+And test directory: /OriginalFiles/HelloCodeTests/
+Terminating application
+
+2025-04-10 16:36:20 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-04-10 16:37:36 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-04-10 16:37:36 UTC - __main__ - CRITICAL - File path: PythonTester\OriginalFiles\SimplerHelloCode does not exist
+
+2025-04-10 16:43:20 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-04-10 16:43:20 UTC - __main__ - CRITICAL - File path: PythonTester\OriginalFiles\SimplerHelloCode does not exist
+
+2025-04-10 16:44:32 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-04-10 16:44:32 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: /\OriginalFiles\SimplerHelloCode/
+And test directory: /\OriginalFiles\SimplerHelloCodeTests/
+
+2025-04-10 16:44:33 UTC - __main__ - INFO - 
+Completed mutation testing with file directory: /\OriginalFiles\SimplerHelloCode/
+And test directory: /\OriginalFiles\SimplerHelloCodeTests/
+Terminating application
+
+2025-04-10 16:45:04 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-04-10 16:45:04 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: /\OriginalFiles\HelloCode/
+And test directory: /\OriginalFiles\HelloCodeTests/
+
+2025-04-10 16:45:14 UTC - __main__ - INFO - 
+Completed mutation testing with file directory: /\OriginalFiles\HelloCode/
+And test directory: /\OriginalFiles\HelloCodeTests/
+Terminating application
+
+2025-04-10 16:45:41 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-04-10 16:45:41 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: /\OriginalFiles\HelloCode/
+And test directory: /\OriginalFiles\HelloCodeBrokenTests/
+
