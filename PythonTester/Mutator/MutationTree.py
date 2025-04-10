@@ -16,22 +16,16 @@ class MutationTree:
         self.queue = Queue()
 
     def nextNode(self):
-        # print("Old curNode: " + str(self.currentNode))
         # print("\nOld curNode type: " + str(self.currentNode.nodeType))
         if(not self.currentNode.flagToExclude):
             for node in self.currentNode.children:
                 if(node is not None):
-                    # if(not isinstance(node, list) or (isinstance(node, list) and not node))
                     if isinstance(node, MutationNode):
-                        # print("Iterating over child node: " + str(node) + "\t" + str(node.nodeType))
-                        # print("Iterating over child node: " + str(node.nodeType))
+                        # print("Iterating over child node: \t" + str(node.nodeType))
                         self.queue.put(node)
                     else:
-                        # if (isinstance(node, list)):
-                            # print("The 'node' is a list")
                         for actualNode in node:
-                            # print("Iterating over child nodes: " + str(actualNode) + "\t" + str(actualNode.nodeType))
-                            # print("Iterating over child nodes: " + str(actualNode.nodeType))
+                            # print("Iterating over child nodes: \t" + str(actualNode.nodeType))
                             if isinstance(actualNode, MutationNode):
                                 self.queue.put(actualNode)
         if(not self.queue.empty()):
@@ -71,7 +65,6 @@ class MutationNode:
 
     def attachChildren(self, nodes):
         self.children = nodes
-        # print("Attached children: " + str(self.children))
         for node in nodes:
             if isinstance(node, MutationNode):
                 node.parent = self

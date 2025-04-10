@@ -4,7 +4,6 @@ class TreeMutator:
     mutants = []
     ogNode = None
     index = 0
-    
 
     def generateMutations(self, tree, params):
         self.tree = tree
@@ -58,7 +57,6 @@ class TreeMutator:
                 self.index = 0
                 curNode.isMutated = False
                 return False
-            # self.tree.setMutatedNode()
             return True
         self.index = 0
         curNode.isMutated = False

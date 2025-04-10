@@ -84,79 +84,6 @@ class TreeConverter:
         "Semicolon" : NodeType.SEMICOLON,
         "BaseCompoundStatement" : NodeType.BASECOMPOUNDSTATEMENT,
     }
-    
-    unconversion_map = {
-        NodeType.ADD : "Add",
-        NodeType.ADDASSIGN : "AddAssign",
-        NodeType.SUBTRACT : "Subtract",
-        NodeType.SUBTRACTASSIGN : "SubtractAssign",
-        NodeType.MULTIPLY : "Multiply",
-        NodeType.MULTIPLYASSIGN : "MultiplyAssign",
-        NodeType.DIVIDE : "Divide",
-        NodeType.DIVIDEASSIGN : "DivideAssign",
-        NodeType.MODULO : "Modulo",
-        NodeType.MODULOASSIGN : "ModuloAssign",
-        NodeType.BITAND : "BitAnd",
-        NodeType.BITOR : "BitOr",
-        NodeType.POWER : "Power",
-        NodeType.LESSTHAN : "LessThan",
-        NodeType.GREATERTHAN : "GreaterThan",
-        NodeType.EQUAL : "Equal",
-        NodeType.NOTEQUAL : "NotEqual",
-        NodeType.LESSTHANEQUAL : "LessThanEqual",
-        NodeType.GREATERTHANEQUAL : "GreaterThanEqual",
-        NodeType.MODULE : "Module",
-        NodeType.EMPTYLINE : "EmptyLine",
-        NodeType.SIMPLEWHITESPACE : "SimpleWhitespace",
-        NodeType.COMMENT : "Comment",
-        NodeType.NEWLINE : "Newline",
-        NodeType.FUNCTIONDEF : "FunctionDef",
-        NodeType.NAME : "Name",
-        NodeType.PARAMETERS : "Parameters",
-        NodeType.INDENTEDBLOCK : "IndentedBlock",
-        NodeType.TRAILINGWHITESPACE : "TrailingWhitespace",
-        NodeType.SIMPLESTATEMENTLINE : "SimpleStatementLine",
-        NodeType.EXPR : "Expr",
-        NodeType.CALL : "Call",
-        NodeType.ARG : "Arg",
-        NodeType.SIMPLESTRING : "SimpleString",
-        NodeType.RETURN : "Return",
-        NodeType.ASSIGN : "Assign",
-        NodeType.ASSIGNTARGET : "AssignTarget",
-        NodeType.LIST : "List",
-        NodeType.LEFTSQUAREBRACKET : "LeftSquareBracket",
-        NodeType.ELEMENT : "Element",
-        NodeType.INTEGER : "Integer",
-        NodeType.COMMA : "Comma",
-        NodeType.RIGHTSQUAREBRACKET : "RightSquareBracket",
-        NodeType.BINARYOPERATION : "BinaryOperation",
-        NodeType.FOR : "For",
-        NodeType.AUGASSIGN : "AugAssign",
-        NodeType.UNARYOPERATION : "UnaryOperation",
-        NodeType.MINUS : "Minus",
-        NodeType.COMPARISON : "Comparison",
-        NodeType.COMPARISONTARGET : "ComparisonTarget",
-        NodeType.BOOLEANOPERATION : "BooleanOperation",
-        NodeType.LEFTPAREN : "LeftParen",
-        NodeType.AND : "And",
-        NodeType.RIGHTPAREN : "RightParen",
-        NodeType.OR : "Or",
-        NodeType.IFEXP : "IfExp",
-        NodeType.IS : "Is",
-        NodeType.BITINVERT : "BitInvert",
-        NodeType.NOT : "Not",
-        NodeType.PLUS : "Plus",
-        NodeType.MAYBESENTINEL : "MaybeSentinel",
-        NodeType.CLASSDEF : "ClassDef",
-        NodeType.PARAM : "Param",
-        NodeType.PARAMSTAR : "ParamStar",
-        NodeType.ASSIGNEQUAL : "AssignEqual",
-        NodeType.BASEEXPRESSION : "BaseExpression",
-        NodeType.ANNOTATION : "Annotation",
-        NodeType.BASEPARENTHESIZABLEWHITESPACE : "BaseParenthesizableWhitespace",
-        NodeType.SEMICOLON : "Semicolon",
-        NodeType.BASECOMPOUNDSTATEMENT : "BaseCompoundStatement",
-    }
 
     # parser = Parser(PY_LANGUAGE)
     # treeSitter = None
@@ -172,26 +99,16 @@ class TreeConverter:
         fd.close()
 
         print('OG file dest: ' + self.C + self.file + '\n') #debug
-
-        # self.metaDataVisitor = None
-        # self.visitor = VisitNodes()
         
 
     def getTree(self):
-        # newTree = self.parser.parse(self.original_code)
         wrapper = cst.MetadataWrapper(cst.parse_module(self.original_code))
         self.metadata = wrapper.resolve(PositionProvider)
         module_with_metadata = wrapper.module
-        # newTree = cst.parse_module(self.original_code)
         mTree = self.makeMTree(module_with_metadata) # Convert to our tree
         return mTree
 
     def makeMTree(self, tree):
-        # global tempMTree
-        # tempMTree = MutationTree.MutationTree(MutationTree.MutationNode(None, None))
-        # self.metaDataVisitor = cst.MetadataWrapper(tree)
-        # self.metaDataVisitor.visit(self.visitor)
-        # mTree = tempMTree
         mTree = MutationTree(self.convertNode(tree))
         return mTree
     
@@ -216,7 +133,6 @@ class TreeConverter:
             fd.write(mutatedCode)
             fd.flush()
             fd.close()
-            # self.tree = cst.parse_module(self.mutations[i])
         return
     
     def backToCode(self, headNode):
@@ -283,9 +199,6 @@ class TreeConverter:
             dataDict['defaultNewline'] = dNewline
             hTNewline = node.has_trailing_newline
             dataDict['hasTrailingNewline'] = hTNewline
-            
-            # Add code property for module node?
-
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
             mNode.attachChildren([bNode, hNode, fNode])
         elif(newType == NodeType.EMPTYLINE):
@@ -1239,10 +1152,6 @@ class TreeConverter:
         return node
     
     def getRowNumber(self, node):
-        # wrapper = cst.metadata.MetadataWrapper(node)
-        # positions = wrapper.resolve(PositionProvider)
-        # print("Row number is: " + positions.line)
-        # return positions.line
         try:
             pos = self.metadata[node]
             # print("Row number is: " + str(pos.start.line))
@@ -1252,10 +1161,6 @@ class TreeConverter:
             return -1
     
     def getColNumber(self, node):
-        # wrapper = cst.metadata.MetadataWrapper(node)
-        # positions = wrapper.resolve(PositionProvider)
-        # print("Row number is: " + positions.column)
-        # return positions.column
         try:
             pos = self.metadata[node]
             # print("Column number is: " + str(pos.start.column))
@@ -1263,30 +1168,4 @@ class TreeConverter:
         except Exception:
             # print("Error in getting column number")
             return -1
-        return 0
-    
-# class VisitNodes(cst.CSTVisitor):
-#     METADATA_DEPENDENCIES = (cst.metadata.PositionProvider,)
-#     global lst
-
-#     def on_visit(self, node):
-#         # Called every time a node is visited, before we've visited its children.
-
-#         # Returns ``True`` if children should be visited, and returns ``False``
-#         # otherwise
-
-#         with open("test.txt", "a", encoding='utf-8') as f:
-#             if type(node).__name__ not in lst:
-#                 print(lst)
-#                 lst.append(type(node).__name__)
-#                 f.write(type(node).__name__ + '\n')
-#             # f.write(type(node).__name__ + '\n')
-#             # print(type(node).__name__)
-#         visit_func = getattr(self, f"visit_{type(node).__name__}", None)
-#         if visit_func is not None:
-#             retval = visit_func(node)
-#         else:
-#             retval = True
-#         # Don't visit children IFF the visit function returned False.
-#         return False if retval is False else True
     

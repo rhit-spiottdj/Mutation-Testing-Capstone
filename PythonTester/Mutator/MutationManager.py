@@ -62,7 +62,6 @@ class MutationManager:
                         result = self.manageMutations(tree_generator.file_path, test_source, suppressOut, suppressErr)
                         currentMutants += 1
                         # print(result)
-                        # print(test_tree.nodes[i])
                         if(result["allPassed"] is False):
                             killedMutants += 1
                             if not genReport:
@@ -72,6 +71,8 @@ class MutationManager:
                                 self.updateReport("garbage")
                         else:
                             # survivingMutants.append(tree_generator.nodes[i]) # add more helpful info here
+
+                            # Temporary fix. Identify what needs to be appeneded here. 
                             survivingMutants.append(tree_generator)
                             if not genReport:
                                 print("\033[31mERROR Test Is Passing\033[0m")
@@ -106,7 +107,9 @@ class MutationManager:
             else:
                 print(str(len(survivingMutants)) + " Surviving Mutants: ", file=streamToPrintTo)
                 for mutant in survivingMutants:
-                    print(mutant, file=streamToPrintTo)  # Update this line to print out line numbers of mutants/original+mutated lines
+                    print(mutant, file=streamToPrintTo)  
+                    # Update line to print out line numbers of mutants/original+mutated lines
+                    # print("Line Number: " + str(mutant.lineNumber) + "\tColumn Number: " + str(mutant.colNumber), file=streamToPrintTo)
 
     def generateReport(self, file_source, test_source, report_directory, report_filename):
         # determine what file to put this report in/how to name the file

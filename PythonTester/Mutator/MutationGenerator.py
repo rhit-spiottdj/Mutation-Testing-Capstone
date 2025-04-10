@@ -41,15 +41,16 @@ class MutationGenerator:
         
         self.converter = TreeConverter(fs, self.C)
         self.tree = self.converter.getTree()
-        self.nodes = [] #Not sure what this is going to do yet
 
         self.mutator = TreeMutator()
         self.config_path = config
         self.file_path = fs
 
         with open(self.config_path, 'r', encoding='utf-8') as fd:
-            self.param = fd.read()
             # Get Actual params
+            self.param = fd.read()
+            fd.close()
+
             self.param = self.mutation_map #temporary
             
             # Important to print out the syntax of node tree

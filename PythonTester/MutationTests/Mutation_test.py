@@ -2,8 +2,6 @@ import unittest
 import sys
 import os
 import io
-# import libcst as cst
-# from libcst.display import dump
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
@@ -19,10 +17,10 @@ sys.path.append(parent)
 
 class MutationGeneratorTester(unittest.TestCase):
     def setUp(self):
+        # Temporary sources
         self.file_source = "/OriginalFiles/HelloCode/"
         self.test_source = "/OriginalFiles/HelloCodeTests/"
-        # self.file_source = "/OriginalFiles/SimplerHelloCode/"
-        # self.test_source = "/OriginalFiles/SimplerHelloCodeTests/"
+
         self.manager = MutationManager()
         self.tree_generator_array = self.manager.obtainTrees(self.file_source)
     
@@ -61,12 +59,12 @@ class MutationGeneratorTester(unittest.TestCase):
         print(result)
         try:
             self.assertFalse(result["allPassed"])
-            # print("\033[32mCorrectly failed test\033[0m") # debug
+            print("\033[32mCorrectly failed test\033[0m") # debug
         except AssertionError as e:
-            # print("\033[31mERROR Test Is Passing\033[0m") # debug
+            print("\033[31mERROR Test Is Passing\033[0m") # debug
             tree_generator.loadOriginalCode()
-            # print("Mutated code:")
-            # print(tree_generator.mutants[0])
+            print("Mutated code:")
+            print(tree_generator.mutants[0])
             with open(parent + tree_generator.file_path, 'r', encoding='utf-8') as fd:
                 code = fd.read()
                 fd.close()
@@ -102,9 +100,6 @@ class MutationGeneratorTester(unittest.TestCase):
                 code = fd.read()
                 fd.close()
                 self.assertNotEqual(code, tree_generator.converter.original_code)
-            
-            # self.metaDataVisitor = cst.MetadataWrapper(tree_generator.retTree())
-            # self.metaDataVisitor.visit(self.visitor)
 
             result = self.manager.manageMutations(tree_generator.file_path, self.test_source)
             print(result)
