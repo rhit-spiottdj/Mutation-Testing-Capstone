@@ -71,7 +71,8 @@ class MutationManager:
                             else:
                                 self.updateReport("garbage")
                         else:
-                            survivingMutants.append(tree_generator.nodes[i]) # add more helpful info here
+                            # survivingMutants.append(tree_generator.nodes[i]) # add more helpful info here
+                            survivingMutants.append(tree_generator)
                             if not genReport:
                                 print("\033[31mERROR Test Is Passing\033[0m")
                                 progress_bar.update(currentMutants)

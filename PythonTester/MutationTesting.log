@@ -83,3 +83,22 @@ Terminating application
 Beginning mutation testing with file directory: /\OriginalFiles\HelloCode/
 And test directory: /\OriginalFiles\HelloCodeBrokenTests/
 
+2025-04-10 16:54:08 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-04-10 16:54:08 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: /\OriginalFiles\HelloCode/
+And test directory: /\OriginalFiles\HelloCodeBrokenTests/
+
+2025-04-10 17:11:54 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-04-10 17:11:54 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: /\OriginalFiles\HelloCode/
+And test directory: /\OriginalFiles\HelloCodeBrokenTests/
+
+2025-04-10 17:12:03 UTC - __main__ - INFO - 
+Completed mutation testing with file directory: /\OriginalFiles\HelloCode/
+And test directory: /\OriginalFiles\HelloCodeBrokenTests/
+Terminating application
+
