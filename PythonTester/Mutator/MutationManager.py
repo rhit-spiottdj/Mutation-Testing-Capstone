@@ -29,6 +29,9 @@ class MutationManager:
         survivingMutants = []
         currentMutants = 0
 
+        # Start of Try/Except for time limit
+        # try 
+        
         if 'file_source' not in kwargs or 'test_source' not in kwargs:
             with open(self.config, 'r', encoding='utf-8') as fd:
                 file_source = yaml.safe_load(fd)['file_source']
@@ -86,6 +89,9 @@ class MutationManager:
                     raise e
         self.printMutantReport(killedMutants, totalMutants, survivingMutants, streamToPrintTo)
         return True
+        # Except: 
+        # Code for once timeout
+        
 
     def obtainTrees(self, file_source):
         excluded_files = []
