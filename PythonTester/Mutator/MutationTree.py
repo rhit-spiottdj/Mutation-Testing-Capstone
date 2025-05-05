@@ -49,6 +49,7 @@ class MutationNode:
     colNumber = None
     dataDict = {}
     isMutated = False
+    oldType = None
 
     def __init__(self, nodeType, rowNumber, colNumber, dataDict, value = None, children = None, parent = None, isMutated = False):
         self.nodeType = nodeType
@@ -80,3 +81,14 @@ class MutationNode:
 
     def includeNode(self):
         self.flagToExclude = False
+
+    def setOldType(self, type):
+        self.oldType = type
+
+    # For Display to User what the Node is
+    def toString(self):
+        nodeString = "Mutant: \n" + "Original Type: " + str(self.oldType) + "\nNew Type: " + str(self.nodeType) + "\nCol: " + str(self.colNumber) + "\nRow: " + str(self.rowNumber) + "\n"
+        if(self.value is not None):
+            nodeString += "Value: " + str(self.value) + "\n"
+
+        return nodeString

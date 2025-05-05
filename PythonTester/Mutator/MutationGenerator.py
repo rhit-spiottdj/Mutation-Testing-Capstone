@@ -28,7 +28,7 @@ class MutationGenerator:
         NodeType.NOTEQUAL : NodeType.EQUAL,
         NodeType.AND : NodeType.OR,
         NodeType.OR : [NodeType.AND, NodeType.NOTEQUAL],
-        
+
     }
 
     C = ""
@@ -38,6 +38,7 @@ class MutationGenerator:
     converter = None
     tree = None
     mutants = []
+    mutantNodes = []
 
     mutator = None
     param = ""
@@ -69,6 +70,7 @@ class MutationGenerator:
         mutant = self.mutator.generateMutations(self.tree, self.param)
         while(mutant is not None):
             self.mutants.append(self.converter.unmakeMTree(mutant))
+            self.mutantNodes.append(mutant.retCurNode().toString())
             mutant = self.mutator.generateMutations(self.tree, self.param)
 
     def retNumMutants(self):
@@ -79,6 +81,7 @@ class MutationGenerator:
 
     def loadMutatedCode(self, i):
         self.converter.loadMutatedCode(self.mutants[i])
+
 
     def loadOriginalCode(self):
         self.converter.loadOriginalCode()

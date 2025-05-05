@@ -76,7 +76,7 @@ class MutationManager:
                             # survivingMutants.append(tree_generator.nodes[i]) # add more helpful info here
 
                             # Temporary fix. Identify what needs to be appeneded here. 
-                            survivingMutants.append(tree_generator)
+                            survivingMutants.append(tree_generator.mutantNodes[i])
                             if not genReport:
                                 print("\033[31mERROR Test Is Passing\033[0m")
                                 progress_bar.update(currentMutants)
@@ -113,7 +113,7 @@ class MutationManager:
             else:
                 print(str(len(survivingMutants)) + " Surviving Mutants: ", file=streamToPrintTo)
                 for mutant in survivingMutants:
-                    print(mutant, file=streamToPrintTo)  
+                    print(mutant)# file=streamToPrintTo)  
                     # Update line to print out line numbers of mutants/original+mutated lines
                     # print("Line Number: " + str(mutant.lineNumber) + "\tColumn Number: " + str(mutant.colNumber), file=streamToPrintTo)
 

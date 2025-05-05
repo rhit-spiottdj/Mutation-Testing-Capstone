@@ -726,6 +726,7 @@ class TreeConverter:
         elif(newType == NodeType.MAYBESENTINEL or newType == NodeType.BASEEXPRESSION or newType == NodeType.BASEPARENTHESIZABLEWHITESPACE):
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
                 
+        mNode.setOldType(type(node).__name__)
         return mNode
     
     def unconvertNode(self, mNode):
