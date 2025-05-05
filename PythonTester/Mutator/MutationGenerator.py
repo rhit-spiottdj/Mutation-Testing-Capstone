@@ -20,6 +20,15 @@ class MutationGenerator:
         NodeType.MODULOASSIGN : NodeType.MULTIPLYASSIGN,
         NodeType.BITAND: NodeType.BITOR,
         NodeType.BITOR : NodeType.BITAND,
+        NodeType.GREATERTHAN : [NodeType.LESSTHAN, NodeType.GREATERTHANEQUAL],
+        NodeType.GREATERTHANEQUAL : [NodeType.LESSTHAN, NodeType.GREATERTHAN],
+        NodeType.LESSTHAN : [NodeType.GREATERTHAN, NodeType.LESSTHANEQUAL],
+        NodeType.LESSTHANEQUAL : [NodeType.GREATERTHAN, NodeType.LESSTHAN],
+        NodeType.EQUAL: NodeType.NOTEQUAL,
+        NodeType.NOTEQUAL : NodeType.EQUAL,
+        NodeType.AND : NodeType.OR,
+        NodeType.OR : [NodeType.AND, NodeType.NOTEQUAL],
+        
     }
 
     C = ""

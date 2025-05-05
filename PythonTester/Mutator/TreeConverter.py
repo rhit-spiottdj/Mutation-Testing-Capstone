@@ -808,7 +808,10 @@ class TreeConverter:
         elif(mNode.nodeType == NodeType.NOTEQUAL):
             wBNode = self.unconvertNode(dataDict['whitespaceBefore'])
             wANode = self.unconvertNode(dataDict['whitespaceAfter'])
-            node = cst.NotEqual(value=mNode.value, whitespace_before=wBNode, whitespace_after=wANode)
+            if (mNode.value is None):
+                node = cst.NotEqual(value="!=", whitespace_before=wBNode, whitespace_after=wANode)
+            else:
+                node = cst.NotEqual(value=mNode.value, whitespace_before=wBNode, whitespace_after=wANode)
         elif(mNode.nodeType == NodeType.MODULE):
             bNode = []
             for n in dataDict['body']:

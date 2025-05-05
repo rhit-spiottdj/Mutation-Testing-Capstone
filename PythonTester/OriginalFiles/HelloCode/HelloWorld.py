@@ -68,7 +68,7 @@ def andMe():
     return (0 == 0 and 1 == 1)
 
 def orMe():
-    return (0 == 0 or 1 == 1)
+    return (0 == 0 or 1 != 1)
 
 def bitwiseAndMe():
     return (0 & 1)
