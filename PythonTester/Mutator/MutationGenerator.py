@@ -28,7 +28,8 @@ class MutationGenerator:
         NodeType.NOTEQUAL : NodeType.EQUAL,
         NodeType.AND : NodeType.OR,
         NodeType.OR : [NodeType.AND, NodeType.NOTEQUAL],
-
+        NodeType.IF : [NodeType.TRUE, NodeType.FALSE],
+        NodeType.ELSE : [NodeType.TRUE, NodeType.FALSE],
     }
 
     C = ""

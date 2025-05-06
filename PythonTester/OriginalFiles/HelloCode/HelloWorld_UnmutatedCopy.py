@@ -89,3 +89,9 @@ def changeZeroToOne():
 
 def changeOneToZero():
     return 1
+
+def ifStatement():
+    bol = True
+    if(bol):
+        return True
+    return False

@@ -66,7 +66,8 @@ class MyTestCase(unittest.TestCase):
     def testChangeOneToZero(self):
         self.assertEqual(HelloWorld.changeOneToZero(), 1)
 
-
+    def testIfStatement(self):
+        self.assertTrue(HelloWorld.ifStatement())
 
 # if __name__ == '__main__':
     # unittest.main()

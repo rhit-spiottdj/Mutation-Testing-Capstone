@@ -31,23 +31,6 @@ def main():
     userID = UserID(logger, auth)
     userID.logMessage("Application started")
 
-    # ch = logging.StreamHandler()
-    # ch.setLevel(logging.INFO)
-
-    # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    # ch.setFormatter(formatter)
-
-    # fh = logging.FileHandler('PythonTester.log', mode='a', encoding='utf-8')
-    # fh.setLevel(logging.INFO)
-    # fh.setFormatter(formatter)
-
-    # logger.addHandler(fh)
-
-    # logger.addHandler(ch)
-    # logger.addFilter(logging.Filter(name='HelloCode'))
-    # logger.filter(logging.Filter(name='Calculator'))
-
     args = parser.parse_args()
     cwd = os.getcwd()
     try:

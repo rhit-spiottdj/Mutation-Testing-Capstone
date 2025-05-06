@@ -73,6 +73,10 @@ class NodeType(Enum):
     BASEPARENTHESIZABLEWHITESPACE = 70
     SEMICOLON = 71
     BASECOMPOUNDSTATEMENT = 72
+    IF = 73
+    ELSE = 74
+    TRUE = 75
+    FALSE = 76
 
 
 
@@ -87,4 +91,5 @@ NodeType = Enum('NodeType', [('ADD', 1), ('ADDASSIGN', 2), ('SUBTRACT', 3), ('SU
                             ('COMPARISONTARGET', 50), ('BOOLEANOPERATION', 51), ('LEFTPAREN', 52), ('AND', 53), ('RIGHTPAREN', 54), ('OR', 55), 
                             ('IFEXP', 56), ('IS', 57), ('BITANDASSIGN', 58), ('BITORASSIGN', 59), ('BITINVERT', 60), ('NOT', 61), ('PLUS', 62), 
                             ('MAYBESENTINEL', 63), ('CLASSDEF', 64), ('PARAM', 65), ('PARAMSTAR', 66), ('ASSIGNEQUAL', 67), ('BASEEXPRESSION', 68), 
-                            ('ANNOTATION', 69), ('BASEPARENTHESIZABLEWHITESPACE', 70), ('SEMICOLON', 71), ('BASECOMPOUNDSTATEMENT', 72)])
+                            ('ANNOTATION', 69), ('BASEPARENTHESIZABLEWHITESPACE', 70), ('SEMICOLON', 71), ('BASECOMPOUNDSTATEMENT', 72), ('IF', 73),
+                            ('ELSE', 74), ('TRUE', 75), ('FALSE', 76)])

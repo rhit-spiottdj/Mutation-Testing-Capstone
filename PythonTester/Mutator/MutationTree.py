@@ -76,6 +76,11 @@ class MutationNode:
                     if isinstance(actualNode, MutationNode):
                         actualNode.parent = self
     
+    def attachOneChild(self, node):
+        if isinstance(node, MutationNode):
+            self.children.append(node)
+            node.parent = self
+    
     def excludeNode(self):
         self.flagToExclude = True
 

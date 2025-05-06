@@ -2,6 +2,7 @@ import unittest
 import sys
 import os
 import io
+import libcst as cst
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
@@ -123,4 +124,8 @@ class MutationGeneratorTester(unittest.TestCase):
                 code = fd.read()
                 fd.close()
                 self.assertEqual(code, tree_generator.retOriginalCode()) 
+
+    def testBoolParse(self):
+        expr = cst.parse_expression("True")
+        print(expr)
         

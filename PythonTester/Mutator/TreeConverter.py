@@ -83,6 +83,8 @@ class TreeConverter:
         "BaseParenthesizableWhitespace" : NodeType.BASEPARENTHESIZABLEWHITESPACE,
         "Semicolon" : NodeType.SEMICOLON,
         "BaseCompoundStatement" : NodeType.BASECOMPOUNDSTATEMENT,
+        "If" : NodeType.IF,
+        "Else" : NodeType.ELSE,
     }
 
     # parser = Parser(PY_LANGUAGE)
@@ -725,7 +727,35 @@ class TreeConverter:
             mNode.attachChildren([aNode, wBINode, wAINode])
         elif(newType == NodeType.MAYBESENTINEL or newType == NodeType.BASEEXPRESSION or newType == NodeType.BASEPARENTHESIZABLEWHITESPACE):
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
-                
+        elif(newType == NodeType.IF):
+            tNode = self.convertNode(node.test)
+            dataDict['test'] = tNode
+            bNode = self.convertNode(node.body)
+            dataDict['body'] = bNode
+            if(hasattr(node, 'orelse')):
+                oENode = self.convertNode(node.orelse)
+            else:
+                oENode = None
+            dataDict['orelse'] = oENode
+            lLNode = []
+            for n in node.leading_lines:
+                lLNode.append(self.convertNode(n))
+            dataDict['leadingLines'] = lLNode
+            wBTNode = self.convertNode(node.whitespace_before_test)
+            dataDict['whitespaceBeforeTest'] = wBTNode
+            wATNode = self.convertNode(node.whitespace_after_test)
+            dataDict['whitespaceAfterTest'] = wATNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+        elif(newType == NodeType.ELSE):
+            bNode = self.convertNode(node.body)
+            dataDict['body'] = bNode
+            lLNode = []
+            for n in node.leading_lines:
+                lLNode.append(self.convertNode(n))
+            dataDict['leadingLines'] = lLNode
+            wBCNode = self.convertNode(node.whitespace_before_colon)
+            dataDict['whitespaceBeforeColon'] = wBCNode
+
         mNode.setOldType(type(node).__name__)
         return mNode
     
@@ -1152,6 +1182,29 @@ class TreeConverter:
             node = cst.Annotation(annotation=aNode, whitespace_before_indicator=wBINode, whitespace_after_indicator=wAINode)
         elif(mNode.nodeType == NodeType.MAYBESENTINEL):
             node = cst.MaybeSentinel.DEFAULT
+        elif(mNode.nodeType == NodeType.IF):
+            tNode = self.unconvertNode(dataDict['test'])
+            bNode = self.unconvertNode(dataDict['body'])
+            oENode = self.unconvertNode(dataDict['orelse'])
+            lLNode = []
+            for n in dataDict['leadingLines']:
+                lLNode.append(self.unconvertNode(n))
+            wBTNode = self.unconvertNode(dataDict['whitespaceBeforeTest'])
+            wATNode = self.unconvertNode(dataDict['whitespaceBeforeTest'])
+            node = cst.If(test=tNode, body=bNode, orelse=oENode, leading_lines=lLNode, whitespace_before_test=wBTNode, whitespace_after_test=wATNode)
+        elif(mNode.nodeType == NodeType.ELSE):
+            bNode = self.unconvertNode(dataDict['body'])
+            lLNode = []
+            for n in dataDict['leadingLines']:
+                lLNode.append(self.unconvertNode(n))
+            wBCNode = self.unconvertNode(dataDict['whitespaceBeforeColon'])
+            node = cst.Else(body=bNode, leading_lines=lLNode, whitespace_before_colon=wBCNode)
+        elif(mNode.nodeType == NodeType.TRUE or mNode.nodeType == NodeType.FALSE):
+            lPNode = []
+            lPNode.append(cst.LeftParen())
+            rPNode = []
+            rPNode.append(cst.RightParen())
+            node = cst.Name(value=mNode.value, lpar=lPNode, rpar=rPNode)
 
         return node
     

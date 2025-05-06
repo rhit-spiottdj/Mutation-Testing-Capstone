@@ -1,4 +1,5 @@
 from Mutator.MutationTree import MutationNode
+from Mutator.NodeTypes import NodeType
 class TreeMutator:
     tree = None
     mutants = []
@@ -43,8 +44,18 @@ class TreeMutator:
             mutations = mutationMap[curNode.nodeType] # the line doing the actual mutation
             if(isinstance(mutations, list)):
                 if(self.index < len(mutations)):
+                    if(curNode.nodeType == NodeType.IF or curNode.nodeType == NodeType.ELSE):
+                        oldBool = curNode.dataDict['test']
+                        newBool = None
+                        if(mutations[self.index] == NodeType.TRUE):
+                            newBool = MutationNode(mutations[self.index], oldBool.rowNumber, oldBool.colNumber, {}, value = 'True')
+                        elif(mutations[self.index] == NodeType.FALSE):
+                            newBool = MutationNode(mutations[self.index], oldBool.rowNumber, oldBool.colNumber, {}, value = 'False')
+                        curNode.dataDict['test'] = newBool
+                        curNode.attachOneChild(newBool)
+                    else:   
+                        curNode.nodeType = mutations[self.index] 
                     curNode.isMutated = True
-                    curNode.nodeType = mutations[self.index]
                     self.index += 1
                 else:
                     self.index = 0
