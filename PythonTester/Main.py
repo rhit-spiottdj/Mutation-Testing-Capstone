@@ -17,6 +17,8 @@ parser.add_argument('-p', '--print', dest='print', action='store_true', help='Pr
 parser.add_argument('-e', '--error', dest='error', action='store_true', help='Print the mutated code\'s errors to the console')
 parser.add_argument('-r', '--report', dest='report', action='store_true', help='Generate mutation report file')
 parser.add_argument('-m', '--modify', dest='modify', action='store_true', help='Attempt to login to change list of mutations')
+parser.add_argument('--timeout', dest='timeout', type=int, default=None, help='Optional global timeout (in seconds) for each file\'s mutation loop. Files can override via config.')
+
 
 def main():
     auth = MiniAuth('users.db') #Here we would fetch a real database to read from
@@ -100,6 +102,8 @@ def main():
         
     kwargs['file_source'] = files
     kwargs['test_source'] = tests
+    kwargs['default_timeout'] = args.timeout
+
     if not args.print:
         kwargs['suppressOut'] = True
     if not args.error:

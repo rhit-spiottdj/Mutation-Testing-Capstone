@@ -8,6 +8,7 @@ import os
 import io
 import yaml
 import progressbar
+import time
 from Mutator.MutationGenerator import MutationGenerator
 
 current = os.path.dirname(os.path.realpath(__file__))
@@ -31,6 +32,12 @@ class MutationManager:
 
         # Start of Try/Except for time limit
         # try 
+        with open(self.config, 'r', encoding='utf-8') as fd:
+            config = yaml.safe_load(fd)
+        file_timeouts = config.get('timeouts', {})
+        yaml_default_timeout = file_timeouts.get('default', None)
+        cli_default_timeout = kwargs.get('default_timeout', None)
+
         
         if 'file_source' not in kwargs or 'test_source' not in kwargs:
             with open(self.config, 'r', encoding='utf-8') as fd:
@@ -55,17 +62,47 @@ class MutationManager:
                 report_filename = yaml.safe_load(fd)['report_filename']
                 fd.close()
             self.generateReport(file_source, test_source, report_directory, report_filename)
-
+        # set file or default timeout
+        filename = os.path.basename(tree_generator.file_path)
+        print("Filename: " + filename)
+        file_timeout = (
+            file_timeouts.get(filename, None)
+            or yaml_default_timeout
+            or cli_default_timeout
+            or None
+        )
+        if file_timeout is not None:
+            start_time = time.monotonic()
+            end_time = start_time + file_timeout
+            print(f"⏱️ Running mutation for {filename} with timeout = {file_timeout}s")
+        else:
+            end_time = None
+            print(f"🔓 Running mutation for {filename} with NO timeout")
         #start printing progress_bar here
         with progressbar.ProgressBar(maxval=totalMutants, redirect_stdout=True).start() as progress_bar:
             for tree_generator in tree_generator_array:
+                # if end_time is not None:
+                #     if time.monotonic() > end_time:
+                #         print("Timeout reached, stopping mutation testing")
+                #         break
                 try: 
                     for i in range(tree_generator.retNumMutants()):
+                        # not sure how to deal with the progress bar here when the process is terminated, seems to just say 34/34 even though it terminated early
+                        if end_time is not None:
+                            time_to_go = end_time - time.monotonic()
+                            if time_to_go <= 0:
+                                print("Timeout reached, stopping mutation testing for this file")
+                                raise TimeoutError("timeout breached")
+                        else:
+                            time_to_go = None
+                
                         tree_generator.loadMutatedCode(i)
-                        result = self.manageMutations(tree_generator.file_path, test_source, suppressOut, suppressErr)
+                        result = self.manageMutations(tree_generator.file_path, test_source, suppressOut, suppressErr, time_to_go)
                         currentMutants += 1
                         # print(result)
-                        if(result["allPassed"] is False):
+                        if not result:
+                            raise TimeoutError("timeout breached")
+                        if (result["allPassed"] is False):
                             killedMutants += 1
                             if not genReport:
                                 print("\033[32mCorrectly failed test\033[0m")
@@ -83,6 +120,9 @@ class MutationManager:
                             else:
                                 self.updateReport("garbage but bad")
                         tree_generator.loadOriginalCode()
+                except TimeoutError:
+                    print("Timeout reached, stopping mutation testing for this file and restoring original code")
+                    tree_generator.loadOriginalCode()
                 except Exception as e:
                     tree_generator.loadOriginalCode()
                     self.printMutantReport(killedMutants, totalMutants, survivingMutants, streamToPrintTo)
@@ -138,7 +178,7 @@ class MutationManager:
             fd.close()
         return
 
-    def manageMutations(self, file_path, test_source, suppressOut=True, suppressErr=True):
+    def manageMutations(self, file_path, test_source, suppressOut=True, suppressErr=True, timeout=None):
         module_to_del = file_path.replace('\\', '.')
         module_to_del = module_to_del.replace('/', '.')
         module_to_del = module_to_del[:-2].strip('.')
@@ -150,7 +190,11 @@ class MutationManager:
         startupP = ctx.Process(target=self.runMutationTest, args=(q, parent + test_source, suppressOut, suppressErr))
 
         startupP.start()
-        startupP.join()
+        startupP.join(timeout)
+        if startupP.is_alive():
+            startupP.terminate()
+            startupP.join()
+            return
         importlib.import_module(module_to_del)
         result = q.get()
         return result
@@ -170,3 +214,5 @@ class MutationManager:
         resultDict["allPassed"] = result.wasSuccessful()
         resultDict["testsRun"] = result.testsRun
         q.put(resultDict)
+
+
