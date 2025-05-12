@@ -167,7 +167,7 @@ class MutationManager:
             if(survivingMutants == []): 
                 print("No surviving mutants", file=streamToPrintTo)
             else:
-                print(str(len(survivingMutants)) + " Surviving Mutants: ", file=streamToPrintTo)
+                print("Surviving Mutants: " + str(len(survivingMutants)), file=streamToPrintTo)
                 for mutant in survivingMutants:
                     print(mutant)# file=streamToPrintTo)  
                     # Update line to print out line numbers of mutants/original+mutated lines
@@ -175,7 +175,7 @@ class MutationManager:
             if not timeoutMutants:
                 print("No timeout mutants", file=streamToPrintTo)
             else:
-                print(f"{len(timeoutMutants)} Timeout Mutants:", file=streamToPrintTo)
+                print(f"Timeout Mutants: {len(timeoutMutants)}", file=streamToPrintTo)
                 for mutant in timeoutMutants:
                     print(mutant)
 

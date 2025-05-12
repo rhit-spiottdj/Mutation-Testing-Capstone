@@ -92,7 +92,7 @@ class MutationNode:
 
     # For Display to User what the Node is
     def toString(self):
-        nodeString = "Mutant: \n" + "Original Type: " + str(self.oldType) + "\nNew Type: " + str(self.nodeType) + "\nCol: " + str(self.colNumber) + "\nRow: " + str(self.rowNumber) + "\n"
+        nodeString = "\nMutant: \n" + "Original Type: " + str(self.oldType) + "\nNew Type: " + str(self.nodeType) + "\nCol: " + str(self.colNumber) + "\nRow: " + str(self.rowNumber) + "\n"
         if(self.value is not None):
             nodeString += "Value: " + str(self.value) + "\n"
 
