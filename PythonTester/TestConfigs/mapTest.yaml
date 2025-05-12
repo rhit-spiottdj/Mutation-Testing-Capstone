@@ -26,19 +26,10 @@ report_filename: "output.txt"
 
 mutations: "mutations.txt"
 
-mutation_map: "mutationMap.txt"
+# This test config points to a different file meant to be changed during tests
+mutation_map: "/TestConfigs/mutationTestMap.txt"
 
 # Can set default timeout overall, per file, or disable with null
 timeouts:
-  default_timeout: 5
-  files:
-    - HelloWorld.py:
-        default_timeout: 20
-        mutants:
-          - IF: 3
-          - SUBTRACT: 0.001
-    - HelloWorldTests.py:
-        default_timeout: 5
-        mutants:
-          - IF: 10
-          - SUBTRACT: 10
+  default: null
+  # HelloWorld.py: 2 

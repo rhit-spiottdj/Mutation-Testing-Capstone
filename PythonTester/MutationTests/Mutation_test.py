@@ -8,16 +8,10 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
 from PythonTester.Mutator.MutationManager import MutationManager
+from PythonTester.Mutator.MutationGenerator import MutationGenerator
+from PythonTester.Mutator.NodeTypes import NodeType
 
-code_line_num = -1
-code_col_num = -1
-
-
-current = os.path.dirname(os.path.realpath(__file__))
-parent = os.path.dirname(current)
-sys.path.append(parent)
-
-class MutationGeneratorTester(unittest.TestCase):
+class ManagerTester(unittest.TestCase):
     def setUp(self):
         # Temporary sources
         self.file_source = "/OriginalFiles/HelloCode/"
@@ -131,9 +125,10 @@ class MutationGeneratorTester(unittest.TestCase):
                 fd.close()
                 self.assertEqual(code, tree_generator.retOriginalCode()) 
 
-    def testBoolParse(self):
-        expr = cst.parse_expression("True")
-        print(expr)
+    # Test to write raw code and view how it is parsed
+    # def testNumParse(self):
+    #     expr = cst.parse_expression("1")
+    #     print(expr)
         
     def testFirstMutationRealTimeout(self):
         """
@@ -194,9 +189,134 @@ class MutationGeneratorTester(unittest.TestCase):
             code = fd.read()
             fd.close()
             self.assertEqual(code, tree_generator.retOriginalCode())
-
-
-
-
-
         
+class GeneratorTester(unittest.TestCase):
+    def setUp(self):
+        # Temporary sources
+        self.file_source = "/OriginalFiles/HelloCode/"
+        config = parent + "/TestConfigs/mapTest.yaml"
+
+        self.generator = MutationGenerator(self.file_source + "HelloWorld.py", config) #Generator for HelloWorld 
+
+    def tearDown(self):
+        self.generator.loadOriginalCode()
+        with open(parent + self.generator.file_path, 'r', encoding='utf-8') as fd:
+            code = fd.read()
+            fd.close()
+            self.assertEqual(code, self.generator.converter.original_code)
+
+    def testGetMutationMap(self):
+        expectedMap = {
+            NodeType.ADD : [NodeType.SUBTRACT],
+            NodeType.ADDASSIGN : [NodeType.SUBTRACTASSIGN],
+            NodeType.SUBTRACT : [NodeType.ADD],
+            NodeType.SUBTRACTASSIGN : [NodeType.ADDASSIGN],
+            NodeType.MULTIPLY : [NodeType.DIVIDE],
+            NodeType.MULTIPLYASSIGN : [NodeType.DIVIDEASSIGN],
+            NodeType.DIVIDE : [NodeType.MULTIPLY],
+            NodeType.DIVIDEASSIGN: [NodeType.MULTIPLYASSIGN],
+        }
+        generatedMap = self.generator.param
+        for item in expectedMap.keys():
+            for i in range(len(expectedMap[item])):
+                self.assertEqual(expectedMap[item][i].name, generatedMap[item.value][i].name)
+
+    def testNumMutants(self):
+        self.generator.generateMutants()
+        self.assertEqual(self.generator.retNumMutants(), 11)
+
+# class CSTConverterTester(unittest.TestCase):
+#     def setUp(self):
+#         # Temporary sources
+#         self.file_source = "/OriginalFiles/HelloCode/"
+#         config = parent + "/TestConfigs/mapTest.yaml"
+
+#         self.generator = MutationGenerator(self.file_source + "HelloWorld.py", config) #Generator for HelloWorld 
+#         self.converter = self.generator.converter
+
+#         self.cst_conversion_map = {
+#             cst.Add() : NodeType.ADD,
+#             cst.AddAssign() : NodeType.ADDASSIGN,
+#             cst.Subtract() : NodeType.SUBTRACT,
+#             cst.SubtractAssign() : NodeType.SUBTRACTASSIGN,
+#             cst.Multiply() : NodeType.MULTIPLY,
+#             cst.MultiplyAssign() : NodeType.MULTIPLYASSIGN,
+#             cst.Divide() : NodeType.DIVIDE,
+#             cst.DivideAssign() : NodeType.DIVIDEASSIGN,
+#             cst.Modulo() : NodeType.MODULO,
+#             cst.ModuloAssign() : NodeType.MODULOASSIGN,
+#             cst.BitAnd() : NodeType.BITAND,
+#             cst.BitOr() : NodeType.BITOR,
+#             cst.Power() : NodeType.POWER,
+#             cst.LessThan() : NodeType.LESSTHAN,
+#             cst.GreaterThan() : NodeType.GREATERTHAN,
+#             cst.Equal() : NodeType.EQUAL,
+#             cst.NotEqual() : NodeType.NOTEQUAL,
+#             cst.LessThanEqual() : NodeType.LESSTHANEQUAL,
+#             cst.GreaterThanEqual() : NodeType.GREATERTHANEQUAL,
+#             cst.Module(body=[cst.SimpleStatementLine(cst.Pass())]) : NodeType.MODULE,
+#             cst.EmptyLine() : NodeType.EMPTYLINE,
+#             cst.SimpleWhitespace(value=" ") : NodeType.SIMPLEWHITESPACE,
+#             cst.Comment(value="# Test comment") : NodeType.COMMENT,
+#             cst.Newline() : NodeType.NEWLINE,
+#             cst.FunctionDef(name=cst.Name(value="Test"), params=cst.Parameters(), body=cst.IndentedBlock(body=[cst.Name(value="Test")])) : NodeType.FUNCTIONDEF,
+#             cst.Name(value="Test") : NodeType.NAME,
+#             cst.Parameters() : NodeType.PARAMETERS,
+#             cst.IndentedBlock(body=[cst.Name(value="Test")]) : NodeType.INDENTEDBLOCK,
+#             cst.TrailingWhitespace() : NodeType.TRAILINGWHITESPACE,
+#             cst.SimpleStatementLine(body=[cst.Pass()]) : NodeType.SIMPLESTATEMENTLINE,
+#             cst.Expr(value=cst.Name(value="Test")) : NodeType.EXPR,
+#             cst.Call(func=cst.Name(value="Test")) : NodeType.CALL,
+#             cst.Arg(value=cst.Name(value="Test")) : NodeType.ARG,
+#             cst.SimpleString(value="Test") : NodeType.SIMPLESTRING,
+#             cst.Return() : NodeType.RETURN,
+#             cst.Assign(targets=[cst.AssignTarget(target=cst.Name(value="Test"))], value=cst.Name(value="Test")) : NodeType.ASSIGN,
+#             cst.AssignTarget(target=cst.Name(value="Test")) : NodeType.ASSIGNTARGET,
+#             cst.List(elements=[cst.Name(value="Test")]) : NodeType.LIST,
+#             cst.LeftSquareBracket() : NodeType.LEFTSQUAREBRACKET,
+#             cst.Element(value=cst.Name(value="Test")) : NodeType.ELEMENT,
+#             cst.Integer(str="10") : NodeType.INTEGER,
+#             cst.Comma() : NodeType.COMMA,
+#             cst.RightSquareBracket() : NodeType.RIGHTSQUAREBRACKET,
+#             cst.BinaryOperation() : NodeType.BINARYOPERATION,
+#             cst.For() : NodeType.FOR,
+#             cst.AugAssign() : NodeType.AUGASSIGN,
+#             cst.UnaryOperation() : NodeType.UNARYOPERATION,
+#             cst.Minus() : NodeType.MINUS,
+#             cst.Comparison() : NodeType.COMPARISON,
+#             cst.ComparisonTarget() : NodeType.COMPARISONTARGET,
+#             cst.BooleanOperation() : NodeType.BOOLEANOPERATION,
+#             cst.LeftParen() : NodeType.LEFTPAREN,
+#             cst.And() : NodeType.AND,
+#             cst.RightParen() : NodeType.RIGHTPAREN,
+#             cst.Or() : NodeType.OR,
+#             cst.IfExp() : NodeType.IFEXP,
+#             cst.Is() : NodeType.IS,
+#             cst.BitInvert() : NodeType.BITINVERT,
+#             cst.Not() : NodeType.NOT,
+#             cst.Plus() : NodeType.PLUS,
+#             cst.MaybeSentinel() : NodeType.MAYBESENTINEL,
+#             cst.ClassDef() : NodeType.CLASSDEF,
+#             cst.Param() : NodeType.PARAM,
+#             cst.ParamStar() : NodeType.PARAMSTAR,
+#             cst.AssignEqual() : NodeType.ASSIGNEQUAL,
+#             cst.BaseExpression() : NodeType.BASEEXPRESSION,
+#             cst.Annotation() : NodeType.ANNOTATION,
+#             cst.BaseParenthesizableWhitespace() : NodeType.BASEPARENTHESIZABLEWHITESPACE,
+#             cst.Semicolon() : NodeType.SEMICOLON,
+#             cst.BaseCompoundStatement() : NodeType.BASECOMPOUNDSTATEMENT,
+#             cst.If() : NodeType.IF,
+#             cst.Else() : NodeType.ELSE,
+#         }
+
+#     def tearDown(self):
+#         self.generator.loadOriginalCode()
+#         with open(parent + self.generator.file_path, 'r', encoding='utf-8') as fd:
+#             code = fd.read()
+#             fd.close()
+#             self.assertEqual(code, self.generator.converter.original_code)
+
+#     #TODO: Write tests for the converters methods
+#     def testBasicConversion(self):
+#         for arg in self.cst_conversion_map.keys():
+#             self.assertEqual(self.cst_conversion_map[arg].name, self.converter.convertNode(arg).nodeType.name)

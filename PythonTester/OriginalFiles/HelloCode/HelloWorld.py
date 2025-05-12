@@ -35,7 +35,7 @@ def divideMe():
     testArray = [5, 3, 1, 7, 2, 29]
     count = 36540 / 2
     for x in testArray:
-        count = count / x
+        count /= x
     return count / -3
 
 # Makes an array of integers and mods them starting with 200 % 29. Returns 2
