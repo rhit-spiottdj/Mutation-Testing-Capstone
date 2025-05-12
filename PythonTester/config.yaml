@@ -28,5 +28,15 @@ mutations: "mutations.txt"
 
 # Can set default timeout overall, per file, or disable with null
 timeouts:
-  default: null
-  # HelloWorld.py: 2 
+  default_timeout: 5
+  files:
+    - HelloWorld.py:
+        default_timeout: 20
+        mutants:
+          - IF: 3
+          - SUBTRACT: 0.001
+    - HelloWorldTests.py:
+        default_timeout: 5
+        mutants:
+          - IF: 10
+          - SUBTRACT: 10

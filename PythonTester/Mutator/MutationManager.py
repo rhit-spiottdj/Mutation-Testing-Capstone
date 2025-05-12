@@ -28,15 +28,16 @@ class MutationManager:
         killedMutants = 0
         totalMutants = 0
         survivingMutants = []
+        timeoutMutants = []
         currentMutants = 0
 
-        # Start of Try/Except for time limit
-        # try 
-        with open(self.config, 'r', encoding='utf-8') as fd:
-            config = yaml.safe_load(fd)
-        file_timeouts = config.get('timeouts', {})
-        yaml_default_timeout = file_timeouts.get('default', None)
-        cli_default_timeout = kwargs.get('default_timeout', None)
+        # # Start of Try/Except for time limit
+        # # try 
+        # with open(self.config, 'r', encoding='utf-8') as fd:
+        #     config = yaml.safe_load(fd)
+        # file_timeouts = config.get('timeouts', {})
+        # yaml_default_timeout = file_timeouts.get('default', None)
+        # cli_default_timeout = kwargs.get('default_timeout', None)
 
         
         if 'file_source' not in kwargs or 'test_source' not in kwargs:
@@ -63,21 +64,21 @@ class MutationManager:
                 fd.close()
             self.generateReport(file_source, test_source, report_directory, report_filename)
         # set file or default timeout
-        filename = os.path.basename(tree_generator.file_path)
-        print("Filename: " + filename)
-        file_timeout = (
-            file_timeouts.get(filename, None)
-            or yaml_default_timeout
-            or cli_default_timeout
-            or None
-        )
-        if file_timeout is not None:
-            start_time = time.monotonic()
-            end_time = start_time + file_timeout
-            print(f"⏱️ Running mutation for {filename} with timeout = {file_timeout}s")
-        else:
-            end_time = None
-            print(f"🔓 Running mutation for {filename} with NO timeout")
+        
+        # print("Filename: " + filename)
+        # file_timeout = (
+        #     file_timeouts.get(filename, None)
+        #     or yaml_default_timeout
+        #     or cli_default_timeout
+        #     or None
+        # )
+        # if file_timeout is not None:
+        #     start_time = time.monotonic()
+        #     end_time = start_time + file_timeout
+        #     print(f"Running mutation for {filename} with timeout = {file_timeout}s")
+        # else:
+        #     end_time = None
+        #     print(f"Running mutation for {filename} with NO timeout")
         #start printing progress_bar here
         with progressbar.ProgressBar(maxval=totalMutants, redirect_stdout=True).start() as progress_bar:
             for tree_generator in tree_generator_array:
@@ -88,25 +89,40 @@ class MutationManager:
                 try: 
                     for i in range(tree_generator.retNumMutants()):
                         # not sure how to deal with the progress bar here when the process is terminated, seems to just say 34/34 even though it terminated early
-                        if end_time is not None:
-                            time_to_go = end_time - time.monotonic()
-                            if time_to_go <= 0:
-                                print("Timeout reached, stopping mutation testing for this file")
-                                raise TimeoutError("timeout breached")
+                        filename = os.path.basename(tree_generator.file_path)
+                        mutation_type = tree_generator.mutantTypes[i]   # 👈 you added this!
+
+                        file_timeout = (
+                            self.get_mutation_timeout(filename, mutation_type)
+                            or kwargs.get('default_timeout', None)
+                        )
+
+                        if file_timeout is not None:
+                            time_to_go = file_timeout
                         else:
                             time_to_go = None
-                
-                        tree_generator.loadMutatedCode(i)
+
+                        if time_to_go is not None:
+                            print(f"Running mutant {i} of {filename} with timeout = {time_to_go}s")
+                        else:
+                            print(f"Running mutant {i} of {filename} with NO timeout")
+                        tree_generator.loadMutatedCode(i)    
                         result = self.manageMutations(tree_generator.file_path, test_source, suppressOut, suppressErr, time_to_go)
                         currentMutants += 1
                         # print(result)
                         if not result:
-                            raise TimeoutError("timeout breached")
+                            print(f"\033[33mTimeout mutant at index {i} (type {mutation_type})\033[0m")
+                            timeoutMutants.append(tree_generator.mutantNodes[i])
+                            tree_generator.loadOriginalCode()
+                            currentMutants += 1
+                            progress_bar.update(i + 1)
+                            continue
+
                         if (result["allPassed"] is False):
                             killedMutants += 1
                             if not genReport:
                                 print("\033[32mCorrectly failed test\033[0m")
-                                progress_bar.update(currentMutants)
+                                progress_bar.update(i + 1)
                             else:
                                 self.updateReport("garbage")
                         else:
@@ -116,18 +132,18 @@ class MutationManager:
                             survivingMutants.append(tree_generator.mutantNodes[i])
                             if not genReport:
                                 print("\033[31mERROR Test Is Passing\033[0m")
-                                progress_bar.update(currentMutants)
+                                progress_bar.update(i + 1)
                             else:
                                 self.updateReport("garbage but bad")
                         tree_generator.loadOriginalCode()
-                except TimeoutError:
-                    print("Timeout reached, stopping mutation testing for this file and restoring original code")
-                    tree_generator.loadOriginalCode()
+                # except TimeoutError:
+                #     print("Timeout reached, stopping mutation testing for this file and restoring original code")
+                #     tree_generator.loadOriginalCode()
                 except Exception as e:
                     tree_generator.loadOriginalCode()
-                    self.printMutantReport(killedMutants, totalMutants, survivingMutants, streamToPrintTo)
+                    self.printMutantReport(killedMutants, totalMutants, survivingMutants, timeoutMutants, streamToPrintTo)
                     raise e
-        self.printMutantReport(killedMutants, totalMutants, survivingMutants, streamToPrintTo)
+        self.printMutantReport(killedMutants, totalMutants, survivingMutants, timeoutMutants, streamToPrintTo)
         return True
         # Except: 
         # Code for once timeout
@@ -146,7 +162,7 @@ class MutationManager:
                 tree_generator_array.append(generator)
         return tree_generator_array
 
-    def printMutantReport(self, killedMutants, totalMutants, survivingMutants, streamToPrintTo = None):
+    def printMutantReport(self, killedMutants, totalMutants, survivingMutants, timeoutMutants, streamToPrintTo = None):
             print("Successfully killed " + "{:.2f}".format(float(killedMutants)/totalMutants*100) + "% of mutations", file=streamToPrintTo)
             if(survivingMutants == []): 
                 print("No surviving mutants", file=streamToPrintTo)
@@ -156,6 +172,12 @@ class MutationManager:
                     print(mutant)# file=streamToPrintTo)  
                     # Update line to print out line numbers of mutants/original+mutated lines
                     # print("Line Number: " + str(mutant.lineNumber) + "\tColumn Number: " + str(mutant.colNumber), file=streamToPrintTo)
+            if not timeoutMutants:
+                print("No timeout mutants", file=streamToPrintTo)
+            else:
+                print(f"{len(timeoutMutants)} Timeout Mutants:", file=streamToPrintTo)
+                for mutant in timeoutMutants:
+                    print(mutant)
 
     def generateReport(self, file_source, test_source, report_directory, report_filename):
         # determine what file to put this report in/how to name the file
@@ -204,6 +226,7 @@ class MutationManager:
         streamErr = io.StringIO() if suppressErr else sys.stderr
         with contextlib.redirect_stdout(streamOut):
             with contextlib.redirect_stderr(streamErr):
+                # time.sleep(1)
                 test_suite = unittest.TestLoader().discover(test_source, '*_test.py')
                 runner = unittest.TextTestRunner()
                 result = runner.run(test_suite)
@@ -214,5 +237,27 @@ class MutationManager:
         resultDict["allPassed"] = result.wasSuccessful()
         resultDict["testsRun"] = result.testsRun
         q.put(resultDict)
+        
+    def get_mutation_timeout(self, filename, mutation_type):
+        with open(self.config, 'r', encoding='utf-8') as fd:
+            config = yaml.safe_load(fd)
+        
+        default_timeout = config.get('timeouts', {}).get('default_timeout', None)
+        files = config.get('timeouts', {}).get('files', [])
+
+        # files is a list of dicts
+        file_entry = next((f for f in files if filename in f), None)
+        
+        if file_entry:
+            file_config = file_entry[filename]
+            file_default = file_config.get('default_timeout', default_timeout)
+            mutants = file_config.get('mutants', [])
+            mutant_entry = next((m for m in mutants if mutation_type in m), None)
+            if mutant_entry:
+                return mutant_entry[mutation_type]
+            return file_default
+        else:
+            return default_timeout
+
 
 

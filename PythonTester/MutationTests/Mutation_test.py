@@ -3,6 +3,7 @@ import sys
 import os
 import io
 import libcst as cst
+from unittest.mock import patch, MagicMock
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
@@ -39,6 +40,7 @@ class MutationGeneratorTester(unittest.TestCase):
             self.assertIsNotNone(tree_generator)
             result = self.manager.manageMutations(tree_generator.file_path, self.test_source)
             try:
+                print(result)
                 self.assertTrue(result["allPassed"])
             except AssertionError as e:
                 with open(parent + tree_generator.file_path, 'r', encoding='utf-8') as fd:
@@ -46,6 +48,7 @@ class MutationGeneratorTester(unittest.TestCase):
                     fd.close()
                     print(code)
                 raise e
+            tree_generator.loadOriginalCode()
 
     def testFirstMutation(self):
         tree_generator = self.tree_generator_array[0]
@@ -71,12 +74,13 @@ class MutationGeneratorTester(unittest.TestCase):
                 fd.close()
                 self.assertEqual(code, tree_generator.converter.original_code) 
             raise e
+        tree_generator.loadOriginalCode()
     
     def testPrintReport(self):
         stream = io.StringIO()
-        self.manager.printMutantReport(1, 2, [1], streamToPrintTo=stream)
+        self.manager.printMutantReport(1, 2, [1], 0, streamToPrintTo=stream)
         stream_content = stream.getvalue()
-        self.assertEqual(stream_content, "Successfully killed 50.00% of mutations\n1 Surviving Mutants: \n1\n")
+        self.assertIn("Successfully killed 50.00% of mutations\n1 Surviving Mutants: \nNo timeout mutants\n", stream_content)
 
     def testAllMutationVariations(self):
         stream = io.StringIO()
@@ -89,7 +93,9 @@ class MutationGeneratorTester(unittest.TestCase):
         kwargs['genReport'] = False
         self.manager.generateMutations(**kwargs)
         stream_content = stream.getvalue()
-        self.assertEqual(stream_content, "Successfully killed 100.00% of mutations\nNo surviving mutants\n")
+        # self.assertEqual(stream_content, "Successfully killed 100.00% of mutations\nNo surviving mutants\n")
+        self.assertIn("Successfully killed 100.00% of mutations", stream_content)
+        self.assertIn("No surviving mutants", stream_content)
 
         tree_generator = self.tree_generator_array[0]
         tree_generator.generateMutants()
@@ -128,4 +134,69 @@ class MutationGeneratorTester(unittest.TestCase):
     def testBoolParse(self):
         expr = cst.parse_expression("True")
         print(expr)
+        
+    def testFirstMutationRealTimeout(self):
+        """
+        Test that a real child process timeout occurs with the HelloWorld setup.
+        """
+        tree_generator = self.tree_generator_array[0]
+        tree_generator.generateMutants()
+        tree_generator.loadMutatedCode(0)
+
+        # Call manageMutations with extremely small timeout to force termination
+        result = self.manager.manageMutations(tree_generator.file_path,
+                                            self.test_source,
+                                            suppressOut=True,
+                                            suppressErr=True,
+                                            timeout=0.01)   # tiny timeout
+
+        # Expect result to be None because child process should be forcibly terminated
+        self.assertIsNone(result)
+
+        # Always restore original code to avoid affecting other tests
+        tree_generator.loadOriginalCode()
+        with open(parent + tree_generator.file_path, 'r', encoding='utf-8') as fd:
+            code = fd.read()
+            fd.close()
+            self.assertEqual(code, tree_generator.retOriginalCode())
+
+    def testManageMutationsCallsTerminateOnTimeout(self):
+        """
+        Mock multiprocessing.Process to verify that terminate() is called when child exceeds timeout.
+        """
+        tree_generator = self.tree_generator_array[0]
+        tree_generator.generateMutants()
+        tree_generator.loadMutatedCode(0)
+
+        with patch("PythonTester.Mutator.MutationManager.multiprocessing.get_context") as mock_get_context:
+            # Create a fake Process
+            fake_process = MagicMock()
+            fake_process.is_alive.return_value = True  # Simulate child still running after join
+            mock_ctx = MagicMock()
+            mock_ctx.Process.return_value = fake_process
+            mock_get_context.return_value = mock_ctx
+
+            # Call manageMutations (child will be "alive", so parent must call terminate)
+            self.manager.manageMutations(
+                tree_generator.file_path,
+                self.test_source,
+                suppressOut=True,
+                suppressErr=True,
+                timeout=1
+            )
+
+            # Assert terminate was called
+            fake_process.terminate.assert_called_once()
+
+        # Restore file for safety
+        tree_generator.loadOriginalCode()
+        with open(parent + tree_generator.file_path, 'r', encoding='utf-8') as fd:
+            code = fd.read()
+            fd.close()
+            self.assertEqual(code, tree_generator.retOriginalCode())
+
+
+
+
+
         
