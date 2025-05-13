@@ -7,6 +7,14 @@ class TreeMutator:
     ogDict = None
     index = 0
 
+    def find_enclosing_function(self, node):
+        parent = node.parent
+        while parent:
+            if parent.nodeType == NodeType.FUNCTIONDEF:
+                return parent.dataDict['name'].value
+            parent = parent.parent
+        return None
+
     def generateMutations(self, tree, params):
         self.tree = tree
 
@@ -20,6 +28,7 @@ class TreeMutator:
             #curNode.nodeType = self.ogNode.nodeType
     
         foundMutant = self.checkForMutation(mutationMap)
+
         while not foundMutant and self.tree.nextNode(): 
             foundMutant = self.checkForMutation(mutationMap)
         
@@ -28,11 +37,11 @@ class TreeMutator:
         return self.tree
     
     def copyData(self, node):
-        self.ogNode = MutationNode(node.nodeType, node.rowNumber, node.colNumber, node.dataDict, node.value, node.children, node.parent, False)
+        self.ogNode = MutationNode(node.nodeType, node.rowNumber, node.colNumber, node.dataDict, node.value, node.children, node.parent, False, node.method_name)
         self.ogDict = {}
         for data in node.dataDict.keys():
             if(isinstance(node.dataDict[data], MutationNode)):
-                self.ogDict[data] = MutationNode(node.dataDict[data].nodeType, node.dataDict[data].rowNumber, node.dataDict[data].colNumber, node.dataDict[data].dataDict, node.dataDict[data].value, node.dataDict[data].children, node.dataDict[data].parent, False)
+                self.ogDict[data] = MutationNode(node.dataDict[data].nodeType, node.dataDict[data].rowNumber, node.dataDict[data].colNumber, node.dataDict[data].dataDict, node.dataDict[data].value, node.dataDict[data].children, node.dataDict[data].parent, False, node.dataDict[data].method_name)
             else:
                 self.ogDict[data] = node.dataDict[data]
 
@@ -73,7 +82,11 @@ class TreeMutator:
                 else:   
                     curNode.nodeType = mutations[self.index] 
                 curNode.isMutated = True
+                if not curNode.method_name:
+                    curNode.method_name = self.find_enclosing_function(curNode)
+
                 self.index += 1
+                
             else:
                 self.index = 0
                 curNode.isMutated = False

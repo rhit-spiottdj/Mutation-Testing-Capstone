@@ -28,17 +28,15 @@ mutations: "mutations.txt"
 
 mutation_map: "mutationMap.txt"
 
-# Can set default timeout overall, per file, or disable with null
+# Can set default timeout overall, per file, per method, per mutant type, or none with 0/null
 timeouts:
   default_timeout: 5
   files:
     - HelloWorld.py:
         default_timeout: 20
+        methods:
+          - makeArray: 0.0000001
+          - divideMe: 0.01
         mutants:
-          - IF: 3
-          - SUBTRACT: 0.001
-    - HelloWorldTests.py:
-        default_timeout: 5
-        mutants:
-          - IF: 10
-          - SUBTRACT: 10
+          - IF: 0.001
+          - SUBTRACT: 0

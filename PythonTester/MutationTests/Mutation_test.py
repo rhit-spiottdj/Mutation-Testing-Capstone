@@ -219,6 +219,46 @@ class ManagerTester(unittest.TestCase):
             code = fd.read()
             fd.close()
             self.assertEqual(code, tree_generator.retOriginalCode())
+
+    def testTimeoutConfig(self):
+        mock_config = {
+            'timeouts': {
+                'default_timeout': 5,
+                'files': [
+                    {'HelloWorld.py': {
+                        'default_timeout': 20,
+                        'methods': [
+                            {'makeArray': 0.0000001},
+                            {'divideMe': 10}
+                        ],
+                        'mutants': [
+                            {'IF': 3},
+                            {'SUBTRACT': 0.001}
+                        ]
+                    }}
+                ]
+            }
+        }
+
+        manager = self.manager
+        filename = "HelloWorld.py"
+
+        with patch("PythonTester.Mutator.MutationManager.yaml.safe_load", return_value=mock_config):
+            # 1. Method-specific overrides all
+            self.assertEqual(manager.get_mutation_timeout(filename, "IF", "makeArray"), 0.0000001)
+
+            # 2. Other method
+            self.assertEqual(manager.get_mutation_timeout(filename, "IF", "divideMe"), 10)
+
+            # 3. Method not found, mutant-specific
+            self.assertEqual(manager.get_mutation_timeout(filename, "IF", "unknownMethod"), 3)
+
+            # 4. Method + mutant not found, file default
+            self.assertEqual(manager.get_mutation_timeout(filename, "UNKNOWN", "unknownMethod"), 20)
+
+            # 5. File not found, global default
+            self.assertEqual(manager.get_mutation_timeout("NotAFile.py", "UNKNOWN", "unknownMethod"), 5)
+
         
 class GeneratorTester(unittest.TestCase):
     def setUp(self):

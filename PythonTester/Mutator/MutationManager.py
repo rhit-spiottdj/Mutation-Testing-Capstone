@@ -90,10 +90,11 @@ class MutationManager:
                     for i in range(tree_generator.retNumMutants()):
                         # not sure how to deal with the progress bar here when the process is terminated, seems to just say 34/34 even though it terminated early
                         filename = os.path.basename(tree_generator.file_path)
-                        mutation_type = tree_generator.mutantTypes[i]   # 👈 you added this!
-
+                        mutation_type = tree_generator.mutantTypes[i]   
+                        method_name = tree_generator.mutationObjects[i]     
+                        print(method_name)   
                         file_timeout = (
-                            self.get_mutation_timeout(filename, mutation_type)
+                            self.get_mutation_timeout(filename, mutation_type, method_name)
                             or kwargs.get('default_timeout', None)
                         )
 
@@ -238,26 +239,37 @@ class MutationManager:
         resultDict["testsRun"] = result.testsRun
         q.put(resultDict)
         
-    def get_mutation_timeout(self, filename, mutation_type):
+    def get_mutation_timeout(self, filename, mutation_type, method_name=None):
         with open(self.config, 'r', encoding='utf-8') as fd:
             config = yaml.safe_load(fd)
-        
+
         default_timeout = config.get('timeouts', {}).get('default_timeout', None)
         files = config.get('timeouts', {}).get('files', [])
 
-        # files is a list of dicts
         file_entry = next((f for f in files if filename in f), None)
-        
+
         if file_entry:
             file_config = file_entry[filename]
             file_default = file_config.get('default_timeout', default_timeout)
+
+            # priority 1: methods
+            methods = file_config.get('methods', [])
+            method_entry = next((m for m in methods if method_name in m), None) if method_name else None
+            if method_entry:
+                return method_entry[method_name]
+
+            # priority 2: mutant types
             mutants = file_config.get('mutants', [])
             mutant_entry = next((m for m in mutants if mutation_type in m), None)
             if mutant_entry:
                 return mutant_entry[mutation_type]
+
+            # priority 3: file default
             return file_default
-        else:
-            return default_timeout
+
+        # priority 4: global default
+        return default_timeout
+
 
 
 

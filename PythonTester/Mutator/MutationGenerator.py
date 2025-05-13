@@ -84,6 +84,7 @@ class MutationGenerator:
     mutants = []
     mutantNodes = []
     mutantTypes = []
+    mutationObjects = []
 
     mutator = None
     param = ""
@@ -127,7 +128,9 @@ class MutationGenerator:
             self.mutants.append(self.converter.unmakeMTree(mutant))
             self.mutantNodes.append(mutant.retCurNode().toString())
             self.mutantTypes.append(mutant.retCurNode().nodeType.name)
+            self.mutationObjects.append(mutant.retCurNode().method_name)
             mutant = self.mutator.generateMutations(self.tree, self.param)
+            
 
     def retNumMutants(self):
         return len(self.mutants)
