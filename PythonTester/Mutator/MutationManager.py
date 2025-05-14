@@ -40,16 +40,22 @@ class MutationManager:
         # cli_default_timeout = kwargs.get('default_timeout', None)
 
         
-        if 'file_source' not in kwargs or 'test_source' not in kwargs:
+        if 'file_source' not in kwargs:
             with open(self.config, 'r', encoding='utf-8') as fd:
                 file_source = yaml.safe_load(fd)['file_source']
-                test_source = yaml.safe_load(fd)['test_source']
                 fd.close()
         else:
             file_source = kwargs['file_source']
+        if 'test_source' not in kwargs:
+            with open(self.config, 'r', encoding='utf-8') as fd:
+                test_source = yaml.safe_load(fd)['test_source']
+                fd.close()
+        else:
             test_source = kwargs['test_source']
-        if file_source == "" or test_source == "":
-            raise Exception("File or test source not found")
+        if file_source == "":
+            raise Exception("File source not found")
+        if test_source == "":
+            raise Exception("Test source not found")
         tree_generator_array = self.obtainTrees(file_source)
         
         for tree_generator in tree_generator_array:
@@ -156,10 +162,10 @@ class MutationManager:
         with open(self.config, 'r', encoding='utf-8') as fd:
             excluded_files = yaml.safe_load(fd)['exclusions']['files']
             fd.close()
-        for filename in os.listdir(parent + file_source):
+        for filename in os.listdir(os.path.normpath(os.path.join(parent, file_source))):
             generator = None
             if filename.endswith('.py') and filename != "__init__.py" and not any(filename in d['filename'] for d in excluded_files):
-                generator = MutationGenerator(file_source + filename, self.config)
+                generator = MutationGenerator(os.path.join(file_source, filename), self.config)
                 tree_generator_array.append(generator)
         return tree_generator_array
 
@@ -184,7 +190,7 @@ class MutationManager:
         # determine what file to put this report in/how to name the file
         # make file in folder
         # save report location to class variable
-        self.reportFile = parent + report_directory + report_filename
+        self.reportFile = os.path.normpath(os.path.join(os.path.join(parent, report_directory), report_filename))
         with open(self.reportFile, 'w', encoding='utf-8') as fd:
             fd.write("Timestamp: " + str(datetime.datetime.now()) + "\n")
             fd.write("File Source: " + file_source + "\n")

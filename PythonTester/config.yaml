@@ -1,8 +1,8 @@
 # Relative path to source code directory
-file_source: "/OriginalFiles/HelloCode/"
+file_source: "./OriginalFiles/HelloCode/"
 
 # Relative path to test code directory
-test_source: "/OriginalFiles/HelloCodeTests/"
+test_source: "./OriginalFiles/HelloCodeTests/"
 
 # Items to exclude from mutation
 # - file_path: "File Name Here"

@@ -75,29 +75,23 @@ def main():
         exit()
 
     if args.files:
-        if os.path.exists(cwd + args.files) is False:
+        absPath = os.path.normpath(os.path.join(cwd, args.files))
+        if os.path.exists(absPath) is False:
             logger.critical("File path: %s does not exist\n", args.files)
             print("File path does not exist")
             sys.exit(1)
         files = args.files
     else:
         files = config_data['file_source']
-    if(files[0] != '/'):
-        files = '/' + files
-    if(files[-1] != '/'):
-        files = files + '/'
     if args.tests:
-        if os.path.exists(cwd + args.tests) is False:
+        absPath = os.path.normpath(os.path.join(cwd, args.tests))
+        if os.path.exists(absPath) is False:
             logger.critical("Test path: %s does not exist\n", args.tests)
             print("Test path does not exist")
             sys.exit(1)
         tests = args.tests
     else:
         tests = config_data['test_source']
-    if(tests[0] != '/'):
-        tests = '/' + tests
-    if(tests[-1] != '/'):
-        tests = tests + '/'
         
         
     kwargs['file_source'] = files

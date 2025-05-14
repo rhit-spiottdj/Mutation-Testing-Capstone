@@ -1,6 +1,7 @@
 from Mutator.MutationTree import MutationTree
 from Mutator.MutationTree import MutationNode
 from Mutator.NodeTypes import NodeType
+import os
 # import tree_sitter_python as tspython
 # from tree_sitter import Language, Parser
 import libcst as cst
@@ -96,11 +97,12 @@ class TreeConverter:
     def __init__(self, file_path, C):
         self.file = file_path
         self.C = C
+        abs_path = os.path.normpath(os.path.join(C, file_path))
         with open(self.C + self.file, 'r', encoding='utf-8') as fd:
             self.original_code = fd.read()
         fd.close()
 
-        print('OG file dest: ' + self.C + self.file + '\n') #debug
+        print('OG file dest: ' + abs_path + '\n') #debug
         
 
     def getTree(self):
