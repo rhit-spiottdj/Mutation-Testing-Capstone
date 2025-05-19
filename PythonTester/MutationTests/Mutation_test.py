@@ -14,8 +14,8 @@ from PythonTester.Mutator.NodeTypes import NodeType
 class ManagerTester(unittest.TestCase):
     def setUp(self):
         # Temporary sources
-        self.file_source = "/OriginalFiles/HelloCode/"
-        self.test_source = "/OriginalFiles/HelloCodeTests/"
+        self.file_source = "./OriginalFiles/HelloCode/"
+        self.test_source = "./OriginalFiles/HelloCodeTests/"
 
         self.manager = MutationManager()
         self.tree_generator_array = self.manager.obtainTrees(self.file_source)
