@@ -225,7 +225,7 @@ class ManagerTester(unittest.TestCase):
             'timeouts': {
                 'default_timeout': 5,
                 'files': [
-                    {'HelloWorld.py': {
+                    {'./OriginalFiles/HelloCode/HelloWorld.py': {
                         'default_timeout': 20,
                         'methods': [
                             {'makeArray': 0.0000001},
@@ -241,7 +241,7 @@ class ManagerTester(unittest.TestCase):
         }
 
         manager = self.manager
-        filename = "HelloWorld.py"
+        filename = "OriginalFiles\HelloCode\HelloWorld.py"
 
         with patch("PythonTester.Mutator.MutationManager.yaml.safe_load", return_value=mock_config):
             # 1. Method-specific overrides all
