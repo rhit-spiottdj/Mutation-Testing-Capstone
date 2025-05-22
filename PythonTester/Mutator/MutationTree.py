@@ -41,6 +41,7 @@ class MutationTree:
 
 class MutationNode:
     nodeType = None
+    oldValue = None
     value = None
     children = []
     parent = None
@@ -94,8 +95,14 @@ class MutationNode:
 
     # For Display to User what the Node is
     def toString(self):
-        nodeString = "\nMutant: \n" + "Original Type: " + str(self.oldType) + "\nNew Type: " + str(self.nodeType) + "\nCol: " + str(self.colNumber) + "\nRow: " + str(self.rowNumber) + "\n"
+        # nodeString = str.join("\nMutant:", "")
+        nodeString = "\nMutant: \nChanged "
+
         if(self.value is not None):
-            nodeString += "Value: " + str(self.value) + "\n"
+            nodeString += "value \n\tFrom: " + str(self.oldValue) + "\n\tTo: " + str(self.value)
+        else:
+            nodeString += "operator \n\tFrom: " + str(self.oldType) + "\n\tTo: " + str(self.nodeType)
+
+        nodeString += "\nAt:\n\tRow: " + str(self.rowNumber) + "\n\tCol: " + str(self.colNumber)
 
         return nodeString

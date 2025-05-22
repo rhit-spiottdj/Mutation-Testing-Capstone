@@ -76,8 +76,10 @@ class TreeMutator:
                     curNode.attachOneChild(newBool)
                 elif(curNode.nodeType == NodeType.INTEGER):
                     if(curNode.value == "0"):
+                        curNode.oldValue = "0"
                         curNode.value = "1"
                     else:
+                        curNode.oldValue = curNode.value
                         curNode.value = "0"
                 else:   
                     curNode.nodeType = mutations[self.index] 

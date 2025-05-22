@@ -62,7 +62,7 @@ class ManagerTester(unittest.TestCase):
             print("\033[31mERROR Test Is Passing\033[0m") # debug
             tree_generator.loadOriginalCode()
             print("Mutated code:")
-            print(tree_generator.mutants[0])
+            # print(tree_generator.mutants[0])
             with open(parent + tree_generator.file_path, 'r', encoding='utf-8') as fd:
                 code = fd.read()
                 fd.close()
