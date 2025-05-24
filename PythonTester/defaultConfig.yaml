@@ -1,19 +1,21 @@
 # Relative path to source code directory
-file_source: "./OriginalFiles/HelloCode/"
+# file_source: "File Path Here"
 
 # Relative path to test code directory
-test_source: "./OriginalFiles/HelloCodeTests/"
+# test_source: "Test Path Here"
 
 # Items to exclude from mutation
 exclusions:
-  directories:
+#   directories:
   files:
-    - filename: "HelloWorld_UnmutatedCopy.py"
-      entire_file: true
-      methods:
-      operators:
-    - filename: "__init__.py"
-      entire_file: true
+      - filename: "__init__.py"
+        entire_file: true
+#     - filename: "File Name Here"
+#       entire_file: true/false
+#       methods:
+#         - "Method Name Here"
+#       operators:
+#         - "Operator Here"
 
 # The relative path where the mutation report will be generated
 report_directory: "/MutationReports/"
@@ -24,11 +26,11 @@ mutations: "mutations.txt"
 
 mutation_map: "mutationMap.txt"
 
-# Can set default timeout overall, per file, per method, per mutant type, or none with null
+# Can set default timeout in seconds overall, per file, per method, per mutant type, or none with null
 timeouts:
-  default_timeout: null
+  default_timeout: 0
 #   files:
-#     - OriginalFiles/HelloCode/HelloWorld.py:
+#     - Relative File Path Here:
 #         default_timeout: 20
 #         methods:
 #           - makeArray: 0.0000001

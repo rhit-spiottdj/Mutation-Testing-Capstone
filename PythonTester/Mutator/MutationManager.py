@@ -102,8 +102,8 @@ class MutationManager:
                         method_name = tree_generator.mutationObjects[i]     
                         print(method_name)   
                         file_timeout = (
-                            self.get_mutation_timeout(filename, mutation_type, method_name)
-                            or kwargs.get('default_timeout', None)
+                            kwargs.get('default_timeout', None)
+                            or self.get_mutation_timeout(filename, mutation_type, method_name)
                         )
 
                         if file_timeout is not None:

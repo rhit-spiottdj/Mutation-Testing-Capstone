@@ -1,5 +1,6 @@
 import os
 import argparse
+import shutil
 import sys
 import getpass
 import logging
@@ -40,9 +41,12 @@ def main():
             config_data = yaml.safe_load(fd)
             fd.close()
     except FileNotFoundError:
-        logger.critical("Config file not found\n")
-        print("Config file not found")
-        sys.exit(1)
+        logger.critical("Config file not found, using default\n")
+        print("Config file not found, using default")
+        shutil.copyfile("defaultConfig.yaml", "config.yaml")
+        with open(cwd + "/config.yaml", 'r', encoding='utf-8') as fd:
+            config_data = yaml.safe_load(fd)
+            fd.close()
     
     kwargs = {}
     if args.modify:
@@ -82,6 +86,10 @@ def main():
             sys.exit(1)
         files = args.files
     else:
+        if 'file_source' not in config_data:
+            logger.critical("File path not specified\n")
+            print("File path not specified")
+            sys.exit(1)
         files = config_data['file_source']
     if args.tests:
         absPath = os.path.normpath(os.path.join(cwd, args.tests))
@@ -91,6 +99,10 @@ def main():
             sys.exit(1)
         tests = args.tests
     else:
+        if 'test_source' not in config_data:
+            logger.critical("Test path not specified\n")
+            print("Test path not specified")
+            sys.exit(1)
         tests = config_data['test_source']
         
         
