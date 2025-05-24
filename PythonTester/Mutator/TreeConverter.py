@@ -79,13 +79,106 @@ class TreeConverter:
         "Param" : NodeType.PARAM,
         "ParamStar" : NodeType.PARAMSTAR,
         "AssignEqual" : NodeType.ASSIGNEQUAL,
-        "BaseExpression" : NodeType.BASEEXPRESSION,
         "Annotation" : NodeType.ANNOTATION,
-        "BaseParenthesizableWhitespace" : NodeType.BASEPARENTHESIZABLEWHITESPACE,
         "Semicolon" : NodeType.SEMICOLON,
-        "BaseCompoundStatement" : NodeType.BASECOMPOUNDSTATEMENT,
         "If" : NodeType.IF,
         "Else" : NodeType.ELSE,
+        # "New" Nodes
+        "Attribute" : NodeType.ATTRIBUTE,
+        "Asynchronous" : NodeType.ASYNCHRONOUS,
+        "Await" : NodeType.AWAIT,
+        "Yield" : NodeType.YIELD,
+        "From" : NodeType.FROM,
+        "Lambda" : NodeType.LAMBDA,
+        "Ellipsis" : NodeType.ELLIPSIS,
+        "Float" : NodeType.FLOAT,
+        "Imaginary" : NodeType.IMAGINARY,
+        "ConcatenatedString" : NodeType.CONCATENATEDSTRING,
+        "FormattedString" : NodeType.FORMATTEDSTRING,
+        "FormattedStringText" : NodeType.FORMATTEDSTRINGTEXT,
+        "FormattedStringExpression" : NodeType.FORMATTEDSTRINGEXPRESSION,
+        "Tuple" : NodeType.TUPLE,
+        "Set" : NodeType.SET,
+        "StarredElement" : NodeType.STARREDELEMENT,
+        "Dict" : NodeType.DICT,
+        "DictElement" : NodeType.DICTELEMENT,
+        "StarredDictElement" : NodeType.STARREDDICTELEMENT,
+        "GeneratorExp" : NodeType.GENERATOREXP,
+        "ListComp" : NodeType.LISTCOMP,
+        "SetComp" : NodeType.SETCOMP,
+        "DictComp" : NodeType.DICTCOMP,
+        "CompFor" : NodeType.COMPFOR,
+        "CompIf" : NodeType.COMPIF,
+        "Subscript" : NodeType.SUBSCRIPT,
+        "Index" : NodeType.INDEX,
+        "Slice" : NodeType.SLICE,
+        "SubscriptElement" : NodeType.SUBSCRIPTELEMENT,
+        "LeftCurlyBrace" : NodeType.LEFTCURLYBRACE,
+        "RightCurlyBrace" : NodeType.RIGHTCURLYBRACE,
+        "AnnAssign" : NodeType.ANNASSIGN,
+        "Assert" : NodeType.ASSERT,
+        "Break" : NodeType.BREAK,
+        "Continue" : NodeType.CONTINUE,
+        "Del" : NodeType.DEL,
+        "Global" : NodeType.GLOBAL,
+        "Import" : NodeType.IMPORT,
+        "ImportFrom" : NodeType.IMPORTFROM,
+        "NonLocal" : NodeType.NONLOCAL,
+        "Pass" : NodeType.PASS,
+        "Raise" : NodeType.RAISE,
+        "Try" : NodeType.TRY,
+        "While" : NodeType.WHILE,
+        "With" : NodeType.WITH,
+        "AsName" : NodeType.ASNAME,
+        "Decorator" : NodeType.DECORATOR,
+        "ExceptHandler" : NodeType.EXCEPTHANDLER,
+        "Finally" : NodeType.FINALLY,
+        "ImportAlias" : NodeType.IMPORTALIAS,
+        "NameItem" : NodeType.NAMEITEM,
+        "ParamSlash" : NodeType.PARAMSLASH,
+        "WithItem" : NodeType.WITHITEM,
+        "SimpleStatementSuite" : NodeType.SIMPLESTATEMENTSUITE,
+        "BitXor" : NodeType.BITXOR,
+        "FloorDivide" : NodeType.FLOORDIVIDE,
+        "LeftShift" : NodeType.LEFTSHIFT,
+        "MatrixMultiply" : NodeType.MATRIXMULTIPLY,
+        "RightShift" : NodeType.RIGHTSHIFT,
+        "In" : NodeType.IN,
+        "IsNot" : NodeType.ISNOT,
+        "NotIn" : NodeType.NOTIN,
+        "BitXorAssign" : NodeType.BITXORASSIGN,
+        "FloorDivideAssign" : NodeType.FLOORDIVIDEASSIGN,
+        "LeftShiftAssign" : NodeType.LEFTSHIFTASSIGN,
+        "MatrixMultiplyAssign" : NodeType.MATRIXMULTIPLYASSIGN,
+        "PowerAssign" : NodeType.POWERASSIGN,
+        "RightShiftAssign" : NodeType.RIGHTSHIFTASSIGN,
+        "Colon" : NodeType.COLON,
+        "Dot" : NodeType.DOT,
+        "ImportStar" : NodeType.IMPORTSTAR,
+        "ParenthesizedWhitespace" : NodeType.PARENTHESIZEDWHITESPACE,
+        # Base Nodes unsure if needed
+        "BaseUnaryOp" : NodeType.BASEUNARYOP,
+        "BaseBooleanOp" : NodeType.BASEBOOLEANOP,
+        "BaseCompOp" : NodeType.BASECOMPOP,
+        "BaseBinaryOp" : NodeType.BASEBINARYOP,
+        "BaseAssignTargetExpression" : NodeType.BASEASSIGNTARGETEXPRESSION,
+        "BaseDelTargetExpression" : NodeType.BASEDELTARGETEXPRESSION,
+        "BaseComp" : NodeType.BASECOMP,
+        "BaseSimpleComp" : NodeType.BASESIMPLECOMP,
+        "BaseSuite" : NodeType.BASESUITE,
+        "BaseSmallStatement" : NodeType.BASESMALLSTATEMENT,
+        "BaseSlice" : NodeType.BASESLICE,
+        "BaseDictElement" : NodeType.BASEDICTELEMENT,
+        "BaseCompoundStatement" : NodeType.BASECOMPOUNDSTATEMENT,
+        "BaseParenthesizableWhitespace" : NodeType.BASEPARENTHESIZABLEWHITESPACE,
+        "BaseExpression" : NodeType.BASEEXPRESSION,
+        "BaseNumber" : NodeType.BASENUMBER,
+        "BaseString" : NodeType.BASESTRING,
+        "BaseFormattedStringContent" : NodeType.BASEFORMATTEDSTRINGCONTENT,
+        "BaseList" : NodeType.BASELIST,
+        "BaseSet" : NodeType.BASESET,
+        "BaseElement" : NodeType.BASEELEMENT,
+        "BaseDict" : NodeType.BASEDICT,
     }
 
     # parser = Parser(PY_LANGUAGE)
@@ -757,6 +850,67 @@ class TreeConverter:
             dataDict['leadingLines'] = lLNode
             wBCNode = self.convertNode(node.whitespace_before_colon)
             dataDict['whitespaceBeforeColon'] = wBCNode
+        elif(newType == NodeType.ATTRIBUTE):
+            valueNode = self.convertNode(node.value)
+            dataDict['value'] = valueNode
+            atNode = self.convertNode(node.attr)
+            dataDict['attr'] = atNode
+            dNode = self.convertNode(node.dot)
+            dataDict['dot'] = dNode
+            for n in node.lpar:
+                lparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['leftParenthesis'] = lparNode 
+            rparNode = []
+            for n in node.rpar:
+                rparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['rightParenthesis'] = rparNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([valueNode, atNode, dNode, lparNode, rparNode])
+        elif(newType == NodeType.ASYNCHRONOUS):
+            wANode = self.convertNode(node.whitespace_after)
+            dataDict['whitespaceAfter'] = wANode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachOneChild(wANode)
+        elif(newType == NodeType.AWAIT):
+            eNode = self.convertNode(node.expression)
+            dataDict['expression'] = eNode
+            for n in node.lpar:
+                lparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['leftParenthesis'] = lparNode 
+            rparNode = []
+            for n in node.rpar:
+                rparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['rightParenthesis'] = rparNode
+            wAANode = self.convertNode(node.whitespace_after_await)
+            dataDict['whitespaceAfterAwait'] = wAANode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)           
+            mNode.attachChildren([eNode, lparNode, rparNode, wAANode])
+        elif(newType == NodeType.YIELD):
+            if(hasattr(node, 'value')):
+                valueNode = self.convertNode(node.value)
+            else:
+                valueNode = None
+            for n in node.lpar:
+                lparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['leftParenthesis'] = lparNode 
+            rparNode = []
+            for n in node.rpar:
+                rparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['rightParenthesis'] = rparNode
+            wAYNode = self.convertNode(node.whitespace_after_yield)
+            dataDict['whitespaceAfterAwait'] = wAYNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)           
+            mNode.attachChildren([valueNode, lparNode, rparNode, wAYNode])
+        elif(newType == NodeType.FROM):
+            iNode = self.convertNode(node.item)
+            dataDict['item'] = iNode
+            wBFNode = self.convertNode(node.whitespace_before_from)
+            dataDict['whitespaceBeforeFrom'] = wBFNode
+            wAFNode = self.convertNode(node.whitespace_after_from)
+            dataDict['whitespaceAfterFrom'] = wAFNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)           
+            mNode.attachChildren([iNode, wBFNode, wAFNode])
+
 
         mNode.setOldType(type(node).__name__)
         return mNode
