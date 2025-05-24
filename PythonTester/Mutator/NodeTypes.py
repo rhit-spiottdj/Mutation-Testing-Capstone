@@ -194,7 +194,7 @@ NodeType = Enum('NodeType', [('ADD', 1), ('ADDASSIGN', 2), ('SUBTRACT', 3), ('SU
                             ('BASESMALLSTATEMENT', 119), ('ANNASSIGN', 120), ('ASSERT', 121), ('BREAK', 122), ('CONTINUE', 123), ('DEL', 124), 
                             ('GLOBAL', 125), ('IMPORT', 126), ('IMPORTFROM', 127), ('NONLOCAL', 128), ('PASS', 129), ('RAISE', 130), ('TRY', 131), 
                             ('WHILE', 132), ('WITH', 133), ('ASNAME', 134), ('BASEASSIGNTARGETEXPRESSION', 135), ('BASEDELTARGETEXPRESSION', 136), 
-                            ('DECORATOR', 137), ('EXCEPTHANDLER', 138), ('FINALLY', 139), ('IMPORTALIAS', 140), ('NAMEITEM', 141), ('PRAMSLASH', 142), 
+                            ('DECORATOR', 137), ('EXCEPTHANDLER', 138), ('FINALLY', 139), ('IMPORTALIAS', 140), ('NAMEITEM', 141), ('PARAMSLASH', 142), 
                             ('WITHITEM', 143), ('BASESUITE', 144), ('SIMPLESTATEMENTSUITE', 145), ('BASEUNARYOP', 146), ('BASEBOOLEANOP', 147), 
                             ('BITXOR', 148), ('FLOORDIVIDE', 149), ('LEFTSHIFT', 150), ('MATRIXMULTIPLY', 151), ('RIGHTSHIFT', 152), ('BASEBINARYOP', 153), 
                             ('IN', 154), ('ISNOT', 155), ('NOTIN', 156), ('BASECOMPOP', 157), ('BITXORASSIGN', 158), ('FLOORDIVIDEASSIGN', 159), 

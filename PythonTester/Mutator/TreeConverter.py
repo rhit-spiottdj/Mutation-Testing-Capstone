@@ -493,7 +493,7 @@ class TreeConverter:
             dataDict['whitespaceAfterArg'] = waaNode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
             mNode.attachChildren([valueNode, keywordNode, equalNode, commaNode, wasNode, waaNode])
-        elif(newType == NodeType.SIMPLESTRING):
+        elif(newType == NodeType.SIMPLESTRING or newType == NodeType.ELLIPSIS):
             value = node.value
             lparNode = []
             for n in node.lpar:
@@ -573,7 +573,7 @@ class TreeConverter:
             dataDict['comma'] = cNode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
             mNode.attachChildren([vNode, cNode])
-        elif(newType == NodeType.INTEGER):
+        elif(newType == NodeType.INTEGER or newType == NodeType.FLOAT or newType == NodeType.IMAGINARY):
             value = node.value
             lparNode = []
             for n in node.lpar:
@@ -857,6 +857,7 @@ class TreeConverter:
             dataDict['attr'] = atNode
             dNode = self.convertNode(node.dot)
             dataDict['dot'] = dNode
+            lparNode = []
             for n in node.lpar:
                 lparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['leftParenthesis'] = lparNode 
@@ -874,6 +875,7 @@ class TreeConverter:
         elif(newType == NodeType.AWAIT):
             eNode = self.convertNode(node.expression)
             dataDict['expression'] = eNode
+            lparNode = []
             for n in node.lpar:
                 lparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['leftParenthesis'] = lparNode 
@@ -890,6 +892,7 @@ class TreeConverter:
                 valueNode = self.convertNode(node.value)
             else:
                 valueNode = None
+            lparNode = []
             for n in node.lpar:
                 lparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['leftParenthesis'] = lparNode 
@@ -910,6 +913,66 @@ class TreeConverter:
             dataDict['whitespaceAfterFrom'] = wAFNode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)           
             mNode.attachChildren([iNode, wBFNode, wAFNode])
+        elif(newType == NodeType.LAMBDA):
+            pNode = self.convertNode(node.params)
+            dataDict['params'] = pNode
+            bNode = self.convertNode(node.body)
+            dataDict['body'] = bNode
+            cNode = self.convertNode(node.colon)
+            dataDict['colon'] = cNode
+            lparNode = []
+            for n in node.lpar:
+                lparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['leftParenthesis'] = lparNode 
+            rparNode = []
+            for n in node.rpar:
+                rparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['rightParenthesis'] = rparNode
+            wALNode = self.convertNode(node.whitespace_after_lambda)
+            dataDict['whitespaceAfterLambda'] = wALNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)           
+            mNode.attachChildren([pNode, bNode, cNode, lparNode, rparNode, wALNode])
+        elif(newType == NodeType.PARAMSLASH):
+            cNode = self.convertNode(node.comma)
+            dataDict['comma'] = cNode
+            wAYNode = self.convertNode(node.whitespace_after_yield)
+            dataDict['whitespaceAfterAwait'] = wAYNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)           
+            mNode.attachChildren([cNode, wAYNode])
+        elif(newType == NodeType.CONCATENATEDSTRING):
+            lNode = self.convertNode(node.left)
+            dataDict['left'] = lNode
+            rNode = self.convertNode(node.right)
+            dataDict['right'] = rNode
+            lparNode = []
+            for n in node.lpar:
+                lparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['leftParenthesis'] = lparNode 
+            rparNode = []
+            for n in node.rpar:
+                rparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['rightParenthesis'] = rparNode
+            wBNode = self.convertNode(node.whitespace_between)
+            dataDict['whitespaceBetween'] = wBNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)           
+            mNode.attachChildren([lNode, rNode, lparNode, rparNode, wBNode])
+        elif(newType == NodeType.FORMATTEDSTRING):
+            pNode = []
+            for n in node.parts:
+                pNode.append(self.convertNode(n))
+            dataDict['parts'] = pNode
+            dataDict['start'] = node.start
+            dataDict['end'] = node.end
+            lparNode = []
+            for n in node.lpar:
+                lparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['leftParenthesis'] = lparNode 
+            rparNode = []
+            for n in node.rpar:
+                rparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
+            dataDict['rightParenthesis'] = rparNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)           
+            mNode.attachChildren([pNode, lparNode, rparNode])
 
 
         mNode.setOldType(type(node).__name__)
@@ -1361,6 +1424,10 @@ class TreeConverter:
             rPNode = []
             rPNode.append(cst.RightParen())
             node = cst.Name(value=mNode.value, lpar=lPNode, rpar=rPNode)
+        # elif(mNode.nodeType == NodeType.PARAMSLASH):
+        #     cNode = self.unconvertNode(dataDict['comma'])
+        #     wASNode = self.unconvertNode(dataDict['whitespaceAfterSlash'])
+        #     node = cst.ParamSlash(comma=cNode, whitespace_after_slash=wASNode)
 
         return node
     
