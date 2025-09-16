@@ -6,10 +6,34 @@ import getpass
 import logging
 import time
 from datetime import datetime
+import difflib
 import yaml
 from miniauth.auth import MiniAuth
 import Mutator.MutationManager as Manager
 from Auth.UserID import UserID
+
+
+def check_unknown_flags(parser, argv):
+    # Parse known args, leave unknown untouched
+    _, unknown = parser.parse_known_args(argv)
+
+    if unknown:
+        # Get the list of valid flags
+        all_flags = [
+            opt
+            for action in parser._actions
+            for opt in action.option_strings
+            if opt.startswith("-")
+        ]
+
+        for arg in unknown:
+            if arg.startswith("-"):  # looks like a flag
+                suggestions = difflib.get_close_matches(arg, all_flags, n=3, cutoff=0.6)
+                sys.stderr.write(f"error: unrecognized argument {arg!r}\n")
+                if suggestions:
+                    sys.stderr.write(f"Did you mean: {', '.join(suggestions)}?\n")
+                parser.print_help()
+                sys.exit(2)    
 
 parser = argparse.ArgumentParser(description='Mutation test code given a code and test source')
 parser.add_argument('-f', '--files', dest='files', type=str, help='The relative file path to the source code directory')
@@ -19,7 +43,6 @@ parser.add_argument('-e', '--error', dest='error', action='store_true', help='Pr
 parser.add_argument('-r', '--report', dest='report', action='store_true', help='Generate mutation report file')
 parser.add_argument('-m', '--modify', dest='modify', action='store_true', help='Attempt to login to change list of mutations')
 parser.add_argument('--timeout', dest='timeout', type=int, default=None, help='Optional global timeout (in seconds) for each file\'s mutation loop. Files can override via config.')
-
 
 def main():
     auth = MiniAuth('users.db') #Here we would fetch a real database to read from
@@ -34,7 +57,10 @@ def main():
     userID = UserID(logger, auth)
     userID.logMessage("Application started")
 
+    check_unknown_flags(parser, sys.argv[1:])
+  
     args = parser.parse_args()
+
     cwd = os.getcwd()
     try:
         with open(cwd + "/config.yaml", 'r', encoding='utf-8') as fd:
@@ -120,8 +146,7 @@ def main():
     manager = Manager.MutationManager()
     logger.info("\nBeginning mutation testing with file directory: %s\nAnd test directory: %s\n", files, tests)
     if (manager.generateMutations(**kwargs)):
-        logger.info("\nCompleted mutation testing with file directory: %s\nAnd test directory: %s\nTerminating application\n", files, tests)
-        
+        logger.info("\nCompleted mutation testing with file directory: %s\nAnd test directory: %s\nTerminating application\n", files, tests)   
     
 if __name__ == '__main__':
     main()
