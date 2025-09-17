@@ -8,6 +8,7 @@ import time
 from datetime import datetime
 import difflib
 import yaml
+from pathlib import Path
 from miniauth.auth import MiniAuth
 import Mutator.MutationManager as Manager
 from Auth.UserID import UserID
@@ -44,6 +45,62 @@ parser.add_argument('-r', '--report', dest='report', action='store_true', help='
 parser.add_argument('-m', '--modify', dest='modify', action='store_true', help='Attempt to login to change list of mutations')
 parser.add_argument('--timeout', dest='timeout', type=int, default=None, help='Optional global timeout (in seconds) for each file\'s mutation loop. Files can override via config.')
 
+def generate_default_config():
+    DEFAULT_CONFIG_TEXT = """\
+# Relative path to source code directory
+# file_source: "File Path Here"
+
+# Relative path to test code directory
+# test_source: "Test Path Here"
+
+# Items to exclude from mutation
+exclusions:
+#   directories:
+  files:
+      - filename: "__init__.py"
+        entire_file: true
+#     - filename: "File Name Here"
+#       entire_file: true/false
+#       methods:
+#         - "Method Name Here"
+#       operators:
+#         - "Operator Here"
+
+# The relative path where the mutation report will be generated
+report_directory: "/MutationReports/"
+
+# The filename of the generated report
+report_filename: "output.txt"
+
+# Encrypted log of mutations added by users
+mutations: "mutations.txt"
+
+# Where operator mutation options are defined
+mutation_map: "mutationMap.txt"
+
+# Can set default timeout in seconds overall, per file, per method, per mutant type, or none with null
+timeouts:
+  default_timeout: null
+#   files:
+#     - Relative File Path Here:
+#         default_timeout: 20
+#         methods:
+#           - makeArray: 0.0000001
+#           - divideMe: 0.01
+#         mutants:
+#           - IF: 0.001
+#           - SUBTRACT: 0
+"""
+    try:
+        cfg_path = Path.cwd() / "config.yaml"
+        cfg_path.write_text(DEFAULT_CONFIG_TEXT, encoding="utf-8")
+        print(f"Wrote fresh commented config to {cfg_path}")
+    except Exception as e:
+        print("Could not create config file, terminating application")
+        print(e)
+        sys.exit(1)
+
+
 def main():
     auth = MiniAuth('users.db') #Here we would fetch a real database to read from
     config_data = None
@@ -67,9 +124,9 @@ def main():
             config_data = yaml.safe_load(fd)
             fd.close()
     except FileNotFoundError:
-        logger.critical("Config file not found, using default\n")
-        print("Config file not found, using default")
-        shutil.copyfile("defaultConfig.yaml", "config.yaml")
+        logger.critical("Config file not found, generating default\n")
+        print("Config file not found, generating default")
+        generate_default_config()
         with open(cwd + "/config.yaml", 'r', encoding='utf-8') as fd:
             config_data = yaml.safe_load(fd)
             fd.close()

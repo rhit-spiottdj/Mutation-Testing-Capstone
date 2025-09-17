@@ -20,15 +20,18 @@ exclusions:
 # The relative path where the mutation report will be generated
 report_directory: "/MutationReports/"
 
+# The filename of the generat
 report_filename: "output.txt"
 
+# Encrypted log of mutations added by users
 mutations: "mutations.txt"
 
+# Where operator mutation options are defined
 mutation_map: "mutationMap.txt"
 
 # Can set default timeout in seconds overall, per file, per method, per mutant type, or none with null
 timeouts:
-  default_timeout: 0
+  default_timeout: null
 #   files:
 #     - Relative File Path Here:
 #         default_timeout: 20
