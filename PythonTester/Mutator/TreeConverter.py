@@ -191,7 +191,9 @@ class TreeConverter:
         self.file = file_path
         self.C = C
         abs_path = os.path.normpath(os.path.join(C, file_path))
-        with open(self.C + self.file, 'r', encoding='utf-8') as fd:
+        # Compute full path to the file using os.path.join to avoid missing separators
+        file_fullpath = os.path.normpath(os.path.join(self.C, self.file))
+        with open(file_fullpath, 'r', encoding='utf-8') as fd:
             self.original_code = fd.read()
         fd.close()
 
@@ -216,7 +218,8 @@ class TreeConverter:
 
     def loadOriginalCode(self):
         # load originalCode
-        with open(self.C + self.file, 'w', encoding='utf-8') as fd:
+        file_fullpath = os.path.normpath(os.path.join(self.C, self.file))
+        with open(file_fullpath, 'w', encoding='utf-8') as fd:
             fd.write(self.original_code)
             fd.flush()
             fd.close()
@@ -226,7 +229,8 @@ class TreeConverter:
         mutatedCode = self.backToCode(mTree)
 
         #load mutation
-        with open(self.C + self.file, 'w', encoding='utf-8') as fd:
+        file_fullpath = os.path.normpath(os.path.join(self.C, self.file))
+        with open(file_fullpath, 'w', encoding='utf-8') as fd:
             fd.write(mutatedCode)
             fd.flush()
             fd.close()

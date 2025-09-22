@@ -215,10 +215,12 @@ class MutationManager:
         module_to_del = module_to_del[:-2].strip('.')
         if module_to_del in sys.modules:
             del sys.modules[module_to_del]
-        
+
         ctx = multiprocessing.get_context("spawn")
         q = ctx.Queue()
-        startupP = ctx.Process(target=self.runMutationTest, args=(q, parent + test_source, suppressOut, suppressErr))
+        # Ensure test_source is joined to project parent path and normalized so unittest can import it
+        test_source_path = os.path.normpath(os.path.join(parent, test_source))
+        startupP = ctx.Process(target=self.runMutationTest, args=(q, test_source_path, suppressOut, suppressErr))
 
         startupP.start()
         startupP.join(timeout)
