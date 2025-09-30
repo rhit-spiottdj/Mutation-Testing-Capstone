@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "mutation-tester": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m", "mutation_mcp_server.serve"],
+      "env": {
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}
