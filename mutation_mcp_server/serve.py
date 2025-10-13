@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess, uuid, json
 from fastmcp import FastMCP   
 import os, sys, shlex, platform, time
+from datetime import datetime
 
 APP_NAME = "mutation-tester"
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,10 +27,10 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
     PYTESTER = ROOT / "PythonTester" / "Main.py"
     RUNS_DIR = ROOT / ".mutant_runs"
 
-    RUNS_DIR.mkdir(exist_ok=True)
-    run_id = str(uuid.uuid4())
-    out = RUNS_DIR / run_id
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    out = RUNS_DIR / f"run_{timestamp}"
     out.mkdir(parents=True, exist_ok=True)
+    run_id = out.name
 
     cmd = [sys.executable, "-u", str(PYTESTER)] + shlex.split(args)
     env = os.environ.copy()
