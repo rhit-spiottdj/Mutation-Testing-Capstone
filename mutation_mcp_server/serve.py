@@ -6,13 +6,97 @@ import subprocess, uuid, json
 from fastmcp import FastMCP   
 import os, sys, shlex, platform, time
 from datetime import datetime
+import html
+import re
 
 APP_NAME = "mutation-tester"
 ROOT = Path(__file__).resolve().parents[1]
 PYTESTER = ROOT / "PythonTester" / "Main.py"
 RUNS_DIR = ROOT / ".mutant_runs"
 
-mcp = FastMCP(APP_NAME)       
+mcp = FastMCP(APP_NAME)   
+
+ANSI_RE = re.compile(r"\x1b\[(?P<codes>[\d;]*)m")
+
+# Map SGR codes to CSS
+COLOR_MAP = {
+    "31": "color:#800000",  # red (ERROR)
+    "32": "color:#008000",  # green (Correct)
+    "33": "color:#B8860B", # yellow (Timeout)
+}
+
+def ansi_to_html_basic(ansi_text: str, out_path: Path) -> bool:
+    """
+    Convert ANSI-colored text to standalone HTML using <pre> with exact newlines.
+    """
+    try:
+        # Normalize line endings
+        s = ansi_text.replace("\r\n", "\n").replace("\r", "\n")
+
+        # Escape HTML so raw text is safe
+        s = html.escape(s)
+
+        # Replace ANSI SGR sequences with <span> and </span>
+        #    We keep at most one open span at a time.
+        out = []
+        open_span = False
+
+        pos = 0
+        for m in ANSI_RE.finditer(s):
+            # write text before this match
+            if m.start() > pos:
+                out.append(s[pos:m.start()])
+
+            codes = [c for c in m.group("codes").split(";") if c] or ["0"]
+
+            # handle only first meaningful code in the group
+            applied_style = None
+            for code in codes:
+                if code == "0":  # reset
+                    if open_span:
+                        out.append("</span>")
+                        open_span = False
+                    applied_style = None
+                    break
+                elif code in COLOR_MAP:
+                    applied_style = COLOR_MAP[code]
+                    # keep scanning in case a later "0" exists in same sequence
+                else:
+                    # ignore other codes (bold, etc) — extend as needed
+                    continue
+
+            if applied_style is not None:
+                # close any previous open span
+                if open_span:
+                    out.append("</span>")
+                    open_span = False
+                out.append(f'<span style="{applied_style}">')
+                open_span = True
+
+            pos = m.end()
+
+        # tail
+        if pos < len(s):
+            out.append(s[pos:])
+
+        if open_span:
+            out.append("</span>")
+
+        # Wrap in a <pre> that preserves newlines/spacing exactly
+        html_doc = (
+            "<!doctype html><meta charset='utf-8'>"
+            "<pre style=\"font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;"
+            "font-size: 12px; line-height: 1.35; white-space: pre; margin: 0\">"
+            + "".join(out) +
+            "</pre>"
+        )
+
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(html_doc, encoding="utf-8")
+        return True
+    except Exception:
+        return False
+
 
 @mcp.tool                       
 def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_seconds: int = 1000) -> dict:
@@ -46,7 +130,7 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
         "timestamp_start": time.time()
     }, indent=2))
 
-    stdout_path = out / "stdout.txt"
+    stdout_html_path = out / "stdout.html"
     stderr_path = out / "stderr.txt"
     summary_path = out / "summary.json"
 
@@ -82,13 +166,13 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
         rc = -1
         stdout, stderr = "", f"[Timed out after {timeout_s}s]\n"
     # writes output to .mutantruns folder with debug info too
-    stdout_path.write_text(stdout or "")
+    ansi_to_html_basic(stdout or "", stdout_html_path)
     stderr_path.write_text(stderr or "")
 
     summary = {
         "run_id": run_id,
         "returncode": rc,
-        "stdout_path": str(stdout_path.resolve()),
+        "stdout_path": str(stdout_html_path.resolve()),
         "stderr_path": str(stderr_path.resolve()),
         "timestamp_end": time.time()
     }
@@ -96,4 +180,5 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
     return summary
 
 if __name__ == "__main__":
-    mcp.run()                   
+    # runs an HTTP MCP server on port 8000 at /mcp/
+    mcp.run(transport="http", host="0.0.0.0", port=8000)           

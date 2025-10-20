@@ -1,12 +1,8 @@
 {
   "servers": {
     "mutation-tester": {
-      "type": "stdio",
-      "command": "python",
-      "args": ["-m", "mutation_mcp_server.serve"],
-      "env": {
-        "PYTHONUNBUFFERED": "1"
-      }
+      "type": "http",
+      "url": "http://localhost:8000/mcp/"
     }
   }
 }
