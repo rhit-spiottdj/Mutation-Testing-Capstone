@@ -8,6 +8,7 @@ import os, sys, shlex, platform, time
 from datetime import datetime
 import html
 import re
+import yaml
 
 APP_NAME = "mutation-tester"
 ROOT = Path(__file__).resolve().parents[1]
@@ -96,6 +97,33 @@ def ansi_to_html_basic(ansi_text: str, out_path: Path) -> bool:
         return True
     except Exception:
         return False
+    
+def update_config_yaml(root: Path, file_source: str, test_source: str):
+    """Update config.yaml with the provided file and test directories."""
+
+    config_path = root / "PythonTester" / "config.yaml"
+
+    try:
+        # Load existing config
+        if config_path.exists():
+            with open(config_path, "r", encoding="utf-8") as f:
+                config = yaml.safe_load(f) or {}
+        else:
+            config = {}
+
+        # Update or create keys
+        config["file_source"] = file_source
+        config["test_source"] = test_source
+
+        # Write it back
+        with open(config_path, "w", encoding="utf-8") as f:
+            yaml.dump(config, f, sort_keys=False)
+
+        print(f"Updated {config_path} with new file/test directories.")
+        return True
+    except Exception as e:
+        print(f"Error updating config.yaml: {e}")
+        return False
 
 
 @mcp.tool                       
@@ -106,10 +134,24 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
         timeout_s = int(float(timeout_seconds))
     except Exception:
         timeout_s = 5
-
+        
     ROOT = Path(__file__).resolve().parents[1]
     PYTESTER = ROOT / "PythonTester" / "Main.py"
     RUNS_DIR = ROOT / ".mutant_runs"
+
+
+    args_list = shlex.split(args)
+    file_dir, test_dir = None, None
+    for i, a in enumerate(args_list):
+        if a in ("-f", "--files") and i + 1 < len(args_list):
+            file_dir = args_list[i + 1]
+        elif a in ("-t", "--tests") and i + 1 < len(args_list):
+            test_dir = args_list[i + 1]
+
+    if file_dir and test_dir:
+        update_config_yaml(ROOT, file_dir, test_dir) 
+
+
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     out = RUNS_DIR / f"run_{timestamp}"
