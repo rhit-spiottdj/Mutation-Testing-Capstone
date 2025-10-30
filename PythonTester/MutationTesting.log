@@ -1,0 +1,210 @@
+2025-10-30 03:32:05 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 03:32:05 UTC - __main__ - CRITICAL - File path: PythonTester\OriginalFiles\Calculator\calculator does not exist
+
+2025-10-30 03:32:20 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 03:32:20 UTC - __main__ - CRITICAL - File path: \PythonTester\OriginalFiles\Calculator\calculator does not exist
+
+2025-10-30 03:32:39 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 03:32:39 UTC - __main__ - CRITICAL - File path: \OriginalFiles\Calculator\calculator does not exist
+
+2025-10-30 03:33:53 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 03:33:53 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: ./OriginalFiles/HelloCode/
+And test directory: ./OriginalFiles/HelloCodeTests/
+
+2025-10-30 03:34:20 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 03:34:39 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 03:34:39 UTC - __main__ - CRITICAL - File path: \OriginalFiles\Calculator\calculator does not exist
+
+2025-10-30 03:34:48 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 03:34:48 UTC - __main__ - CRITICAL - File path: \OriginalFiles\Calculator\calculator\ does not exist
+
+2025-10-30 03:37:25 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 03:37:25 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: ./OriginalFiles/Calculator/calculator/
+And test directory: ./OriginalFiles/Calculator/tests/
+
+2025-10-30 03:52:57 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 03:52:57 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 03:54:00 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 03:54:00 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 03:54:23 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 03:54:23 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 03:55:50 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 03:55:50 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:10:56 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:10:56 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:14:56 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:14:56 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:18:45 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:18:45 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:19:35 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:19:35 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:21:38 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:21:38 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:22:09 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:22:09 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:25:04 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:25:04 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:26:55 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:26:55 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:27:56 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:27:56 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:34:06 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:34:06 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:39:46 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:39:46 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:41:40 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:41:40 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:42:38 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:42:38 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:44:24 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:44:24 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:45:57 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:45:57 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:48:44 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:48:44 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:51:07 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:51:07 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:51:29 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:51:29 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:52:16 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:52:16 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
+2025-10-30 04:52:42 UTC - __main__ - INFO - No current authenticated user, Application started
+
+
+2025-10-30 04:52:42 UTC - __main__ - INFO - 
+Beginning mutation testing with file directory: .\OriginalFiles\Calculator\calculator\
+And test directory: .\OriginalFiles\Calculator\tests\
+
