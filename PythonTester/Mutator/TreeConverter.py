@@ -288,6 +288,7 @@ class TreeConverter:
             bNode = []
             for n in node.body:
                 bNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
+                bNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['body'] = bNode
             hNode = []
             for n in node.header:
@@ -790,6 +791,7 @@ class TreeConverter:
                                   tPNode, wATPNode])
         elif(newType == NodeType.PARAM):
             nNode = self.convertNode(node.name)
+            nNode = self.convertNode(node.name)
             dataDict['name'] = nNode
             if(hasattr(node, 'annotation')):
                 aNode = self.convertNode(node.annotation)
@@ -815,6 +817,7 @@ class TreeConverter:
             wAPNode = self.convertNode(node.whitespace_after_param)
             dataDict['whitespaceAfterParam'] = wAPNode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([nNode, aNode, eNode, dNode, cNode, sNode, wASNode, wAPNode])
             mNode.attachChildren([nNode, aNode, eNode, dNode, cNode, sNode, wASNode, wAPNode])
         elif(newType == NodeType.PARAMSTAR):
             cNode = self.convertNode(node.comma)
@@ -1625,6 +1628,10 @@ class TreeConverter:
             eNode = self.unconvertNode(dataDict['equal'])
             dNode = self.unconvertNode(dataDict['default'])
             cNode = self.unconvertNode(dataDict['comma'])
+            if isinstance(dataDict['star'], str):
+                sNode = dataDict['star']
+            else:
+                sNode = self.unconvertNode(dataDict['star'])
             if isinstance(dataDict['star'], str):
                 sNode = dataDict['star']
             else:
