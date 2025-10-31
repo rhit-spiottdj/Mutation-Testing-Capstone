@@ -2178,7 +2178,7 @@ class TreeConverter:
         elif(mNode.nodeType == NodeType.PARAMSLASH):
             cNode = self.unconvertNode(dataDict['comma'])
             wANode = self.unconvertNode(dataDict['whitespaceAfter'])
-            node = cst.ParamsSlash(comma=cNode, whitespace_after=wANode)
+            node = cst.ParamSlash(comma=cNode, whitespace_after=wANode)
         elif(mNode.nodeType == NodeType.WITHITEM):
             iNode = self.unconvertNode(dataDict['item'])
             if dataDict['asname'] is not None:
