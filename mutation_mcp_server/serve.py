@@ -170,9 +170,7 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
     # stderr_path = out / "stderr.txt"
     # summary_path = out / "summary.json"
 
-    # Launch without shell to avoid Windows hangs; capture output; deny stdin
     popen_kwargs = dict(
-        cmd=cmd,
         cwd=(ROOT / cwd),
         env=env,
         stdin=subprocess.DEVNULL,
@@ -184,9 +182,11 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
     if platform.system() == "Windows":
         popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
     else:
-        popen_kwargs["preexec_fn"] = os.setsid  # new process group for killpg
+        popen_kwargs["preexec_fn"] = os.setsid  # new process group on POSIX
 
-    proc = subprocess.Popen(**popen_kwargs)
+    # Pass cmd as the first positional argument
+    proc = subprocess.Popen(cmd, **popen_kwargs)
+
 
     try:
         stdout, stderr = proc.communicate(timeout=timeout_s)
