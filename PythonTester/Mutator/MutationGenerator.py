@@ -1,6 +1,6 @@
 import os
 import yaml
-from pathlib import Path
+
 # import libcst as cst
 
 from Mutator.TreeMutator import TreeMutator
@@ -94,59 +94,32 @@ class MutationGenerator:
         # global tree, og_tree
         # VERY IMPORTANT STEP!!!!!
         # Establish path to original file
-        self.C = Path(__file__).resolve().parent.parent          # .../PythonTester
-        self.config_path = Path(config).resolve()
-
-        # Normalize file path (absolute)
-        fs_path = Path(fs)
-        if not fs_path.is_absolute():
-            fs_path = (self.C / fs_path).resolve()
-        self.file_path = str(fs_path)
-
-        # Set up converter/tree
-        self.converter = TreeConverter(self.file_path, str(self.C))
+        self.C = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+        
+        self.converter = TreeConverter(fs, self.C)
         self.tree = self.converter.getTree()
 
         self.mutator = TreeMutator()
+        self.config_path = config
+        self.file_path = fs
 
-        # Read map location from config (with sane defaults)
-        with self.config_path.open('r', encoding='utf-8') as fd:
-            cfg = yaml.safe_load(fd) or {}
-        map_location = cfg.get('mutation_map', 'mutationMap.txt')
+        with open(self.config_path, 'r', encoding='utf-8') as fd:
+            mapLocation = yaml.safe_load(fd)['mutation_map']
+            fd.close()
 
-        # Allow env override (useful from MCP / CI)
-        map_override = os.environ.get("MUTATION_MAP")
-        if map_override:
-            map_path = Path(map_override)
-        else:
-            mp = Path(map_location)
-            map_path = mp if mp.is_absolute() else (self.C / mp)
-
-        map_path = map_path.resolve()
-
-        if not map_path.exists():
-            raise FileNotFoundError(
-                f"mutationMap not found at: {map_path}\n"
-                f"Hint: ensure the file exists (case-sensitive on Linux) or set MUTATION_MAP=/abs/path/mutationMap.txt"
-            )
-
-        # Parse mutation map file
-        mutation_map = {}
-        with map_path.open('r', encoding='utf-8') as md:
+        map_path = os.path.normpath(os.path.join(self.C, mapLocation))
+        with open(map_path, 'r', encoding='utf-8') as md:
+            mutation_map = {}
             for line in md:
-                if ':' not in line:
-                    continue
-                key, value = line.strip().split(':', 1)
-                variants = [v.strip() for v in value.strip().split(',') if v.strip()]
-                # Map symbol strings -> NodeType values, store as list
-                try:
-                    k_node = self.symbol_map[str(key.strip())].value
-                    v_nodes = [self.symbol_map[s].value for s in variants]
-                    mutation_map[k_node] = v_nodes
-                except KeyError as e:
-                    raise KeyError(f"Unknown symbol in mutationMap.txt: {e} (line: {line.strip()})")
+                mList = []
+                if ':' in line:
+                    key, value = line.strip().split(':', 1)
+                    vList = value.strip().split(',')
+                    for item in vList:
+                        mList.append(self.symbol_map[str(item.strip())])
+                    mutation_map[self.symbol_map[str(key.strip())].value] = mList
 
-        self.param = mutation_map
+            self.param = mutation_map
             
             # Important to print out the syntax of node tree
             # print("\n", dump(self.tree)) ##Used for understanding utilization of ast methods
