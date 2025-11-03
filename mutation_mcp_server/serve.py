@@ -8,6 +8,7 @@ import os, sys, shlex, platform, time
 from datetime import datetime
 import html
 import re
+import base64, mimetypes
 
 APP_NAME = "mutation-tester"
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,6 +25,41 @@ COLOR_MAP = {
     "32": "color:#008000",  # green (Correct)
     "33": "color:#B8860B", # yellow (Timeout)
 }
+
+def ansi_to_html_str(ansi_text: str) -> str:
+    s = ansi_text.replace("\r\n", "\n").replace("\r", "\n")
+    s = html.escape(s)
+    out, open_span, pos = [], False, 0
+    for m in ANSI_RE.finditer(s):
+        if m.start() > pos:
+            out.append(s[pos:m.start()])
+        codes = [c for c in m.group("codes").split(";") if c] or ["0"]
+        applied = None
+        for code in codes:
+            if code == "0":
+                if open_span:
+                    out.append("</span>")
+                    open_span = False
+                applied = None
+                break
+            elif code in COLOR_MAP:
+                applied = COLOR_MAP[code]
+        if applied is not None:
+            if open_span:
+                out.append("</span>")
+                open_span = False
+            out.append(f'<span style="{applied}">')
+            open_span = True
+        pos = m.end()
+    if pos < len(s): out.append(s[pos:])
+    if open_span: out.append("</span>")
+    return (
+        "<!doctype html><meta charset='utf-8'>"
+        "<pre style=\"font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;"
+        "font-size: 12px; line-height: 1.35; white-space: pre; margin: 0\">"
+        + "".join(out) + "</pre>"
+    )
+
 
 def ansi_to_html_basic(ansi_text: str, out_path: Path) -> bool:
     """
@@ -130,14 +166,13 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
         "timestamp_start": time.time()
     }, indent=2))
 
-    stdout_html_path = out / "stdout.html"
-    stderr_path = out / "stderr.txt"
-    summary_path = out / "summary.json"
+    # stdout_html_path = out / "stdout.html"
+    # stderr_path = out / "stderr.txt"
+    # summary_path = out / "summary.json"
 
     # Launch without shell to avoid Windows hangs; capture output; deny stdin
-    creation = subprocess.CREATE_NEW_PROCESS_GROUP if platform.system() == "Windows" else 0
-    proc = subprocess.Popen(
-        cmd,
+    popen_kwargs = dict(
+        cmd=cmd,
         cwd=(ROOT / cwd),
         env=env,
         stdin=subprocess.DEVNULL,
@@ -145,8 +180,13 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
         stderr=subprocess.PIPE,
         text=True,
         shell=False,
-        creationflags=creation
     )
+    if platform.system() == "Windows":
+        popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+    else:
+        popen_kwargs["preexec_fn"] = os.setsid  # new process group for killpg
+
+    proc = subprocess.Popen(**popen_kwargs)
 
     try:
         stdout, stderr = proc.communicate(timeout=timeout_s)
@@ -166,18 +206,36 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
         rc = -1
         stdout, stderr = "", f"[Timed out after {timeout_s}s]\n"
     # writes output to .mutantruns folder with debug info too
-    ansi_to_html_basic(stdout or "", stdout_html_path)
-    stderr_path.write_text(stderr or "")
+    # ansi_to_html_basic(stdout or "", stdout_html_path)
+    # stderr_path.write_text(stderr or "")
 
-    summary = {
-        "run_id": run_id,
-        "returncode": rc,
-        "stdout_path": str(stdout_html_path.resolve()),
-        "stderr_path": str(stderr_path.resolve()),
-        "timestamp_end": time.time()
-    }
-    summary_path.write_text(json.dumps(summary, indent=2))
-    return summary
+    html_str = ansi_to_html_str(stdout or "")
+    summary_bytes = json.dumps(
+        {"run_id": run_id, "returncode": rc, "args": args, "cwd": cwd, "ended_at": time.time()},
+        indent=2
+    ).encode("utf-8")
+
+    files = [
+        {
+            "type": "file",
+            "name": f"{run_id}_stdout.html",
+            "mime_type": "text/html",
+            "base64_data": base64.b64encode(html_str.encode("utf-8")).decode("ascii"),
+        },
+        {
+            "type": "file",
+            "name": f"{run_id}_stderr.txt",
+            "mime_type": "text/plain",
+            "base64_data": base64.b64encode((stderr or "").encode("utf-8")).decode("ascii"),
+        },
+        {
+            "type": "file",
+            "name": f"{run_id}_summary.json",
+            "mime_type": "application/json",
+            "base64_data": base64.b64encode(summary_bytes).decode("ascii"),
+        },
+    ]
+    return files
 
 if __name__ == "__main__":
     # runs an HTTP MCP server on port 8000 at /mcp/

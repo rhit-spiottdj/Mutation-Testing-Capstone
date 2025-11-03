@@ -1,0 +1,43 @@
+# Relative path to source code directory
+# file_source: "File Path Here"
+
+# Relative path to test code directory
+# test_source: "Test Path Here"
+
+# Items to exclude from mutation
+exclusions:
+#   directories:
+  files:
+      - filename: "__init__.py"
+        entire_file: true
+#     - filename: "File Name Here"
+#       entire_file: true/false
+#       methods:
+#         - "Method Name Here"
+#       operators:
+#         - "Operator Here"
+
+# The relative path where the mutation report will be generated
+report_directory: "/MutationReports/"
+
+# The filename of the generated report
+report_filename: "output.txt"
+
+# Encrypted log of mutations added by users
+mutations: "mutations.txt"
+
+# Where operator mutation options are defined
+mutation_map: "mutationMap.txt"
+
+# Can set default timeout in seconds overall, per file, per method, per mutant type, or none with null
+timeouts:
+  default_timeout: null
+#   files:
+#     - Relative File Path Here:
+#         default_timeout: 20
+#         methods:
+#           - makeArray: 0.0000001
+#           - divideMe: 0.01
+#         mutants:
+#           - IF: 0.001
+#           - SUBTRACT: 0

@@ -1,0 +1,11 @@
+{
+  "cmd": [
+    "C:\\Users\\lrtgi\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+    "-u",
+    "D:\\Rose-Hulman\\Senior Project\\Mutation-Testing-Capstone\\PythonTester\\Main.py"
+  ],
+  "cwd": "D:\\Rose-Hulman\\Senior Project\\Mutation-Testing-Capstone\\PythonTester",
+  "python": "C:\\Users\\lrtgi\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+  "timeout_seconds": 1000,
+  "timestamp_start": 1760949306.3215308
+}
