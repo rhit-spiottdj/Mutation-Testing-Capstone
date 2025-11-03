@@ -143,35 +143,37 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
     except Exception:
         timeout_s = 5
 
-    ROOT = Path(__file__).resolve().parents[1]
-    PYTESTER = ROOT / "PythonTester" / "Main.py"
-    RUNS_DIR = ROOT / ".mutant_runs"
-
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    out = RUNS_DIR / f"run_{timestamp}"
-    out.mkdir(parents=True, exist_ok=True)
-    run_id = out.name
-
-    cmd = [sys.executable, "-u", str(PYTESTER)] + shlex.split(args)
+    # --- paths / env ---
+    repo_root = Path(__file__).resolve().parents[1]
+    pytester = repo_root / "PythonTester" / "Main.py"
+    run_id = f"run_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
     env = os.environ.copy()
     env.setdefault("PYTHONIOENCODING", "utf-8")
     env.setdefault("PYTHONUNBUFFERED", "1")
 
-    # Breadcrumb for debugging
-    (out / "debug.json").write_text(json.dumps({
-        "cmd": cmd,
-        "cwd": str((ROOT / cwd).resolve()),
-        "python": sys.executable,
-        "timeout_seconds": timeout_s,
-        "timestamp_start": time.time()
-    }, indent=2))
+    # ensure CWD exists
+    CWD = (repo_root / cwd).resolve()
+    if not CWD.exists():
+        return {
+            "run_id": run_id,
+            "returncode": -2,
+            "error": f"Working directory does not exist: {CWD}"
+        }
 
-    # stdout_html_path = out / "stdout.html"
-    # stderr_path = out / "stderr.txt"
-    # summary_path = out / "summary.json"
+    # ensure Main.py exists
+    if not pytester.exists():
+        return {
+            "run_id": run_id,
+            "returncode": -2,
+            "error": f"Runner not found: {pytester}"
+        }
 
+    # --- command ---
+    cmd = [sys.executable, "-u", str(pytester)] + shlex.split(args)
+
+    # --- Popen kwargs (Windows: new process group; POSIX: setsid so killpg works) ---
     popen_kwargs = dict(
-        cwd=(ROOT / cwd),
+        cwd=CWD,
         env=env,
         stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
@@ -184,15 +186,12 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
     else:
         popen_kwargs["preexec_fn"] = os.setsid  # new process group on POSIX
 
-    # Pass cmd as the first positional argument
+    # --- run ---
     proc = subprocess.Popen(cmd, **popen_kwargs)
-
-
     try:
         stdout, stderr = proc.communicate(timeout=timeout_s)
         rc = proc.returncode
     except subprocess.TimeoutExpired:
-        # Kill the whole process tree on timeout, windows was causing me issues here
         if platform.system() == "Windows":
             subprocess.run(
                 ["taskkill", "/PID", str(proc.pid), "/T", "/F"],
@@ -203,15 +202,19 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
                 os.killpg(os.getpgid(proc.pid), 9)
             except Exception:
                 proc.kill()
-        rc = -1
-        stdout, stderr = "", f"[Timed out after {timeout_s}s]\n"
-    # writes output to .mutantruns folder with debug info too
-    # ansi_to_html_basic(stdout or "", stdout_html_path)
-    # stderr_path.write_text(stderr or "")
+        rc, stdout, stderr = -1, "", f"[Timed out after {timeout_s}s]\n"
 
+    # --- package outputs as downloadable files (no disk writes) ---
     html_str = ansi_to_html_str(stdout or "")
     summary_bytes = json.dumps(
-        {"run_id": run_id, "returncode": rc, "args": args, "cwd": cwd, "ended_at": time.time()},
+        {
+            "run_id": run_id,
+            "returncode": rc,
+            "args": args,
+            "cwd": str(CWD),
+            "python": sys.executable,
+            "ended_at": time.time()
+        },
         indent=2
     ).encode("utf-8")
 
