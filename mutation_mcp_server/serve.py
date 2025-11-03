@@ -235,7 +235,12 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
             "base64_data": base64.b64encode(summary_bytes).decode("ascii"),
         },
     ]
-    return files
+    return {
+        "run_id": run_id,
+        "returncode": rc,
+        "files": files
+    }
+
 
 if __name__ == "__main__":
     # runs an HTTP MCP server on port 8000 at /mcp/
