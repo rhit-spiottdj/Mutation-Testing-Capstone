@@ -10,11 +10,26 @@ import html
 import re
 import base64, mimetypes
 import yaml
+# --- add these imports near the top with your others ---
+from fastapi import FastAPI
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+
 
 APP_NAME = "mutation-tester"
 ROOT = Path(__file__).resolve().parents[1]
 PYTESTER = ROOT / "PythonTester" / "Main.py"
 RUNS_DIR = ROOT / ".mutant_runs"
+BASE_EXTERNAL_URL = os.environ.get("BASE_EXTERNAL_URL", "http://localhost:8000")
+
+app = FastAPI()
+
+results_dir = ROOT / ".mutant_runs"
+results_dir.mkdir(parents=True, exist_ok=True)
+
+# Mount at /files (to match your existing link) and also /results as an alias
+app.mount("/files", StaticFiles(directory=ROOT), name="files-root")
+app.mount("/results", StaticFiles(directory=results_dir), name="results")
 
 mcp = FastMCP(APP_NAME)   
 
@@ -230,19 +245,16 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
     ansi_to_html_basic(stdout or "", stdout_html_path)
     stderr_path.write_text(stderr or "", encoding="utf-8")
 
+    view_url = f"{BASE_EXTERNAL_URL}/files/.mutant_runs/{run_id}/stdout.html"
+
     summary = {
         "run_id": run_id,
         "returncode": rc,
         "stdout_path": str(stdout_html_path.resolve()),
         "stderr_path": str(stderr_path.resolve()),
-        "timestamp_end": time.time(),
+        "view_url": view_url,
+        "timestamp_end": time.time()
     }
-
-    # --- New: generate a local-view link ---
-    # This assumes the MCP server runs with host=0.0.0.0 and port=8000
-    view_url = f"http://{platform.node()}:8000/files/.mutant_runs/{run_id}/stdout.html"
-
-    summary["view_url"] = view_url
 
     # Save JSON summary file
     (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
