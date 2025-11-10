@@ -190,7 +190,7 @@ app = FastAPI()
 # Serve the entire repo at /files so .mutant_runs is browsable
 app.mount("/files", StaticFiles(directory=str(ROOT), html=False), name="files")
 
-app.mount("/mcp", mcp.sse_app())
+app.mount("/mcp", mcp.http_app())
 
 @app.get("/health")
 def health():
