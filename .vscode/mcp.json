@@ -2,7 +2,7 @@
   "servers": {
     "mutation-tester": {
       "type": "http",
-      "url": "http://mut-capstone.csse.rose-hulman.edu:8000/mcp/"
+      "url": "http://mut-capstone.csse.rose-hulman.edu:8000/"
     }
   }
 }
