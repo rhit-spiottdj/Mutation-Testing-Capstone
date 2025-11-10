@@ -185,10 +185,11 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
     }
 
 # ---------- ASGI app that serves both MCP and static files ----------
-app: FastAPI = mcp.http_app()
+app = FastAPI()
 
 # Serve the entire repo at /files so .mutant_runs is browsable
 app.mount("/files", StaticFiles(directory=str(ROOT), html=False), name="files")
+app.mount("/mcp", mcp.http_app())
 
 @app.get("/health")
 def health():
