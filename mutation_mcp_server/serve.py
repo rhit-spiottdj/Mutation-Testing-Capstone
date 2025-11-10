@@ -190,24 +190,12 @@ app = FastAPI()
 # Serve the entire repo at /files so .mutant_runs is browsable
 app.mount("/files", StaticFiles(directory=str(ROOT), html=False), name="files")
 
-# Mount the MCP server under /mcp (requires fastmcp >= 0.3 providing asgi_app)
-try:
-    asgi_mcp = mcp.asgi_app()
-    app.mount("/mcp", asgi_mcp)
-except AttributeError:
-    # If your fastmcp version lacks asgi_app(), you can still run MCP only by
-    # calling mcp.run(...) in __main__, but then /files won't be available.
-    asgi_mcp = None
+app.mount("/mcp", mcp.asgi_app())
 
 @app.get("/health")
 def health():
     return {"ok": True, "base_external_url": BASE_EXTERNAL_URL}
 
 if __name__ == "__main__":
-    # IMPORTANT: run the unified ASGI app so /files works.
-    # If asgi_mcp is unavailable, fall back to MCP-only (no static files).
-    if asgi_mcp is not None:
-        import uvicorn
-        uvicorn.run(app, host="0.0.0.0", port=8000)
-    else:
-        mcp.run(transport="http", host="0.0.0.0", port=8000)
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
