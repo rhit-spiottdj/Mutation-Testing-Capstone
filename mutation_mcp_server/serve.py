@@ -168,8 +168,7 @@ def update_config_yaml(root: Path, file_source: str, test_source: str):
 
 @mcp.tool
 def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_seconds: int = 1000) -> dict:
-    """Run PythonTester/Main.py; persist HTML on the VM; also return files for Agent Mode to summarize."""
-    # Normalize timeout
+    """Run mutation tests, save HTML on VM, and return a browser-viewable link."""
     try:
         timeout_s = int(float(timeout_seconds))
     except Exception:
@@ -179,7 +178,7 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
     PYTESTER = ROOT / "PythonTester" / "Main.py"
     RUNS_DIR = ROOT / ".mutant_runs"
 
-    # Allow -f/--files and -t/--tests to update config.yaml before the run
+    # Parse args for file/test sources
     args_list = shlex.split(args)
     file_dir, test_dir = None, None
     for i, a in enumerate(args_list):
@@ -200,20 +199,6 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
     env.setdefault("PYTHONIOENCODING", "utf-8")
     env.setdefault("PYTHONUNBUFFERED", "1")
 
-    # Breadcrumb for debugging
-    (out / "debug.json").write_text(json.dumps({
-        "cmd": cmd,
-        "cwd": str((ROOT / cwd).resolve()),
-        "python": sys.executable,
-        "timeout_seconds": timeout_s,
-        "timestamp_start": time.time()
-    }, indent=2), encoding="utf-8")
-
-    stdout_html_path = out / "stdout.html"
-    stderr_path = out / "stderr.txt"
-    summary_path = out / "summary.json"
-
-    # --- Linux-friendly Popen (no Windows creationflags) ---
     popen_kwargs = dict(
         cwd=(ROOT / cwd),
         env=env,
@@ -223,10 +208,7 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
         text=True,
         shell=False,
     )
-    if platform.system() == "Windows":
-        popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
-    else:
-        # POSIX: create a new session so we can kill the process group on timeout
+    if platform.system() != "Windows":
         popen_kwargs["preexec_fn"] = os.setsid
 
     proc = subprocess.Popen(cmd, **popen_kwargs)
@@ -235,10 +217,7 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
         stdout, stderr = proc.communicate(timeout=timeout_s)
         rc = proc.returncode
     except subprocess.TimeoutExpired:
-        if platform.system() == "Windows":
-            subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"],
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        else:
+        if platform.system() != "Windows":
             try:
                 os.killpg(os.getpgid(proc.pid), 9)
             except Exception:
@@ -246,7 +225,8 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
         rc = -1
         stdout, stderr = "", f"[Timed out after {timeout_s}s]\n"
 
-    # --- Keep EXACT same persisted HTML behavior on the VM ---
+    stdout_html_path = out / "stdout.html"
+    stderr_path = out / "stderr.txt"
     ansi_to_html_basic(stdout or "", stdout_html_path)
     stderr_path.write_text(stderr or "", encoding="utf-8")
 
@@ -255,45 +235,31 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
         "returncode": rc,
         "stdout_path": str(stdout_html_path.resolve()),
         "stderr_path": str(stderr_path.resolve()),
-        "timestamp_end": time.time()
-    }
-    summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
-
-    # --- ALSO return Agent-Mode-friendly structured_content (single dict) ---
-    structured_content = {
-        "type": "files",
-        "items": [
-            {
-                "type": "file",
-                "name": f"{run_id}_stdout.html",
-                "mime_type": "text/html",
-                "base64_data": _b64(stdout_html_path),
-            },
-            {
-                "type": "file",
-                "name": f"{run_id}_stderr.txt",
-                "mime_type": "text/plain",
-                "base64_data": _b64(stderr_path),
-            },
-            {
-                "type": "file",
-                "name": f"{run_id}_summary.json",
-                "mime_type": "application/json",
-                "base64_data": base64.b64encode(
-                    json.dumps(summary, indent=2).encode("utf-8")
-                ).decode("ascii"),
-            },
-        ],
+        "timestamp_end": time.time(),
     }
 
-    # Return both: persisted paths (for traceability) + structured content (for summarization)
+    # --- New: generate a local-view link ---
+    # This assumes the MCP server runs with host=0.0.0.0 and port=8000
+    view_url = f"http://{platform.node()}:8000/files/.mutant_runs/{run_id}/stdout.html"
+
+    summary["view_url"] = view_url
+
+    # Save JSON summary file
+    (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
+    # --- Return a structured Agent Mode object with the link visible ---
     return {
         "run_id": run_id,
         "returncode": rc,
         "stdout_path": summary["stdout_path"],
         "stderr_path": summary["stderr_path"],
-        "structured_content": structured_content,
+        "view_url": view_url,
+        "structured_content": {
+            "type": "text",
+            "text": f"Mutation test finished.\n\nOpen results here:\n{view_url}",
+        },
     }
+
 
 
 if __name__ == "__main__":
