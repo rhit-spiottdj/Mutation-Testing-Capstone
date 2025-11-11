@@ -65,13 +65,13 @@ class TreeMutator:
             self.copyData(curNode)
             mutations = mutationMap[curNode.nodeType.value]
             if(self.index < len(mutations)):
-                if(curNode.nodeType == NodeType.IF or curNode.nodeType == NodeType.ELSE):
+                if(curNode.nodeType == NodeType.IF):
                     oldBool = curNode.dataDict['test']
                     newBool = None
                     if(mutations[self.index] == NodeType.TRUE):
-                        newBool = MutationNode(mutations[self.index], oldBool.rowNumber, oldBool.colNumber, {}, value = 'True')
+                        newBool = MutationNode(mutations[self.index], oldBool.rowNumber, oldBool.colNumber, {'lPar': [], 'rPar': []}, value = 'True')
                     elif(mutations[self.index] == NodeType.FALSE):
-                        newBool = MutationNode(mutations[self.index], oldBool.rowNumber, oldBool.colNumber, {}, value = 'False')
+                        newBool = MutationNode(mutations[self.index], oldBool.rowNumber, oldBool.colNumber, {'lPar': [], 'rPar': []}, value = 'False')
                     curNode.dataDict['test'] = newBool
                     curNode.attachOneChild(newBool)
                 elif(curNode.nodeType == NodeType.INTEGER):

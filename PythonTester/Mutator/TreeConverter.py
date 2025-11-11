@@ -25,6 +25,7 @@ class TreeConverter:
         "Modulo" : NodeType.MODULO,
         "ModuloAssign" : NodeType.MODULOASSIGN,
         "BitAnd": NodeType.BITAND,
+        "BitAndAssign" : NodeType.BITANDASSIGN,
         "BitOr" : NodeType.BITOR,
         "Power" : NodeType.POWER,
         "LessThan" : NodeType.LESSTHAN,
@@ -181,6 +182,8 @@ class TreeConverter:
         "BaseElement" : NodeType.BASEELEMENT,
         "BaseDict" : NodeType.BASEDICT,
         "NamedExpr" : NodeType.NAMEDEXPR,
+        "True" : NodeType.TRUE,
+        "False" : NodeType.FALSE,
     }
 
     # parser = Parser(PY_LANGUAGE)
@@ -925,7 +928,7 @@ class TreeConverter:
                 rparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['rightParenthesis'] = rparNode
             wAYNode = self.convertNode(node.whitespace_after_yield)
-            dataDict['whitespaceAfterAwait'] = wAYNode
+            dataDict['whitespaceAfterYield'] = wAYNode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)           
             mNode.attachChildren([valueNode, lparNode, rparNode, wAYNode])
         elif(newType == NodeType.FROM):
@@ -1466,9 +1469,9 @@ class TreeConverter:
             fINode = self.convertNode(node.for_in)
             dataDict['forIn'] = fINode
             lbraNode = self.convertNode(node.lbrace)
-            dataDict['leftBrace'] = lbraNode
+            dataDict['leftCurlyBrace'] = lbraNode
             rbraNode = self.convertNode(node.rbrace)
-            dataDict['rightBrace'] = rbraNode
+            dataDict['rightCurlyBrace'] = rbraNode
             lParNode = []
             for n in node.lpar:
                 lParNode.append(self.convertNode(n))
@@ -1580,9 +1583,9 @@ class TreeConverter:
             fINode = self.convertNode(node.for_in)
             dataDict['forIn'] = fINode
             lbraNode = self.convertNode(node.lbrace)
-            dataDict['leftBrace'] = lbraNode
+            dataDict['leftCurlyBrace'] = lbraNode
             rbraNode = self.convertNode(node.rbrace)
-            dataDict['rightBrace'] = rbraNode
+            dataDict['rightCurlyBrace'] = rbraNode
             lParNode = []
             for n in node.lpar:
                 lParNode.append(self.convertNode(n))
@@ -2147,10 +2150,16 @@ class TreeConverter:
             node = cst.Else(body=bNode, leading_lines=lLNode, whitespace_before_colon=wBCNode)
         elif(mNode.nodeType == NodeType.TRUE or mNode.nodeType == NodeType.FALSE):
             lPNode = []
-            lPNode.append(cst.LeftParen())
+            if 'leftParenthesis' in dataDict:
+                for n in dataDict['leftParenthesis']:
+                    lPNode.append(self.unconvertNode(n))
+            
             rPNode = []
-            rPNode.append(cst.RightParen())
-            node = cst.Name(value=mNode.value, lpar=lPNode, rpar=rPNode)
+            if 'rightParenthesis' in dataDict:
+                for n in dataDict['rightParenthesis']:
+                    rPNode.append(self.unconvertNode(n))
+            value = mNode.value if mNode.value is not None else ('True' if mNode.nodeType == NodeType.TRUE else 'False')
+            node = cst.Name(value=value, lpar=lPNode, rpar=rPNode)
         elif(mNode.nodeType == NodeType.ATTRIBUTE):
             vNode = self.unconvertNode(dataDict['value'])
             dNode = self.unconvertNode(dataDict['dot'])
@@ -2247,8 +2256,8 @@ class TreeConverter:
             pNode = []
             for n in dataDict['parts']:
                 pNode.append(self.unconvertNode(n))
-            start = mNode.start
-            end = mNode.end
+            start = dataDict['start']
+            end = dataDict['end']
             lParNode = []
             for n in dataDict['leftParenthesis']:
                 lParNode.append(self.unconvertNode(n))
@@ -2694,8 +2703,8 @@ class TreeConverter:
             rParNode = []
             for n in dataDict['rightParenthesis']:
                 rParNode.append(self.unconvertNode(n))
-            wBWNode = self.unconvertNode(dataDict['whitespace_before_walrus'])
-            wAWNode = self.unconvertNode(dataDict['whitespace_after_walrus'])
+            wBWNode = self.unconvertNode(dataDict['whitespaceBeforeWalrus'])
+            wAWNode = self.unconvertNode(dataDict['whitespaceAfterWalrus'])
             node = cst.NamedExpr(target=tNode, value=vNode, lpar=lParNode, rpar=rParNode, whitespace_before_walrus=wBWNode, whitespace_after_walrus=wAWNode)
         else:
             raise ValueError(f"Unknown node type to unconvert: {mNode.nodeType}")
