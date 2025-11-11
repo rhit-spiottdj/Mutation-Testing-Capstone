@@ -123,7 +123,7 @@ class TreeConverter:
         "Global" : NodeType.GLOBAL,
         "Import" : NodeType.IMPORT,
         "ImportFrom" : NodeType.IMPORTFROM,
-        "NonLocal" : NodeType.NONLOCAL,
+        "Nonlocal" : NodeType.NONLOCAL,
         "Pass" : NodeType.PASS,
         "Raise" : NodeType.RAISE,
         "Try" : NodeType.TRY,
@@ -146,6 +146,7 @@ class TreeConverter:
         "In" : NodeType.IN, #Done
         "IsNot" : NodeType.ISNOT, #Done
         "NotIn" : NodeType.NOTIN, #Done
+        "BitOrAssign" : NodeType.BITORASSIGN,
         "BitXorAssign" : NodeType.BITXORASSIGN, #Done
         "FloorDivideAssign" : NodeType.FLOORDIVIDEASSIGN, #Done
         "LeftShiftAssign" : NodeType.LEFTSHIFTASSIGN, #Done
@@ -179,6 +180,7 @@ class TreeConverter:
         "BaseSet" : NodeType.BASESET,
         "BaseElement" : NodeType.BASEELEMENT,
         "BaseDict" : NodeType.BASEDICT,
+        "NamedExpr" : NodeType.NAMEDEXPR,
     }
 
     # parser = Parser(PY_LANGUAGE)
@@ -202,6 +204,9 @@ class TreeConverter:
 
     def getTree(self):
         wrapper = cst.MetadataWrapper(cst.parse_module(self.original_code))
+        with open('./text.txt', 'w', encoding='utf-8') as fd:
+            fd.write(str(wrapper))
+        fd.close()
         self.metadata = wrapper.resolve(PositionProvider)
         module_with_metadata = wrapper.module
         mTree = self.makeMTree(module_with_metadata) # Convert to our tree
@@ -287,7 +292,6 @@ class TreeConverter:
         elif(newType == NodeType.MODULE):
             bNode = []
             for n in node.body:
-                bNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
                 bNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
             dataDict['body'] = bNode
             hNode = []
@@ -650,12 +654,14 @@ class TreeConverter:
         elif(newType == NodeType.AUGASSIGN):    
             tNode = self.convertNode(node.target)
             dataDict['target'] = tNode
+            oNode = self.convertNode(node.operator)
+            dataDict['operator'] = oNode
             vNode = self.convertNode(node.value)
             dataDict['value'] = vNode
             sNode = self.convertNode(node.semicolon) # could be a MaybeSentinel, need to handle
             dataDict['semicolon'] = sNode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
-            mNode.attachChildren([tNode, vNode, sNode])
+            mNode.attachChildren([tNode, oNode, vNode, sNode])
         elif(newType == NodeType.UNARYOPERATION):
             opNode = self.convertNode(node.operator)
             dataDict['operator'] = opNode
@@ -953,10 +959,10 @@ class TreeConverter:
         elif(newType == NodeType.PARAMSLASH):
             cNode = self.convertNode(node.comma)
             dataDict['comma'] = cNode
-            wAYNode = self.convertNode(node.whitespace_after_yield)
-            dataDict['whitespaceAfterAwait'] = wAYNode
+            wANode = self.convertNode(node.whitespace_after)
+            dataDict['whitespaceAfter'] = wANode
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)           
-            mNode.attachChildren([cNode, wAYNode])
+            mNode.attachChildren([cNode, wANode])
         elif(newType == NodeType.CONCATENATEDSTRING):
             lNode = self.convertNode(node.left)
             dataDict['left'] = lNode
@@ -1212,17 +1218,16 @@ class TreeConverter:
             vNode = self.convertNode(node.value)
             dataDict['value'] = vNode
             if(node.star is not None):
-                sNode = self.convertNode(node.star)
+                star = node.star
             else:
-                sNode = None
-            dataDict['star'] = sNode
+                star = None
             if(node.whitespace_after_star is not None):
                 wASNode = self.convertNode(node.whitespace_after_star)
             else:
                 wASNode = None
             dataDict['whitespaceAfterStar'] = wASNode
-            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
-            mNode.attachChildren([vNode, sNode, wASNode])
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict, value=star)
+            mNode.attachChildren([vNode, wASNode])
         elif(newType == NodeType.SLICE):
             if(node):
                 lNode = self.convertNode(node.lower)
@@ -1240,12 +1245,12 @@ class TreeConverter:
                 sNode = None
             dataDict['step'] = sNode
             c1Node = self.convertNode(node.first_colon)
-            dataDict['colon1'] = c1Node
+            dataDict['firstColon'] = c1Node
             if(node.second_colon is not None):
                 c2Node = self.convertNode(node.second_colon)
             else:
                 c2Node = None
-            dataDict['colon2'] = c2Node
+            dataDict['secondColon'] = c2Node
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
             mNode.attachChildren([lNode, uNode, sNode, c1Node, c2Node])
         elif(newType == NodeType.PASS):
@@ -1342,7 +1347,7 @@ class TreeConverter:
             eNode = self.convertNode(node.elt)
             dataDict['elt'] = eNode
             fINode = self.convertNode(node.for_in)
-            dataDict['for_in'] = fINode
+            dataDict['forIn'] = fINode
             lParNode = []
             for n in node.lpar:
                 lParNode.append(self.convertNode(n))
@@ -1366,7 +1371,7 @@ class TreeConverter:
                 iFINode = self.convertNode(node.inner_for_in)
             else:
                 iFINode = None
-            dataDict['inner_for_in'] = iFINode
+            dataDict['innerForIn'] = iFINode
             if(node.asynchronous is not None):
                 aNode = self.convertNode(node.asynchronous)
             else:
@@ -1405,9 +1410,9 @@ class TreeConverter:
                 eNodes.append(self.convertNode(n))
             dataDict['elements'] = eNodes
             lbrNode = self.convertNode(node.lbrace)
-            dataDict['leftBrace'] = lbrNode
+            dataDict['leftCurlyBrace'] = lbrNode
             rbrNode = self.convertNode(node.rbrace)
-            dataDict['rightBrace'] = rbrNode
+            dataDict['rightCurlyBrace'] = rbrNode
             lparNode = []
             for n in node.lpar:
                 lparNode.append(self.convertNode(n)) # do a loop of the contents as it is a sequence of LibCST stuff
@@ -1440,7 +1445,7 @@ class TreeConverter:
             eNode = self.convertNode(node.elt)
             dataDict['elt'] = eNode
             fINode = self.convertNode(node.for_in)
-            dataDict['for_in'] = fINode
+            dataDict['forIn'] = fINode
             lbraNode = self.convertNode(node.lbracket)
             dataDict['leftBracket'] = lbraNode
             rbraNode = self.convertNode(node.rbracket)
@@ -1459,7 +1464,7 @@ class TreeConverter:
             eNode = self.convertNode(node.elt)
             dataDict['elt'] = eNode
             fINode = self.convertNode(node.for_in)
-            dataDict['for_in'] = fINode
+            dataDict['forIn'] = fINode
             lbraNode = self.convertNode(node.lbrace)
             dataDict['leftBrace'] = lbraNode
             rbraNode = self.convertNode(node.rbrace)
@@ -1573,7 +1578,7 @@ class TreeConverter:
             vNode = self.convertNode(node.value)
             dataDict['value'] = vNode
             fINode = self.convertNode(node.for_in)
-            dataDict['for_in'] = fINode
+            dataDict['forIn'] = fINode
             lbraNode = self.convertNode(node.lbrace)
             dataDict['leftBrace'] = lbraNode
             rbraNode = self.convertNode(node.rbrace)
@@ -1593,6 +1598,63 @@ class TreeConverter:
             mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
             mNode.attachChildren([kNode, vNode, fINode, lbraNode, rbraNode,
                                   lParNode, rParNode, wBCNode, wACNode])
+        elif(newType == NodeType.NAMEDEXPR):
+            tNode = self.convertNode(node.target)
+            dataDict['target'] = tNode
+            vNode = self.convertNode(node.value)
+            dataDict['value'] = vNode
+            lParNode = []
+            for n in node.lpar:
+                lParNode.append(self.convertNode(n))
+            dataDict['leftParenthesis'] = lParNode
+            rParNode = []
+            for n in node.rpar:
+                rParNode.append(self.convertNode(n))
+            dataDict['rightParenthesis'] = rParNode
+            wBWNode = self.convertNode(node.whitespace_before_walrus)
+            dataDict['whitespaceBeforeWalrus'] = wBWNode
+            wAWNode = self.convertNode(node.whitespace_after_walrus)
+            dataDict['whitespaceAfterWalrus'] = wAWNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([tNode, vNode, lParNode, rParNode, wBWNode, wAWNode])
+        elif(newType == NodeType.SIMPLESTATEMENTSUITE):
+            bNode = []
+            for n in node.body:
+                bNode.append(self.convertNode(n))
+            dataDict['body'] = bNode
+            lWNode = self.convertNode(node.leading_whitespace)
+            dataDict['leadingWhitespace'] = lWNode
+            tWNode = self.convertNode(node.trailing_whitespace)
+            dataDict['trailingWhitespace'] = tWNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([bNode, lWNode, tWNode])
+        elif(newType == NodeType.NONLOCAL):
+            nNode = []
+            for n in node.names:
+                nNode.append(self.convertNode(n))
+            dataDict['names'] = nNode
+            wANNode = self.convertNode(node.whitespace_after_nonlocal)
+            dataDict['whitespaceAfterNonlocal'] = wANNode
+            sCnode = self.convertNode(node.semicolon)
+            dataDict['semicolon'] = sCNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([nNode, wANNode, sCNode])
+        elif(newType == NodeType.NAMEITEM):
+            nNode = self.convertNode(node.name)
+            dataDict['name'] = nNode
+            cNode = self.convertNode(node.comma)
+            dataDict['comma'] = cNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([nNode, cNode])
+        elif(newType == NodeType.STARREDDICTELEMENT):
+            vNode = self.convertNode(node.value)
+            dataDict['value'] = vNode
+            cNode = self.convertNode(node.comma)
+            dataDict['comma'] = cNode
+            wBVNode = self.convertNode(node.whitespace_before_value)
+            dataDict['whitespaceBeforeValue'] = wBVNode
+            mNode = MutationNode(newType, rowNumber, colNumber, dataDict)
+            mNode.attachChildren([vNode, cNode, wBVNode])
         else:
             raise ValueError(f"Unknown node type to convert: {type(node).__name__}")
 
@@ -2353,7 +2415,9 @@ class TreeConverter:
             node = cst.CompIf(test=tNode, whitespace_before=wBNode, whitespace_before_test=wBTNode)
         elif(mNode.nodeType == NodeType.SUBSCRIPT):
             vNode = self.unconvertNode(dataDict['value'])
-            sNode = self.unconvertNode(dataDict['slice'])
+            sNode = []
+            for n in dataDict['slice']:
+                sNode.append(self.unconvertNode(n))
             lBNode = self.unconvertNode(dataDict['leftBracket'])
             rBNode = self.unconvertNode(dataDict['rightBracket'])
             lParNode = []
@@ -2366,8 +2430,8 @@ class TreeConverter:
             node = cst.Subscript(value=vNode, slice=sNode, lbracket=lBNode, rbracket=rBNode, lpar=lParNode, rpar=rParNode, whitespace_after_value=wAVNode)
         elif(mNode.nodeType == NodeType.INDEX):
             vNode = self.unconvertNode(dataDict['value'])
-            if mNode.star is not None:
-                star = mNode.star
+            if mNode.value is not None:
+                star = mNode.value
             else:
                 star = None
             wASNode = self.unconvertNode(dataDict['whitespaceAfterStar'])
@@ -2618,9 +2682,21 @@ class TreeConverter:
             eLNode = []
             for n in dataDict['emptyLines']:
                 eLNode.append(self.unconvertNode(n))
-            indent = mNode.indent
+            indent = mNode.value
             lLNode = self.unconvertNode(dataDict['lastLine'])
             node = cst.ParenthesizedWhitespace(first_line=fLNode, empty_lines=eLNode, indent=indent, last_line=lLNode)
+        elif(mNode.nodeType == NodeType.NAMEDEXPR):
+            tNode = self.unconvertNode(dataDict['target'])
+            vNode = self.unconvertNode(dataDict['value'])
+            lParNode = []
+            for n in dataDict['leftParenthesis']:
+                lParNode.append(self.unconvertNode(n))
+            rParNode = []
+            for n in dataDict['rightParenthesis']:
+                rParNode.append(self.unconvertNode(n))
+            wBWNode = self.unconvertNode(dataDict['whitespace_before_walrus'])
+            wAWNode = self.unconvertNode(dataDict['whitespace_after_walrus'])
+            node = cst.NamedExpr(target=tNode, value=vNode, lpar=lParNode, rpar=rParNode, whitespace_before_walrus=wBWNode, whitespace_after_walrus=wAWNode)
         else:
             raise ValueError(f"Unknown node type to unconvert: {mNode.nodeType}")
 

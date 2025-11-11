@@ -169,7 +169,7 @@ class NodeType(Enum):
     DOT = 165
     IMPORTSTAR = 166
     PARENTHESIZEDWHITESPACE = 167
-
+    NAMEDEXPR = 168
 
 NodeType = Enum('NodeType', [('ADD', 1), ('ADDASSIGN', 2), ('SUBTRACT', 3), ('SUBTRACTASSIGN', 4), ('MULTIPLY', 5), ('MULTIPLYASSIGN', 6), 
                             ('DIVIDE', 7), ('DIVIDEASSIGN', 8), ('MODULO', 9), ('MODULOASSIGN', 10),  ('BITAND', 11), ('BITOR', 12), ('POWER', 13), 
@@ -199,4 +199,4 @@ NodeType = Enum('NodeType', [('ADD', 1), ('ADDASSIGN', 2), ('SUBTRACT', 3), ('SU
                             ('BITXOR', 148), ('FLOORDIVIDE', 149), ('LEFTSHIFT', 150), ('MATRIXMULTIPLY', 151), ('RIGHTSHIFT', 152), ('BASEBINARYOP', 153), 
                             ('IN', 154), ('ISNOT', 155), ('NOTIN', 156), ('BASECOMPOP', 157), ('BITXORASSIGN', 158), ('FLOORDIVIDEASSIGN', 159), 
                             ('LEFTSHIFTASSIGN', 160), ('MATRIXMULTIPLYASSIGN', 161), ('POWERASSIGN', 162), ('RIGHTSHIFTASSIGN', 163), ('COLON', 164), 
-                            ('DOT', 165), ('IMPORTSTAR', 166), ('PARENTHESIZEDWHITESPACE', 167)])
+                            ('DOT', 165), ('IMPORTSTAR', 166), ('PARENTHESIZEDWHITESPACE', 167), ('NAMEDEXPR', 168)])
