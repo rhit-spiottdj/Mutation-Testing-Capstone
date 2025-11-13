@@ -1,5 +1,5 @@
 # mutation_mcp_server/serve.py
-# pip install fastmcp fastapi uvicorn pyyaml
+# pip install fastmcp uvicorn fastapi
 
 from pathlib import Path
 import subprocess, json
@@ -8,46 +8,69 @@ import os, sys, shlex, platform, time
 from datetime import datetime
 import html
 import re
-import base64
 import yaml
-
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-import socket
+from fastapi.staticfiles import StaticFiles  # works with Starlette/FastAPI under the hood
 
 APP_NAME = "mutation-tester"
+
 ROOT = Path(__file__).resolve().parents[1]
 PYTESTER = ROOT / "PythonTester" / "Main.py"
 RUNS_DIR = ROOT / ".mutant_runs"
 
-# Public URL used for links returned to clients (set this in the VM env)
-# e.g. export BASE_EXTERNAL_URL="http://mut-capstone.csse.rose-hulman.edu:8000"
-BASE_EXTERNAL_URL = os.environ.get("BASE_EXTERNAL_URL", f"http://{socket.getfqdn()}:8000")
+# This will be the base used in the link we return to Agent Mode
+# On the VM, set this env var:
+#   export BASE_EXTERNAL_URL="http://mut-capstone.csse.rose-hulman.edu:8000"
+BASE_EXTERNAL_URL = os.environ.get("BASE_EXTERNAL_URL", "http://localhost:8000")
 
 mcp = FastMCP(APP_NAME)
 
+# Let FastMCP build the HTTP MCP app (this exposes /mcp correctly)
+app = mcp.http_app()
+
+# Make sure the runs directory exists
+RUNS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Serve files from the project root so that
+#   http://<host>:8000/files/.mutant_runs/<run_id>/stdout.html
+# can be opened in a browser.
+app.mount("/files", StaticFiles(directory=ROOT), name="files-root")
+
 ANSI_RE = re.compile(r"\x1b\[(?P<codes>[\d;]*)m")
+
+# Map SGR codes to CSS
 COLOR_MAP = {
     "31": "color:#800000",  # red (ERROR)
     "32": "color:#008000",  # green (Correct)
     "33": "color:#B8860B",  # yellow (Timeout)
 }
 
+
 def ansi_to_html_basic(ansi_text: str, out_path: Path) -> bool:
+    """
+    Convert ANSI-colored text to standalone HTML using <pre> with exact newlines.
+    """
     try:
+        # Normalize line endings
         s = ansi_text.replace("\r\n", "\n").replace("\r", "\n")
+
+        # Escape HTML so raw text is safe
         s = html.escape(s)
 
+        # Replace ANSI SGR sequences with <span> and </span>
         out = []
         open_span = False
         pos = 0
+
         for m in ANSI_RE.finditer(s):
+            # write text before this match
             if m.start() > pos:
                 out.append(s[pos:m.start()])
+
             codes = [c for c in m.group("codes").split(";") if c] or ["0"]
+
             applied_style = None
             for code in codes:
-                if code == "0":
+                if code == "0":  # reset
                     if open_span:
                         out.append("</span>")
                         open_span = False
@@ -55,15 +78,22 @@ def ansi_to_html_basic(ansi_text: str, out_path: Path) -> bool:
                     break
                 elif code in COLOR_MAP:
                     applied_style = COLOR_MAP[code]
+                else:
+                    continue
+
             if applied_style is not None:
                 if open_span:
                     out.append("</span>")
                     open_span = False
                 out.append(f'<span style="{applied_style}">')
                 open_span = True
+
             pos = m.end()
+
+        # tail
         if pos < len(s):
             out.append(s[pos:])
+
         if open_span:
             out.append("</span>")
 
@@ -74,39 +104,54 @@ def ansi_to_html_basic(ansi_text: str, out_path: Path) -> bool:
             + "".join(out) +
             "</pre>"
         )
+
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(html_doc, encoding="utf-8")
         return True
     except Exception:
         return False
 
+
 def update_config_yaml(root: Path, file_source: str, test_source: str) -> bool:
+    """Update config.yaml with the provided file and test directories."""
     config_path = root / "PythonTester" / "config.yaml"
+
     try:
         if config_path.exists():
             with open(config_path, "r", encoding="utf-8") as f:
                 config = yaml.safe_load(f) or {}
         else:
             config = {}
+
         config["file_source"] = file_source
         config["test_source"] = test_source
+
         with open(config_path, "w", encoding="utf-8") as f:
             yaml.dump(config, f, sort_keys=False)
+
         print(f"Updated {config_path} with new file/test directories.")
         return True
     except Exception as e:
         print(f"Error updating config.yaml: {e}")
         return False
 
+
 @mcp.tool
 def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_seconds: int = 1000) -> dict:
-    """Run mutation tests, save HTML on VM, and return a browser-viewable link."""
+    """
+    Run PythonTester/Main.py with raw CLI args; save HTML on the VM and return a browser-viewable link.
+    """
+    # Normalize timeout
     try:
         timeout_s = int(float(timeout_seconds))
     except Exception:
         timeout_s = 5
 
-    # Parse optional -f/--files and -t/--tests and persist to config.yaml
+    ROOT = Path(__file__).resolve().parents[1]
+    PYTESTER = ROOT / "PythonTester" / "Main.py"
+    RUNS_DIR = ROOT / ".mutant_runs"
+
+    # Parse args for -f / -t so we can keep config.yaml in sync
     args_list = shlex.split(args)
     file_dir, test_dir = None, None
     for i, a in enumerate(args_list):
@@ -114,6 +159,7 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
             file_dir = args_list[i + 1]
         elif a in ("-t", "--tests") and i + 1 < len(args_list):
             test_dir = args_list[i + 1]
+
     if file_dir and test_dir:
         update_config_yaml(ROOT, file_dir, test_dir)
 
@@ -122,7 +168,7 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
     out.mkdir(parents=True, exist_ok=True)
     run_id = out.name
 
-    cmd = [sys.executable, "-u", str(PYTESTER)] + args_list
+    cmd = [sys.executable, "-u", str(PYTESTER)] + shlex.split(args)
     env = os.environ.copy()
     env.setdefault("PYTHONIOENCODING", "utf-8")
     env.setdefault("PYTHONUNBUFFERED", "1")
@@ -137,9 +183,11 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
         shell=False,
     )
     if platform.system() != "Windows":
+        # ensure we can kill the whole group on timeout
         popen_kwargs["preexec_fn"] = os.setsid
 
     proc = subprocess.Popen(cmd, **popen_kwargs)
+
     try:
         stdout, stderr = proc.communicate(timeout=timeout_s)
         rc = proc.returncode
@@ -154,11 +202,12 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
 
     stdout_html_path = out / "stdout.html"
     stderr_path = out / "stderr.txt"
+
     ansi_to_html_basic(stdout or "", stdout_html_path)
     stderr_path.write_text(stderr or "", encoding="utf-8")
 
+    # This is the link you can click in a browser
     view_url = f"{BASE_EXTERNAL_URL}/files/.mutant_runs/{run_id}/stdout.html"
-    stderr_url = f"{BASE_EXTERNAL_URL}/files/.mutant_runs/{run_id}/stderr.txt"
 
     summary = {
         "run_id": run_id,
@@ -166,12 +215,12 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
         "stdout_path": str(stdout_html_path.resolve()),
         "stderr_path": str(stderr_path.resolve()),
         "view_url": view_url,
-        "stderr_url": stderr_url,
         "timestamp_end": time.time(),
     }
+
     (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
-    # Return structured content so Agent Mode can show the link
+    # Agent Mode can show this text, and the link will be clickable in the UI
     return {
         "run_id": run_id,
         "returncode": rc,
@@ -180,21 +229,7 @@ def run_mutation_tests(args: str = "", cwd: str = "PythonTester", timeout_second
         "view_url": view_url,
         "structured_content": {
             "type": "text",
-            "text": f"Mutation test finished (rc={rc}).\nOpen results:\n{view_url}",
+            "text": f"Mutation test finished.\n\nOpen results here:\n{view_url}",
         },
     }
 
-# ---------- ASGI app that serves both MCP and static files ----------
-app = FastAPI()
-
-# Serve the entire repo at /files so .mutant_runs is browsable
-app.mount("/files", StaticFiles(directory=str(ROOT), html=False), name="files")
-app.mount("/mcp", mcp.http_app())
-
-@app.get("/health")
-def health():
-    return {"ok": True, "base_external_url": BASE_EXTERNAL_URL}
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
