@@ -207,7 +207,8 @@ class TreeConverter:
 
     def getTree(self):
         wrapper = cst.MetadataWrapper(cst.parse_module(self.original_code))
-        with open('./text.txt', 'w', encoding='utf-8') as fd:
+        file_name = f'./{self.file}.txt'
+        with open(file_name, 'w', encoding='utf-8') as fd:
             fd.write(str(wrapper))
         fd.close()
         self.metadata = wrapper.resolve(PositionProvider)
